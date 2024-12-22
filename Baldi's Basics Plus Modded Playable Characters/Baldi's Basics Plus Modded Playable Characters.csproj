@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>BBPPlayables_Modded</AssemblyName>
+    <Description>Adds playable characters to Baldi's Basics Plus, while being exclusive to other mods.</Description>
+    <Version>1.0.0</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+    <Configurations>Debug;Release;DEMO</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Core" Version="5.*" />
+    <PackageReference Include="UnityEngine.Modules" Version="2020.3.38" IncludeAssets="compile" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Baldi's Basics Plus Core Playable Characters\Baldi's Basics Plus Core Playable Characters.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Baldi's Basics Plus\BALDI_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="BBTimes">
+      <HintPath>..\BBTimes.dll</HintPath>
+    </Reference>
+    <Reference Include="BCarnellChars">
+      <HintPath>..\BCarnellChars.dll</HintPath>
+    </Reference>
+    <Reference Include="MTM101BaldAPI">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Baldi's Basics Plus\BepInEx\plugins\MTM101BaldAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="TestVariants">
+      <HintPath>..\TestVariants.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="echo F|xcopy /Y &quot;$(ProjectDir)bin\$(Configuration)\netstandard2.0\$(AssemblyName).dll&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\Baldi's Basics Plus\BepInEx\plugins\$(SolutionName)\$(AssemblyName).dll&quot;" />
+		<Exec Command="echo F|xcopy /Y &quot;$(ProjectDir)bin\$(Configuration)\netstandard2.0\$(AssemblyName).pdb&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\Baldi's Basics Plus\BepInEx\plugins\$(SolutionName)\$(AssemblyName).pdb&quot;" />
+	</Target>
+</Project>

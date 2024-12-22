@@ -1,0 +1,31 @@
+{"items":[
+
+{"key":"The Default","value":"The Default"},
+{"key":"Desc_Default","value":"The actual student that you are playing.\n* Is a cylnder\n* But it's probably not a cylinder in-game"},
+{"key":"The Predicted Fanon","value":"The Predicted Fanon"},
+{"key":"Desc_Predicted","value":"That other student that everyone believes that this is the actual model...\n* Has stats from Classic\n* <size=60%>Not suitable for Plus because of intended \"Classic Remastered\" gameplay...</size>"},
+{"key":"The Predicted Fanon [Times]","value":"The Predicted Fanon [Times]"},
+{"key":"Desc_PredictedBBT","value":"The student that replaced Default in Baldi's Basics Times\n* Stats are the same as Default \n* But slots are the same as Predicted Fanon"},
+{"key":"CYLN_LOON","value":"CYLN_LOON"},
+{"key":"Desc_LOON","value":"Corrupted data, but it's still playable for some reason...\n\nAbility: Glitched Objects\nAllows the player to throw random objects towards their enemies."},
+{"key":"The Partygoer","value":"The Partygoer"},
+{"key":"Desc_Partygoer","value":"Loves spreading party cheer!\nHowever, the school thinks you're disrupting the entire class...\n\nAbility is undecided"},
+{"key":"The Troublemaker","value":"The Troublemaker"},
+{"key":"Desc_Troublemaker","value":"He's likely not like It's a Bully, but he can cause alot of mischief!\n\nP. Ability is undecided"},
+{"key":"The Thinker","value":"The Thinker"},
+{"key":"Desc_Thinker","value":"This intelligent robot thinks way further into math, sadly the math machines only contains basic math.<size=60%>\n\nP. Ability: Intelligent Math Thinking\nGives the player the directions to the correct math machine answer by just looking at the machine itself for a few seconds.\n\nP. Ability: The Think Power\nYou'll gain 50 YTPs on the start of the gameplay, YTPs will slowly decrease during spoop mode, reaching to zero will result an unexpected vision change."},
+{"key":"The Backpacker","value":"The Backpacker"},
+{"key":"Desc_Backpacker","value":"This student carries so much items where all of the weight decided to slow him down!\n\nP. Ability: Heavypacker\nAdds 8 more slots, which equals 16 slots in total! But carrying too much items would result slowing down your hiking."},
+{"key":"The Tinkerneer","value":"The Tinkerneer"},
+{"key":"Desc_Tinkerneer","value":"The inventor of inventions, she builds new inventions with her trusty wrench!\n\nAbility: Engineering\nAllows the player to construct some obstacles, but make sure that you have those tinkerneering items with you!"},
+{"key":"The Test Subject","value":"The Test Subject"},
+{"key":"Desc_TestSubject","value":"This creature wants to pass the test! But can you help him pass the test?\n\nP. Ability: Passing Grade\nAllows the player to not get blinded by The Test and Math Machines gives out extra YTPs! On the other hand, getting a math machine wrong will increase the NPC timescale."},
+{"key":"The Speedrunner","value":"The Speedrunner"},
+{"key":"Desc_Speedrunner","value":"He just wants to beat Hide and Seek for fun, Principal of the Thing considers this as \"running in the halls\" due to him breaking one of the school rules!"},
+
+{"key":"Itm_TinkerneerWrench","value":"Tinkerneering Wrench"},
+{"key":"Desc_TinkerneerWrench","value":"Tinkerneering Wrench\nThis wrench is the pathway to creating new inventions,\nalthough you'll need some education to use this!"},
+{"key":"Sfx_TinkerneerConstruct","value":"*Construction*"},
+{"key":"Itm_BackpackerBackpack","value":"Backpack"},
+{"key":"Desc_BackpackerBackpack","value":"Backpack\nAllows you to carry more items up to double your max item slots!\nBut the more items you'll carry, the more weight you're putting yourself into!"}
+]}

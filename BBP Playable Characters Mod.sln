@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Baldi's Basics Plus Core Playable Characters", "Baldi's Basics Plus Core Playable Characters\Baldi's Basics Plus Core Playable Characters.csproj", "{A1FA1B1E-92AE-4A07-995C-087025F42D4D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Baldi's Basics Plus Modded Playable Characters", "Baldi's Basics Plus Modded Playable Characters\Baldi's Basics Plus Modded Playable Characters.csproj", "{21C21717-ADF1-4F56-A5D5-A717AB26ABFF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayableCharacters Foxo Insanity", "PlayableCharacters Foxo Insanity\PlayableCharacters Foxo Insanity.csproj", "{72D15744-FFB5-449F-BACC-512E1041D6AB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		DEMO|Any CPU = DEMO|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A1FA1B1E-92AE-4A07-995C-087025F42D4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1FA1B1E-92AE-4A07-995C-087025F42D4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1FA1B1E-92AE-4A07-995C-087025F42D4D}.DEMO|Any CPU.ActiveCfg = DEMO|Any CPU
+		{A1FA1B1E-92AE-4A07-995C-087025F42D4D}.DEMO|Any CPU.Build.0 = DEMO|Any CPU
+		{A1FA1B1E-92AE-4A07-995C-087025F42D4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1FA1B1E-92AE-4A07-995C-087025F42D4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21C21717-ADF1-4F56-A5D5-A717AB26ABFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21C21717-ADF1-4F56-A5D5-A717AB26ABFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21C21717-ADF1-4F56-A5D5-A717AB26ABFF}.DEMO|Any CPU.ActiveCfg = DEMO|Any CPU
+		{21C21717-ADF1-4F56-A5D5-A717AB26ABFF}.DEMO|Any CPU.Build.0 = DEMO|Any CPU
+		{21C21717-ADF1-4F56-A5D5-A717AB26ABFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21C21717-ADF1-4F56-A5D5-A717AB26ABFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72D15744-FFB5-449F-BACC-512E1041D6AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72D15744-FFB5-449F-BACC-512E1041D6AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72D15744-FFB5-449F-BACC-512E1041D6AB}.DEMO|Any CPU.ActiveCfg = Debug|Any CPU
+		{72D15744-FFB5-449F-BACC-512E1041D6AB}.DEMO|Any CPU.Build.0 = Debug|Any CPU
+		{72D15744-FFB5-449F-BACC-512E1041D6AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72D15744-FFB5-449F-BACC-512E1041D6AB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D0800BB1-AC6E-417F-A090-466825E08465}
+	EndGlobalSection
+EndGlobal
