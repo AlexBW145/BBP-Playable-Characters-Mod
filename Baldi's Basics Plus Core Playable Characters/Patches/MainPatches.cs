@@ -292,6 +292,8 @@ namespace BBP_Playables.Core.Patches
                     tv.anchorMin = new Vector2(0.5f, 1);
                     tv.anchorMax = new Vector2(0.5f, 1);
                     tv.pivot = new Vector2(0.5f, 1);
+                    var skew = tv.Find("TMPSkewParent");
+                    skew.localPosition = new(4.32f, skew.localPosition.y, skew.localPosition.z);
                     tv.anchoredPosition = Vector2.zero;
                     break;
             }

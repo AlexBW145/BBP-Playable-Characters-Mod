@@ -495,6 +495,7 @@ namespace BBP_Playables.Core
                 .SetStats(s: 1, w: 34f, r: 52f, sd: 30f, sr: 10f, sm: 200f)
                 .SetFlags(PlayableFlags.Abilitiless)
                 .Build();
+            extraSave = new(_default);
             yield return "Creating select screen";
             /*GameObject screen = Instantiate(FindObjectsOfType<GameObject>(true).ToList().Find(x => x.name == "PickChallenge"));
             screen.ConvertToPrefab(false);
@@ -538,9 +539,11 @@ namespace BBP_Playables.Core
                     catch
                     {
                         extrasave = new PlayableCharsExtraSave();
-                        extrasave.selectedChar = new(_default);
+                        extrasave.selectedChar = _default.name;
+                        extrasave.charGUID = _default.info.Metadata.GUID;
                     }
-                    extraSave = new(extrasave.selectedChar.LocateObject() ?? _default);
+                    PlayableCharacter[] array = playablesMetaStorage.FindAll(x => x.value.name == extrasave.selectedChar && x.value.info.Metadata.GUID == extrasave.charGUID).ToValues();
+                    extraSave = new(array.Length != 0 ? array.Last() : _default);
                 }
                 if (isSave)
                 {
@@ -568,7 +571,8 @@ namespace BBP_Playables.Core
                     }
                     File.WriteAllText(Path.Combine(path, "unlockedChars.dat"), RijndaelEncryption.Encrypt(JsonUtility.ToJson(filedata), "PLAYABLECHARS_" + PlayerFileManager.Instance.fileName));
                     extrasave = new PlayableCharsExtraSave();
-                    extrasave.selectedChar = new(extraSave.Item1 ?? PlayableCharsGame.Character);
+                    extrasave.selectedChar = extraSave.Item1.name;
+                    extrasave.charGUID = extraSave.Item1.info.Metadata.GUID;
                     File.WriteAllText(Path.Combine(path, "extraPlayablesSaveData.dat"), RijndaelEncryption.Encrypt(JsonUtility.ToJson(extrasave), "PLAYABLECHARS_" + PlayerFileManager.Instance.fileName));
                 }
                 else if (File.Exists(Path.Combine(path, "unlockedChars.dat")))
@@ -937,7 +941,7 @@ namespace BBP_Playables.Core
     [Serializable]
     internal class PlayableCharsExtraSave
     {
-        public PlayableCharacterIdentifier selectedChar;
+        public string selectedChar, charGUID;
     }
 
     internal class PlayableCharsGame : ModdedSaveGameIOBinary
@@ -984,6 +988,20 @@ namespace BBP_Playables.Core
             if (!isFromSavedGame)
                 CharacterSelector.Instance?.SetValues();
         }
+
+        /*public override string DisplayTags(string[] tags)
+        {
+            string with = "";
+            if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.playablecharacters.modded"))
+            {
+                with = " w/ ";
+                if (Chainloader.PluginInfos.ContainsKey("pixelguy.pixelmodding.baldiplus.bbextracontent"))
+                    with += "Baldi's Basics Times" + (Chainloader.PluginInfos.ContainsKey("pixelguy.pixelmodding.baldiplus.bbextracontent") ? " & " : "");
+                if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
+                    with += "B. Carnell's Plus Pack";
+            }
+            return "Standard Mode" + with;
+        }*/
     }
 
     [Serializable]
