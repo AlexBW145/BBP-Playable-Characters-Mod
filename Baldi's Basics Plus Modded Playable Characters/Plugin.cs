@@ -117,13 +117,13 @@ namespace BBP_Playables.Modded
                 Material wholeWhiteMat = new Material(Shader.Find("GUI/Text Shader"));
                 wholeWhiteMat.name = "MapWhiteMat";
                 PlayableCharsPlugin.assetMan.Add<Material>("DwellerMapMat", wholeWhiteMat);
-                new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+                new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("The Main Protagonist", "Desc_Protagonist")
                 .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Placeholder"))
                 .SetStats(s: 5, w: 18, r: 28) // Original Stats: 14, 18
                 .SetTags("BCPP")
                 .Build();
-                new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+                new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("The Dweller", "Desc_Dweller")
                 .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Placeholder"))
                 .SetStats(s: 6, w: 26, r: 26, sm: 0f) // Original Stats: 14, 18
@@ -151,7 +151,7 @@ namespace BBP_Playables.Modded
                     .SetSprites(PlayableCharsPlugin.assetMan.Get<Sprite>("Items/MagicalStudentWand_Small"), PlayableCharsPlugin.assetMan.Get<Sprite>("Items/MagicalStudentWand_Large"))
                     .SetMeta(ItemFlags.MultipleUse | ItemFlags.CreatesEntity | ItemFlags.Persists, ["CharacterItemImportant"])
                     .Build());
-                new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+                new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("Magical Student", "Desc_Magical")
                 .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/MagicalStudent"))
                 .SetStats(s: 4, w: 16, r: 16, sm: 0f)

@@ -437,7 +437,7 @@ namespace BBP_Playables.Core
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/FanonBBT"))
                 .SetStats(s: 3)
                 .Build();
-            var glitched = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+            var glitched = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, unlockedCylnLoon)
                 .SetNameAndDesc("CYLN_LOON", "Desc_LOON")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Cylnloon"))
                 .SetStats(s: 2, w: 24f, r: 48f, sd: 25f, sr: 15, sm: 200f)
@@ -445,13 +445,13 @@ namespace BBP_Playables.Core
                 .SeparatePrefab()
                 .Build();
             glitched.prefab.gameObject.GetComponent<CapsuleCollider>().radius = 1f;
-            var partyman = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info) // Todo: Ability overhaul
+            var partyman = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false) // Todo: Ability overhaul
                 .SetNameAndDesc("The Partygoer", "Desc_Partygoer") // SCRAPPED IDEA: Party Bash\nBy finding the necessary items to host, you can host a party any room! But can alert Baldi after doing so...
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Partygoer"))
                 .SetStats(s: 6, w: 19f, r: 26f, sd: 90f, sr: 15f)
                 .SetStartingItems(ItemMetaStorage.Instance.FindByEnum(Items.Quarter).value)
                 .Build();
-            var bullyman = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+            var bullyman = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("The Troublemaker", "Desc_Troublemaker") //Schemes of Naught\nIncreases the detention timer, allows the player to get past through Its a Bully with no items at all, and BSODA duration is increased.
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Placeholder"))
                 .SetStats(s: 3, w: 10f, r: 20f, sm: 110f)
@@ -459,13 +459,13 @@ namespace BBP_Playables.Core
                 .SeparatePrefab()
                 .Build();
             bullyman.prefab.gameObject.GetComponent<CapsuleCollider>().radius = 2.85f;
-            var thinker = new PlayableCharacterBuilder<ThinkerAbility>(Info)
+            var thinker = new PlayableCharacterBuilder<ThinkerAbility>(Info, false)
                 .SetNameAndDesc("The Thinker", "Desc_Thinker")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Thinker"))
                 .SetStats(s: 3, w: 25f, r: 25f, sm: 0f)
                 .SetFlags(PlayableFlags.None)
                 .Build();
-            var backpacker = new PlayableCharacterBuilder<BackpackerBackpack>(Info)
+            var backpacker = new PlayableCharacterBuilder<BackpackerBackpack>(Info, false)
                 .SetNameAndDesc("The Backpacker", "Desc_Backpacker")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Placeholder"))
                 .SetStats(s: 9, w: 19f, r: 31f, sd: 5f, sr: 15f, sm: 50f)
@@ -474,14 +474,14 @@ namespace BBP_Playables.Core
                 .SeparatePrefab()
                 .Build();
             backpacker.prefab.gameObject.GetComponent<CapsuleCollider>().radius = 2.5f;
-            var tails = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+            var tails = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("The Tinkerneer", "Desc_Tinkerneer")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Placeholder"))
                 .SetStats(s: 6, w: 18f, r: 28f, sd: 18f, sr: 28f)
                 .SetFlags(PlayableFlags.None)
                 .SetStartingItems(assetMan.Get<ItemObject>("TinkerneerWrench"))
                 .Build();
-            var thetestjr = new PlayableCharacterBuilder<TestSubjectMan>(Info)
+            var thetestjr = new PlayableCharacterBuilder<TestSubjectMan>(Info, false)
                 .SetNameAndDesc("The Test Subject", "Desc_TestSubject")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/TestSubject"))
                 .SetStats(w: 40f, r: 30f, sm: 0f)
@@ -489,7 +489,7 @@ namespace BBP_Playables.Core
                 .SeparatePrefab()
                 .Build();
             thetestjr.prefab.gameObject.GetComponent<CapsuleCollider>().radius = 1.5f;
-            var shitass = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+            var shitass = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("The Speedrunner", "Desc_Speedrunner")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Placeholder"))
                 .SetStats(s: 1, w: 34f, r: 52f, sd: 30f, sr: 10f, sm: 200f)
@@ -663,6 +663,11 @@ namespace BBP_Playables.Core
             ITM_TinkerneerWrench.TinkerneerObjectsPre.Add(thing.name, thing);
         }
 
+        /// <summary>
+        /// Gets the metadata from the playable character
+        /// </summary>
+        /// <param name="me">The playable character scriptable object</param>
+        /// <returns>The metadata from the playable character</returns>
         public static PlayableCharacterMetaData GetMeta(this PlayableCharacter me) => PlayableCharsPlugin.playablesMetaStorage.Get(me);
     }
 
@@ -844,6 +849,10 @@ namespace BBP_Playables.Core
             return this;
         }
 
+        /// <summary>
+        /// Separates the PlayerManager prefab by duplicating the prefab itself. Useful for adjusting player hitboxes.
+        /// </summary>
+        /// <returns></returns>
         public PlayableCharacterBuilder<T> SeparatePrefab()
         {
             prefabSeparate = true;
@@ -869,6 +878,16 @@ namespace BBP_Playables.Core
             return this;
         }
 
+        /// <summary>
+        /// Sets the stats for the playable character
+        /// </summary>
+        /// <param name="w">Walk speed</param>
+        /// <param name="r">Run speed</param>
+        /// <param name="sd">Amount of stamina depletion</param>
+        /// <param name="sr">Amount of stamina regeneration</param>
+        /// <param name="sm">Max amounts of stamina</param>
+        /// <param name="s">Number of item slots</param>
+        /// <returns></returns>
         public PlayableCharacterBuilder<T> SetStats(float w = 16f, float r = 24f, float sd = 10f, float sr = 20f, float sm = 100f, int s = 5)
         {
             walkSpeed = w;
