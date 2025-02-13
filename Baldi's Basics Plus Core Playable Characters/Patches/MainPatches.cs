@@ -4,12 +4,15 @@ using MTM101BaldAPI;
 using MTM101BaldAPI.Reflection;
 using MTM101BaldAPI.Registers;
 using MTM101BaldAPI.SaveSystem;
+using MTM101BaldAPI.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.TextCore;
 using UnityEngine.UI;
 
 namespace BBP_Playables.Core.Patches
@@ -20,13 +23,13 @@ namespace BBP_Playables.Core.Patches
         static void Postfix(ref GameObject ___seedInput)
         {
             PlayableCharsPlugin.gameStarted = false;
-            if (!PlayableCharsPlugin.characters.Find(x => x.name == "The Partygoer").unlocked && PlayerFileManager.Instance.clearedLevels[2])
-                PlayableCharsPlugin.characters.Find(x => x.name == "The Partygoer").unlocked = true;
-            if (!PlayableCharsPlugin.characters.Find(x => x.name == "The Thinker").unlocked && PlayableCharsPlugin.characters.FindAll(x => x.unlocked && x.info == PlayableCharsPlugin.Instance.Info && (!x.flags.HasFlag(PlayableFlags.UnlockedFromStart) || x.name.ToLower().Replace(" ", "") == "cyln_loon")).Count >= 4)
+            if (!PlayableCharacterMetaStorage.Instance.Find(x => x.value.name == "The Partygoer").value.unlocked && PlayerFileManager.Instance.clearedLevels[2])
+                PlayableCharsPlugin.UnlockCharacter(PlayableCharsPlugin.Instance.Info, "The Partygoer");
+            if (!PlayableCharacterMetaStorage.Instance.Find(x => x.value.name == "The Thinker").value.unlocked && PlayableCharacterMetaStorage.Instance.FindAll(x => x.value.unlocked && x.info == PlayableCharsPlugin.Instance.Info && (!x.flags.HasFlag(PlayableFlags.UnlockedFromStart) || x.value.name.ToLower().Replace(" ", "") == "cyln_loon")).ToValues().Count() >= 4)
                 PlayableCharsPlugin.UnlockCharacter(PlayableCharsPlugin.Instance.Info, "The Thinker");
-            if (!PlayableCharsPlugin.characters.Find(x => x.name == "The Backpacker").unlocked && // FIND ALL except those item points and the map...
-                PlayerFileManager.Instance.foundItems.ToList().FindAll(x => x == true).Count >= 17 && PlayerFileManager.Instance.foundChars.ToList().FindAll(x => x == true).Count >= 12 && PlayerFileManager.Instance.foundEvnts.ToList().FindAll(x => x == true).Count >= 6
-                && PlayableCharsPlugin.characters.Find(x => x.name == "The Thinker").unlocked) // Also Thinker must be unlocked
+            if (!PlayableCharacterMetaStorage.Instance.Find(x => x.value.name == "The Backpacker").value.unlocked // FIND ALL except those item points and the map...
+                //&& PlayerFileManager.Instance.foundItems.ToList().FindAll(x => x == true).Count >= 17
+                && PlayableCharacterMetaStorage.Instance.Find(x => x.value.name == "The Thinker").value.unlocked)
                 PlayableCharsPlugin.UnlockCharacter(PlayableCharsPlugin.Instance.Info, "The Backpacker");
             if (!ModdedFileManager.Instance.saveData.saveAvailable)
             {
@@ -36,12 +39,43 @@ namespace BBP_Playables.Core.Patches
                 for (int i = 0; i < PlayableCharsGame.backpackerBackup.Length; i++)
                     PlayableCharsGame.backpackerBackup[i] = ItemMetaStorage.Instance.FindByEnum(Items.None).value;
             }
-            Debug.Log(PlayerFileManager.Instance.foundItems.ToList().FindAll(x => x == true).Count + "\n" + PlayerFileManager.Instance.foundChars.ToList().FindAll(x => x == true).Count + "\n" + PlayerFileManager.Instance.foundEvnts.ToList().FindAll(x => x == true).Count);
+            //Debug.Log(PlayerFileManager.Instance.foundItems.ToList().FindAll(x => x == true).Count + "\n" + PlayerFileManager.Instance.foundChars.ToList().FindAll(x => x == true).Count + "\n" + PlayerFileManager.Instance.foundEvnts.ToList().FindAll(x => x == true).Count);
             /*if (___seedInput != null && ___seedInput?.transform.parent.Find("MainNew") != null) {
                 ___seedInput.transform.parent.Find("MainNew").GetComponent<StandardMenuButton>().transitionOnPress = true;
                 ___seedInput.transform.parent.Find("MainNew").GetComponent<StandardMenuButton>().transitionType = UiTransition.SwipeRight;
                 ___seedInput.transform.parent.Find("MainNew").GetComponent<StandardMenuButton>().transitionTime = 1.0666667f;
             }*/
+
+            var thething = new GameObject("Portrait", typeof(Image), typeof(CharacterSelector)).GetComponent<Image>();
+            CharacterSelector.Instance.portrait = thething;
+            var text = GameObject.Instantiate(___seedInput.transform.parent.Find("PlayStyle").GetComponentInChildren<TextMeshProUGUI>(), thething.transform, false);
+            text.rectTransform.anchoredPosition = Vector2.up * 80f;
+            text.font = BaldiFonts.ComicSans18.FontAsset();
+            text.fontSize = BaldiFonts.ComicSans18.FontSize();
+            text.autoSizeTextContainer = true;
+            GameObject.Destroy(text.GetComponent<TextLocalizer>());
+            CharacterSelector.Instance.text = text;
+            thething.sprite = PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Fanon");
+            thething.transform.SetParent(___seedInput.transform.parent, false);
+            thething.rectTransform.anchorMin = new Vector2(1, 0);
+            thething.rectTransform.anchorMax = new Vector2(1, 0);
+            thething.rectTransform.pivot = new Vector2(1, 0);
+            thething.rectTransform.anchoredPosition = new Vector2(-110f, 10f);
+            var leftbutton = GameObject.Instantiate(___seedInput.transform.parent.Find("PlayStyle").GetChild(0), thething.transform, false);
+            leftbutton.transform.localScale = Vector3.one;
+            leftbutton.GetComponent<RectTransform>().anchoredPosition = Vector2.left * 50;
+            var but = leftbutton.GetComponent<StandardMenuButton>();
+            but.OnPress = new UnityEngine.Events.UnityEvent();
+            but.OnPress.AddListener(() => CharacterSelector.Instance.ButtonPress(false));
+            but.OnHighlight = new UnityEngine.Events.UnityEvent();
+            var rightbutton = GameObject.Instantiate(___seedInput.transform.parent.Find("PlayStyle").GetChild(1), thething.transform, false);
+            rightbutton.transform.localScale = Vector3.one;
+            rightbutton.GetComponent<RectTransform>().anchoredPosition = Vector2.right * 50;
+            but = rightbutton.GetComponent<StandardMenuButton>();
+            but.OnPress = new UnityEngine.Events.UnityEvent();
+            but.OnPress.AddListener(() => CharacterSelector.Instance.ButtonPress(true));
+            but.OnHighlight = new UnityEngine.Events.UnityEvent();
+            thething.transform.SetSiblingIndex(thething.transform.GetSiblingIndex() - 1);
         }
     }
 
@@ -55,10 +89,11 @@ namespace BBP_Playables.Core.Patches
             PlayableCharsGame.backpackerBackup = new ItemObject[9];
             for (int i = 0; i < PlayableCharsGame.backpackerBackup.Length; i++)
                 PlayableCharsGame.backpackerBackup[i] = ItemMetaStorage.Instance.FindByEnum(Items.None).value;
+            PlayableCharsPlugin.UnlockCharacter(PlayableCharsPlugin.Instance.Info, "The Partygoer");
         }
     }
 
-    [HarmonyPatch(typeof(StandardMenuButton))]
+    /*[HarmonyPatch(typeof(StandardMenuButton))]
     class MenuButtonPatches
     {
         [HarmonyPatch(nameof(StandardMenuButton.Press)), HarmonyPrefix]
@@ -68,7 +103,7 @@ namespace BBP_Playables.Core.Patches
             {
                 if (__instance.OnPress.m_PersistentCalls.GetListeners().ToList().Exists(x => x.target.name.ToLower() == "pickfieldtrip"))
                 {
-                    PlayableCharsGame.Character = PlayableCharsPlugin.characters.First();
+                    PlayableCharsGame.Character = PlayableCharacterMetaStorage.Instance.All().ToValues().First();
                     SceneManager.LoadSceneAsync("Game");
                     return;
                 }
@@ -77,7 +112,7 @@ namespace BBP_Playables.Core.Patches
                 __instance.transitionTime = 1.0666667f;
             }
         }
-    }
+    }*/
 
     [HarmonyPatch(typeof(BaseGameManager), "LoadNextLevel")]
     class CertainUnlocks
@@ -136,7 +171,7 @@ namespace BBP_Playables.Core.Patches
         }
     }
 
-    [HarmonyPatch]
+    /*[HarmonyPatch]
     class CharSelectScreenAdds
     {
         [HarmonyPatch(typeof(ElevatorScreen), "Initialize"), HarmonyPostfix]
@@ -156,14 +191,21 @@ namespace BBP_Playables.Core.Patches
             return !((PlayableCharsPlugin.Instance.Character == null && !ModdedFileManager.Instance.saveData.saveAvailable)
                 || (!Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.endlessfloors") && !CoreGameManager.Instance.SaveEnabled && CoreGameManager.Instance.GetPlayer(0) == null));
         }
-    }
+    }*/
 
     [HarmonyPatch]
     class PlayerPatches
     {
+        [HarmonyPatch(typeof(CoreGameManager), nameof(CoreGameManager.SpawnPlayers)), HarmonyPrefix, HarmonyPriority(Priority.High)]
+        static void ReplacePrefabs(CoreGameManager __instance)
+        {
+            // Nothing good to do, this will possibly have multiplayer issues.
+            __instance.playerPref = PlayableCharsPlugin.Instance.Character.prefab;
+        }
         [HarmonyPatch(typeof(PlayerManager), "Start"), HarmonyPrefix, HarmonyPriority(Priority.High)]
         static void PatchEmStats(PlayerManager __instance)
         {
+            //__instance.gameObject.AddComponent<PlrPlayableCharacterVars>();
             __instance.plm.walkSpeed = PlayableCharsPlugin.Instance.Character.walkSpeed;
             __instance.plm.runSpeed = PlayableCharsPlugin.Instance.Character.runSpeed;
             __instance.plm.staminaDrop = PlayableCharsPlugin.Instance.Character.staminaDrop;
@@ -172,6 +214,7 @@ namespace BBP_Playables.Core.Patches
             if (PlayableCharsPlugin.Instance.Character.staminaMax <= 0f)
                 CoreGameManager.Instance.GetHud(__instance.playerNumber).transform.Find("Staminometer").gameObject.SetActive(false);
             __instance.plm.stamina = __instance.plm.staminaMax;
+            __instance.gameObject.AddComponent(PlayableCharsPlugin.Instance.Character.componentType);
             bool endless = false;
 #if !DEMO
             if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.endlessfloors"))
@@ -194,12 +237,12 @@ namespace BBP_Playables.Core.Patches
                 case "thethinker":
                     if (CoreGameManager.Instance.GetPoints(0) <= 0)
                         CoreGameManager.Instance.AddPoints(Mathf.Abs(CoreGameManager.Instance.GetPoints(0)) + 50, 0, false);
-                    CoreGameManager.Instance.GetPlayer(0).gameObject.AddComponent<ThinkerAbility>();
+                    //CoreGameManager.Instance.GetPlayer(0).gameObject.AddComponent<ThinkerAbility>();
                     break;
                 case "thebackpacker":
-                    if (__instance.gameObject.GetComponent<BackpackerBackpack>() == null) {
+                    /*if (__instance.gameObject.GetComponent<BackpackerBackpack>() == null) {
                         __instance.gameObject.AddComponent<BackpackerBackpack>();
-                    }
+                    }*/
                     __instance.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("BackpackClosed"), __instance.itm.maxItem);
                     __instance.itm.LockSlot(__instance.itm.maxItem, true);
                     if ((bool)CoreGameManager.Instance.ReflectionGetVariable("restoreItemsOnSpawn") || PlayableCharsPlugin.gameStarted)

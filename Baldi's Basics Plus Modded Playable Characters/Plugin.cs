@@ -117,29 +117,22 @@ namespace BBP_Playables.Modded
                 Material wholeWhiteMat = new Material(Shader.Find("GUI/Text Shader"));
                 wholeWhiteMat.name = "MapWhiteMat";
                 PlayableCharsPlugin.assetMan.Add<Material>("DwellerMapMat", wholeWhiteMat);
-                PlayableCharsPlugin.characters.AddRange([
-                new PlayableCharacter(Info, "The Main Protagonist",
-                    "Desc_Protagonist",
-                    PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Placeholder"), PlayableFlags.Abilitiless)
-                {
-                    slots = 5,
-                    // Original Stats: 14, 18
-                    walkSpeed = 18,
-                    runSpeed = 28,
-                },
-                new PlayableCharacter(Info, "The Dweller",
-                    "Desc_Dweller",
-                    PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Placeholder"), PlayableFlags.None)
-                {
-                    slots = 6,
-                    walkSpeed = 26,
-                    runSpeed = 26,
-                    staminaMax = 0f,
-                }]);
+                new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+                .SetNameAndDesc("The Main Protagonist", "Desc_Protagonist")
+                .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Placeholder"))
+                .SetStats(s: 5, w: 18, r: 28) // Original Stats: 14, 18
+                .SetTags("BCPP")
+                .Build();
+                new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+                .SetNameAndDesc("The Dweller", "Desc_Dweller")
+                .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Placeholder"))
+                .SetStats(s: 6, w: 26, r: 26, sm: 0f) // Original Stats: 14, 18
+                .SetFlags(PlayableFlags.None)
+                .Build();
             }
             if (Chainloader.PluginInfos.ContainsKey("pixelguy.pixelmodding.baldiplus.bbextracontent"))
             {
-                PlayableCharsPlugin.characters.Find(x => x.name == "The Partygoer").startingItems = [ItemMetaStorage.Instance.FindByEnum(EnumExtensions.GetFromExtendedName<Items>("Present")).value];
+                PlayableCharacterMetaStorage.Instance.Find(x => x.value.name == "The Partygoer").value.startingItems = [ItemMetaStorage.Instance.FindByEnum(EnumExtensions.GetFromExtendedName<Items>("Present")).value];
                 GameObject magic = Instantiate(ItemMetaStorage.Instance.FindByEnum(Items.Bsoda).value.item.gameObject);
                 magic.name = "MagicObjectPlayer";
                 Destroy(magic.GetComponent<ITM_BSODA>());
@@ -158,16 +151,12 @@ namespace BBP_Playables.Modded
                     .SetSprites(PlayableCharsPlugin.assetMan.Get<Sprite>("Items/MagicalStudentWand_Small"), PlayableCharsPlugin.assetMan.Get<Sprite>("Items/MagicalStudentWand_Large"))
                     .SetMeta(ItemFlags.MultipleUse | ItemFlags.CreatesEntity | ItemFlags.Persists, ["CharacterItemImportant"])
                     .Build());
-                PlayableCharsPlugin.characters.Add(new PlayableCharacter(Info, "Magical Student",
-                    "Desc_Magical",
-                    PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/MagicalStudent"), PlayableFlags.ContainsStartingItem | PlayableFlags.Abilitiless)
-                {
-                    slots = 4,
-                    walkSpeed = 16,
-                    runSpeed = 16,
-                    staminaMax = 0,
-                    startingItems = [PlayableCharsPlugin.assetMan.Get<ItemObject>("MagicalWandTimesCharacter")]
-                });
+                new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+                .SetNameAndDesc("Magical Student", "Desc_Magical")
+                .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/MagicalStudent"))
+                .SetStats(s: 4, w: 16, r: 16, sm: 0f)
+                .SetStartingItems(PlayableCharsPlugin.assetMan.Get<ItemObject>("MagicalWandTimesCharacter"))
+                .Build();
             }
 
             GeneratorManagement.Register(this, GenerationModType.Addend, (name, num, ld) =>
@@ -188,6 +177,6 @@ namespace BBP_Playables.Modded
     {
         public const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters.modded";
         public const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Modded)";
-        public const string PLUGIN_VERSION = "0.8"; // UPDATE EVERY TIME!!
+        public const string PLUGIN_VERSION = "0.10"; // UPDATE EVERY TIME!!
     }
 }

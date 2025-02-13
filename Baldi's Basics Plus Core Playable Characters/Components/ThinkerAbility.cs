@@ -14,7 +14,7 @@ namespace BBP_Playables.Core
 {
     // Looker code wtf
     [RequireComponent(typeof(PlayerManager), typeof(PlayerClick), typeof(PlayerEntity))]
-    public class ThinkerAbility : MonoBehaviour
+    public class ThinkerAbility : PlayableCharacterComponent
     {
         private Fog ThinkerBlind = new Fog()
         {
@@ -24,7 +24,6 @@ namespace BBP_Playables.Core
             strength = 0.5f,
             priority = 16,
         };
-        private PlayerManager pm;
         private Camera cam;
         private Ray ray;
         private RaycastHit[] hits = new RaycastHit[32];
@@ -33,9 +32,9 @@ namespace BBP_Playables.Core
         private bool mathMachineVisible = false;
         private float timeLooking = 0f;
 
-        void Start()
+        protected override void Start()
         {
-            pm = gameObject.GetComponent<PlayerManager>();
+            base.Start();
             cam = CoreGameManager.Instance.GetCamera(pm.playerNumber).camCom;
         }
 

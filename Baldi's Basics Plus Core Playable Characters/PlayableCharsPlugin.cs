@@ -2,10 +2,12 @@
 using BBP_Playables.Core.Patches;
 using BepInEx;
 using BepInEx.Bootstrap;
+using BepInEx.Logging;
 using HarmonyLib;
 using MidiPlayerTK;
 using MTM101BaldAPI;
 using MTM101BaldAPI.AssetTools;
+using MTM101BaldAPI.Components;
 using MTM101BaldAPI.ObjectCreation;
 using MTM101BaldAPI.Reflection;
 using MTM101BaldAPI.Registers;
@@ -23,6 +25,7 @@ using UnityEngine;
 using UnityEngine.TextCore;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 namespace BBP_Playables.Core
 {
@@ -33,13 +36,18 @@ namespace BBP_Playables.Core
     public class PlayableCharsPlugin : BaseUnityPlugin
     {
         public static PlayableCharsPlugin Instance { get; private set; }
+        public static PlayableCharacterMetaStorage playablesMetaStorage { get; private set; } = new PlayableCharacterMetaStorage();
         internal static bool gameStarted = false;
 
         public static AssetManager assetMan = new AssetManager();
-        public static List<PlayableCharacter> characters = new List<PlayableCharacter>();
+        [Obsolete("Use PlayableCharacterMetaStorage.Instance.All() instead.", true)]
+        public static List<PlayableCharacter> characters => playablesMetaStorage.All().ToValues().ToList();
         internal bool unlockedCylnLoon { get; private set; } = false;
         public PlayableCharacter Character => PlayableCharsGame.Character;
         internal PlayableCharsGame gameSave = new PlayableCharsGame();
+        internal Tuple<PlayableCharacter> extraSave;
+
+        public static ManualLogSource Log = new ManualLogSource("Playable Characters Mod Log");
 
         // TODO:
         /*
@@ -54,9 +62,11 @@ namespace BBP_Playables.Core
          */
         private void Awake()
         {
+            Log = this.Logger;
             Harmony harmony = new Harmony(PluginInfo.PLUGIN_GUID);
             Instance = this;
             harmony.PatchAllConditionals();
+            MTM101BaldiDevAPI.AddWarningScreen("<color=orange>THIS MOD IS UNFINISHED!</color>\nPlayable Characters Mod is a unfinished and this build is the <color=orange>full mod public demo</color> edition, things are subject to change!\nThere will be improvements and additions once new updates come out, but some characters currently does not have such exclusivity.", false);
             LoadingEvents.RegisterOnLoadingScreenStart(Info, BBCRDataLoad());
             LoadingEvents.RegisterOnAssetsLoaded(Info, PreLoad(), false);
             ModdedSaveGame.AddSaveHandler(gameSave);
@@ -111,12 +121,20 @@ namespace BBP_Playables.Core
             assetMan.AddRange<SoundObject>([
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "Tinkerneering1.wav"), "Sfx_TinkerneerConstruct", SoundType.Effect, Color.white),
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "Tinkerneering2.wav"), "Sfx_TinkerneerConstruct", SoundType.Effect, Color.white),
-                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "Tinkerneering3.wav"), "Sfx_TinkerneerConstruct", SoundType.Effect, Color.white)
+                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "Tinkerneering3.wav"), "Sfx_TinkerneerConstruct", SoundType.Effect, Color.white),
+#if DEBUG
+                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "NPC_openingpresent1.wav"), "Sfx_ShrinkMachine_Door", SoundType.Effect, Color.white),
+                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "NPC_openingpresent2.wav"), "Sfx_ShrinkMachine_Door", SoundType.Effect, Color.white)
+#endif
             ],
             [
                 "Items/Tinkerneering1",
                 "Items/Tinkerneering2",
                 "Items/Tinkerneering3",
+#if DEBUG
+                "Items/PresentOpen1",
+                "Items/PresentOpen2",
+#endif
             ]);
 #if DEBUG
             assetMan.AddRange<string>([
@@ -137,26 +155,187 @@ namespace BBP_Playables.Core
             string path = Path.Combine(Directory.GetParent(Application.persistentDataPath).ToString(), "Baldi's Basics Classic Remastered", "PlayerFile_!UnassignedFile.sav");
             if (File.Exists(path))
             {
-                Debug.Log("BBCR save file found!");
-                Debug.Log(path);
+                Log.LogInfo("BBCR save file found!");
+                Log.LogInfo(path);
                 var bbcrdata = JsonUtility.FromJson<BBCRSaveRef>(RijndaelEncryption.Decrypt(File.ReadAllText(path), "!UnassignedFile"));
                 if (bbcrdata.glitchWon) {
-                    Debug.Log("NULL is defeated! Unlocking new playable character!");
+                    Log.LogInfo("NULL is defeated! Unlocking new playable character!");
                     unlockedCylnLoon = true;
                 }
                 else
-                    Debug.Log("The player sucks balls.");
+                    Log.LogInfo("The player sucks balls.");
             }
         }
         IEnumerator PreLoad()
         {
-            yield return 1;            
+            yield return 1;
+            yield return "Setting up stuff";
+            Resources.FindObjectsOfTypeAll<PlayerManager>().First().gameObject.AddComponent<PlrPlayableCharacterVars>();
+            assetMan.Add("PlayerPrefab", Resources.FindObjectsOfTypeAll<PlayerManager>().First());
             yield return "Creating specific character stuff";
             NullObjectThrowableSpawn.prefabs.AddRange([
                 Resources.FindObjectsOfTypeAll<GameObject>().ToList().Find(x => x.name == "Table_Test"),
                 Resources.FindObjectsOfTypeAll<GameObject>().ToList().Find(x => x.name == "Chair_Test"),
                 //Resources.FindObjectsOfTypeAll<GameObject>().ToList().Find(x => x.name == "Decor_Banana")
                 ]);
+#if DEBUG
+            NPC_Present.sounds = [assetMan.Get<SoundObject>("Items/PresentOpen1"), assetMan.Get<SoundObject>("Items/PresentOpen2")];
+            assetMan.Add<ItemObject>("PresentUnwrapped", new ItemBuilder(Info)
+                    .SetItemComponent<ITM_PartygoerPresent>()
+                    .SetEnum("PartygoerPresentUnwrapped")
+                    .SetNameAndDescription("Itm_PartygoerPresentUnwrapped", "Desc_PartygoerPresentUnwrapped")
+                    .SetShopPrice(25)
+                    .SetGeneratorCost(5)
+                    .SetSprites(assetMan.Get<Sprite>("Items/BackpackerBackpack_Small"), assetMan.Get<Sprite>("Items/BackpackerBackpack_Large"))
+                    .SetMeta(ItemFlags.None, ["gift"])
+                    .Build());
+            var present = assetMan.Get<ItemObject>("PresentUnwrapped").item as ITM_PartygoerPresent;
+            present.ReflectionSetVariable("Unwrapped", true);
+            for (int npc = 1; npc <= 13; npc++)
+            {
+                var goodpresent = new ItemBuilder(Info)
+                    .SetItemComponent<ITM_PartygoerPresent>()
+                    .SetEnum("PartygoerPresent")
+                    .SetNameAndDescription("Itm_PartygoerPresent", "Desc_PartygoerPresent")
+                    .SetShopPrice(25)
+                    .SetGeneratorCost(5)
+                    .SetSprites(assetMan.Get<Sprite>("Items/BackpackerBackpack_Small"), assetMan.Get<Sprite>("Items/BackpackerBackpack_Large"))
+                    .SetMeta(ItemFlags.None, ["gift"])
+                    .Build();
+                goodpresent.item.GetComponent<ITM_PartygoerPresent>().ReflectionSetVariable("Gift", (Character)npc);
+                assetMan.Add<ItemObject>("PresentGift_" + ((Character)npc).ToStringExtended(), goodpresent);
+            }
+
+            #region PRESENTS
+            ITM_PartygoerPresent.RewardedSound.Add(global::Character.Baldi, Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "BAL_Apple"));
+            NPC_PresentAftermath.actions.Add(global::Character.Baldi, (npc) =>
+            {
+                Baldi bald = npc as Baldi;
+                int chance = UnityEngine.Random.Range(1, 8);
+                if (chance >= 7 && chance <= 8) // Sudden Bomb
+                {
+                    var animator = bald.gameObject.GetOrAddComponent<CustomSpriteAnimator>();
+                    animator.spriteRenderer = bald.spriteRenderer[0];
+                    animator.animations.Add("burn", new CustomAnimation<Sprite>([Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_39"), Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_40"), Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_41")], 0.2f));
+                    bald.AudMan.QueueAudio(Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "Fuse"), true);
+                    bald.AudMan.SetLoop(true);
+                    IEnumerator BombMan()
+                    {
+                        float time = 1.2f;
+                        bald.spriteRenderer[0].sprite = Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiApple_0");
+                        while (time > 0)
+                        {
+                            time -= Time.deltaTime * bald.TimeScale;
+                            yield return null;
+                        }
+                        bald.AudMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "BAL_NoPasss"));
+                        time = 0.5f;
+                        while (time > 0)
+                        {
+                            time -= Time.deltaTime * bald.TimeScale;
+                            yield return null;
+                        }
+                        bald.AudMan.FlushQueue(true);
+                        bald.BreakRuler();
+                        bald.AudMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "Explosion"));
+                        bald.AudMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "BAL_Ohh"));
+                        animator.SetDefaultAnimation("burn", 1f);
+                        bald.spriteRenderer[0].transform.localScale = new Vector3(0.05f, 0.1f, 0.05f);
+                        time = 6.2f; // Don't ask...
+                        while (time > 0)
+                        {
+                            time -= Time.deltaTime * bald.TimeScale;
+                            yield return null;
+                        }
+                        Destroy(animator);
+                        time = 19f;
+                        bald.spriteRenderer[0].transform.localScale = Vector3.one;
+                        bald.GetAngry(1f);
+                        while (time > 0)
+                        {
+                            time -= Time.deltaTime * bald.TimeScale;
+                            yield return null;
+                        }
+                        bald.RestoreRuler();
+                        yield break;
+                    }
+                    bald.StartCoroutine(BombMan());
+                    return 7.9f;
+                }
+                else if (chance <= 6 && chance >= 3) // New Ruler
+                {
+
+                }
+                else // An Apple
+                {
+                    bald.GetComponent<Animator>().enabled = true;
+                    bald.TakeApple();
+                    return 0f;
+                }
+                return 1f;
+            });
+            //ITM_PartygoerPresent.RewardedSound.Add(global::Character.Principal, Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "BAL_Apple"));
+            NPC_PresentAftermath.actions.Add(global::Character.Principal, (npc) =>
+            {
+                return 1f;
+            });
+            ITM_PartygoerPresent.RewardedSound.Add(global::Character.Bully, Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "BUL_TakeThat"));
+            NPC_PresentAftermath.actions.Add(global::Character.Bully, (npc) =>
+            {
+                Bully bul = npc as Bully;
+                if (UnityEngine.Random.Range(1, 8) >= 6) // Sudden Bomb
+                {
+                    var Audman = bul.GetComponent<AudioManager>();
+                    var animator = npc.gameObject.GetOrAddComponent<CustomSpriteAnimator>();
+                    animator.spriteRenderer = npc.spriteRenderer[0];
+                    animator.animations.Add("burn", new CustomAnimation<Sprite>([Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_39"), Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_40"), Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_41")], 0.2f));
+                    Audman.QueueAudio(Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "Fuse"), true);
+                    Audman.SetLoop(true);
+                    IEnumerator BombMan()
+                    {
+                        float time = 1.2f;
+                        //bul.spriteRenderer[0].sprite = Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "bully_final");
+                        while (time > 0)
+                        {
+                            time -= Time.deltaTime * bul.TimeScale;
+                            yield return null;
+                        }
+                        Audman.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "BUL_NoItems"));
+                        time = 0.4f;
+                        while (time > 0)
+                        {
+                            time -= Time.deltaTime * bul.TimeScale;
+                            yield return null;
+                        }
+                        Audman.FlushQueue(true);
+                        Audman.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "Explosion"));
+                        animator.SetDefaultAnimation("burn", 1f);
+                        bul.spriteRenderer[0].transform.localScale = new Vector3(0.05f, 0.1f, 0.05f);
+                        time = 6.3f; // Don't ask...
+                        while (time > 0)
+                        {
+                            time -= Time.deltaTime * bul.TimeScale;
+                            yield return null;
+                        }
+                        Destroy(animator);
+                        time = 19f;
+                        bul.spriteRenderer[0].transform.localScale = Vector3.one;
+                        bul.spriteRenderer[0].sprite = Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "bully_final");
+                        bul.Hide();
+                        yield break;
+                    }
+                    bul.StartCoroutine(BombMan());
+                    return 7.9f;
+                }
+                else // Generious
+                {
+                    bul.Hide();
+                    bul.GetComponent<AudioManager>().PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "BUL_Donation"));
+                    return 0f;
+                }
+            });
+            #endregion
+#endif
             assetMan.Add<ItemObject>("BackpackClosed", new ItemBuilder(Info)
                     .SetItemComponent<ITM_BackpackerBackpack>()
                     .SetEnum("BackpackerBackpack")
@@ -244,111 +423,80 @@ namespace BBP_Playables.Core
             bonusqGen.GetComponent<MathMachineRegen>().render.transform.localPosition = Vector3.down * 0.5f;
             #endregion INVENTIONS
             yield return "Adding new characters";
-            characters.AddRange([
-            new PlayableCharacter(Info, "The Default",
-                "Desc_Default",
-                assetMan.Get<Sprite>("Portrait/Default"), PlayableFlags.Abilitiless, true),
-            new PlayableCharacter(Info, "The Predicted Fanon",
-                "Desc_Predicted",
-                assetMan.Get<Sprite>("Portrait/Fanon"), PlayableFlags.Abilitiless, true)
-            {
-                slots = 3,
-                walkSpeed = 10f,
-                runSpeed = 16f,
-                staminaDrop = 5f
-            },
-            new PlayableCharacter(Info, "The Predicted Fanon [Times]",
-                "Desc_PredictedBBT",
-                assetMan.Get<Sprite>("Portrait/FanonBBT"), PlayableFlags.Abilitiless, Chainloader.PluginInfos.ContainsKey("pixelguy.pixelmodding.baldiplus.bbextracontent"))
-            {
-                slots = 3
-            },
-            new PlayableCharacter(Info, "CYLN_LOON",
-                "Desc_LOON",
-                assetMan.Get<Sprite>("Portrait/Cylnloon"), PlayableFlags.None, unlockedCylnLoon)
-            {
-                slots = 2,
-                walkSpeed = 24f,
-                runSpeed = 48f,
-                staminaDrop = 25f,
-                staminaRise = 15f,
-                staminaMax = 200f,
-            },
-            new PlayableCharacter(Info, "The Partygoer",
-                "Desc_Partygoer",
-                assetMan.Get<Sprite>("Portrait/Partygoer"), PlayableFlags.ContainsStartingItem | PlayableFlags.Abilitiless) // Party Bash\nBy finding the necessary items to host, you can host a party any room! But can alert Baldi after doing so...
-            {
-                slots = 6,
-                walkSpeed = 19f,
-                runSpeed = 26f,
-                staminaMax = 90f,
-                staminaRise = 15f,
-                startingItems = [ItemMetaStorage.Instance.FindByEnum(Items.Quarter).value, ItemMetaStorage.Instance.FindByEnum(Items.Quarter).value]
-            },
-                new PlayableCharacter(Info, "The Troublemaker",
-                "Desc_Troublemaker",
-                assetMan.Get<Sprite>("Portrait/Placeholder"), PlayableFlags.ContainsStartingItem | PlayableFlags.Abilitiless) //Schemes of Naught\nIncreases the detention timer, allows the player to get past through Its a Bully with no items at all, and BSODA duration is increased.
-            {
-                slots = 3,
-                walkSpeed = 10f,
-                runSpeed = 20f,
-                staminaMax = 110f,
-                startingItems = [ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value, ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value]
-            },
-            new PlayableCharacter(Info, "The Thinker",
-                "Desc_Thinker",
-                assetMan.Get<Sprite>("Portrait/Thinker"), PlayableFlags.None)
-            {
-                slots = 3,
-                walkSpeed = 25f,
-                runSpeed = 25f,
-                staminaMax = 0f,
-            },
-            new PlayableCharacter(Info, "The Backpacker",
-                "Desc_Backpacker",
-                assetMan.Get<Sprite>("Portrait/Placeholder"), PlayableFlags.ContainsStartingItem)
-            {
+            var _default = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+                .SetNameAndDesc("The Default", "Desc_Default")
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/Default"))
+                .Build();
+            var predicted = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+                .SetNameAndDesc("The Predicted Fanon", "Desc_Predicted")
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/Fanon"))
+                .SetStats(s: 3, w: 10f, r: 16, sd: 5f)
+                .Build();
+            var predicted2 = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, Chainloader.PluginInfos.ContainsKey("pixelguy.pixelmodding.baldiplus.bbextracontent"))
+                .SetNameAndDesc("The Predicted Fanon [Times]", "Desc_PredictedBBT")
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/FanonBBT"))
+                .SetStats(s: 3)
+                .Build();
+            var glitched = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+                .SetNameAndDesc("CYLN_LOON", "Desc_LOON")
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/Cylnloon"))
+                .SetStats(s: 2, w: 24f, r: 48f, sd: 25f, sr: 15, sm: 200f)
+                .SetFlags(PlayableFlags.None)
+                .SeparatePrefab()
+                .Build();
+            glitched.prefab.gameObject.GetComponent<CapsuleCollider>().radius = 1f;
+            var partyman = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info) // Todo: Ability overhaul
+                .SetNameAndDesc("The Partygoer", "Desc_Partygoer") // SCRAPPED IDEA: Party Bash\nBy finding the necessary items to host, you can host a party any room! But can alert Baldi after doing so...
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/Partygoer"))
+                .SetStats(s: 6, w: 19f, r: 26f, sd: 90f, sr: 15f)
+                .SetStartingItems(ItemMetaStorage.Instance.FindByEnum(Items.Quarter).value)
+                .Build();
+            var bullyman = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+                .SetNameAndDesc("The Troublemaker", "Desc_Troublemaker") //Schemes of Naught\nIncreases the detention timer, allows the player to get past through Its a Bully with no items at all, and BSODA duration is increased.
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/Placeholder"))
+                .SetStats(s: 3, w: 10f, r: 20f, sm: 110f)
+                .SetStartingItems(ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value, ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value)
+                .SeparatePrefab()
+                .Build();
+            bullyman.prefab.gameObject.GetComponent<CapsuleCollider>().radius = 2.85f;
+            var thinker = new PlayableCharacterBuilder<ThinkerAbility>(Info)
+                .SetNameAndDesc("The Thinker", "Desc_Thinker")
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/Thinker"))
+                .SetStats(s: 3, w: 25f, r: 25f, sm: 0f)
+                .SetFlags(PlayableFlags.None)
+                .Build();
+            var backpacker = new PlayableCharacterBuilder<BackpackerBackpack>(Info)
+                .SetNameAndDesc("The Backpacker", "Desc_Backpacker")
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/Placeholder"))
+                .SetStats(s: 9, w: 19f, r: 31f, sd: 5f, sr: 15f, sm: 50f)
+                .SetFlags(PlayableFlags.ContainsStartingItem)
                 // there are 16 slots in total...
-                slots = 9,
-                walkSpeed = 19f,
-                runSpeed = 31f,
-                staminaMax = 50f,
-                staminaDrop = 5f,
-                staminaRise = 15f,
-            },
-            new PlayableCharacter(Info, "The Tinkerneer",
-                "Desc_Tinkerneer",
-                assetMan.Get<Sprite>("Portrait/Placeholder"), PlayableFlags.ContainsStartingItem)
-            {
-                slots = 9,
-                walkSpeed = 18f,
-                runSpeed = 28f,
-                staminaDrop = 18f,
-                staminaRise = 28f,
-                startingItems = [assetMan.Get<ItemObject>("TinkerneerWrench")]
-            },
-            new PlayableCharacter(Info, "The Test Subject",
-                "Desc_TestSubject",
-                assetMan.Get<Sprite>("Portrait/TestSubject"), PlayableFlags.None)
-            {
-                walkSpeed = 40f,
-                runSpeed = 30f,
-                staminaMax = 0f,
-            },
-            new PlayableCharacter(Info, "The Speedrunner",
-                "Desc_Speedrunner",
-                assetMan.Get<Sprite>("Portrait/Placeholder"), PlayableFlags.Abilitiless)
-            {
-                slots = 1,
-                walkSpeed = 34f,
-                runSpeed = 52f,
-                staminaDrop = 30f,
-                staminaRise = 10f,
-                staminaMax = 200,
-            },
-            ]);
+                .SeparatePrefab()
+                .Build();
+            backpacker.prefab.gameObject.GetComponent<CapsuleCollider>().radius = 2.5f;
+            var tails = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+                .SetNameAndDesc("The Tinkerneer", "Desc_Tinkerneer")
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/Placeholder"))
+                .SetStats(s: 6, w: 18f, r: 28f, sd: 18f, sr: 28f)
+                .SetFlags(PlayableFlags.None)
+                .SetStartingItems(assetMan.Get<ItemObject>("TinkerneerWrench"))
+                .Build();
+            var thetestjr = new PlayableCharacterBuilder<TestSubjectMan>(Info)
+                .SetNameAndDesc("The Test Subject", "Desc_TestSubject")
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/TestSubject"))
+                .SetStats(w: 40f, r: 30f, sm: 0f)
+                .SetFlags(PlayableFlags.None)
+                .SeparatePrefab()
+                .Build();
+            thetestjr.prefab.gameObject.GetComponent<CapsuleCollider>().radius = 1.5f;
+            var shitass = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
+                .SetNameAndDesc("The Speedrunner", "Desc_Speedrunner")
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/Placeholder"))
+                .SetStats(s: 1, w: 34f, r: 52f, sd: 30f, sr: 10f, sm: 200f)
+                .SetFlags(PlayableFlags.Abilitiless)
+                .Build();
             yield return "Creating select screen";
-            GameObject screen = Instantiate(FindObjectsOfType<GameObject>(true).ToList().Find(x => x.name == "PickChallenge"));
+            /*GameObject screen = Instantiate(FindObjectsOfType<GameObject>(true).ToList().Find(x => x.name == "PickChallenge"));
             screen.ConvertToPrefab(false);
             screen.transform.Find("BackButton").gameObject.SetActive(false);
             screen.transform.Find("Speedy").gameObject.SetActive(false);
@@ -368,10 +516,9 @@ namespace BBP_Playables.Core
             screen.GetComponent<CharacterSelectScreen>().nametext.enableAutoSizing = true;
             Destroy(screen.GetComponent<CharacterSelectScreen>().nametext.GetComponent<StandardMenuButton>());
             screen.GetComponent<CharacterSelectScreen>().nametext.GetComponent<TextLocalizer>().enabled = false;
-            assetMan.Add<GameObject>("CharSelectScreen", screen);
+            assetMan.Add<GameObject>("CharSelectScreen", screen);*/
 
             yield return "Doing the rest of contents";
-            Resources.FindObjectsOfTypeAll<PlayerManager>().First().gameObject.AddComponent<PlrPlayableCharacterVars>();
             GeneratorManagement.Register(this, GenerationModType.Addend, (name, num, ld) =>
             {
                 ld.shopItems = ld.shopItems.AddToArray(new() { selection = assetMan.Get<ItemObject>("TinkerneerWrench"), weight = 80 });
@@ -381,6 +528,20 @@ namespace BBP_Playables.Core
             ModdedSaveSystem.AddSaveLoadAction(this, (isSave, path) =>
             {
                 PlayableCharsSave filedata;
+                PlayableCharsExtraSave extrasave;
+                if (File.Exists(Path.Combine(path, "extraPlayablesSaveData.dat")) && !isSave)
+                {
+                    try
+                    {
+                        extrasave = JsonUtility.FromJson<PlayableCharsExtraSave>(RijndaelEncryption.Decrypt(File.ReadAllText(Path.Combine(path, "extraPlayablesSaveData.dat")), "PLAYABLECHARS_" + PlayerFileManager.Instance.fileName));
+                    }
+                    catch
+                    {
+                        extrasave = new PlayableCharsExtraSave();
+                        extrasave.selectedChar = new(_default);
+                    }
+                    extraSave = new(extrasave.selectedChar.LocateObject() ?? _default);
+                }
                 if (isSave)
                 {
                     filedata = new PlayableCharsSave();
@@ -388,24 +549,27 @@ namespace BBP_Playables.Core
                         filedata = JsonUtility.FromJson<PlayableCharsSave>(RijndaelEncryption.Decrypt(File.ReadAllText(Path.Combine(path, "unlockedChars.dat")), "PLAYABLECHARS_" + PlayerFileManager.Instance.fileName));
                     filedata.modversion = new Version(PluginInfo.PLUGIN_VERSION);
                     filedata.cyln = unlockedCylnLoon;
-                    filedata.partygoer = characters.Find(x => x.name == "The Partygoer").unlocked;
-                    filedata.troublemaker = characters.Find(x => x.name == "The Troublemaker").unlocked;
-                    filedata.thinker = characters.Find(x => x.name == "The Thinker").unlocked;
-                    filedata.backpacker = characters.Find(x => x.name == "The Backpacker").unlocked;
-                    filedata.tinkerneer = characters.Find(x => x.name == "The Tinkerneer").unlocked;
-                    filedata.testsubject = characters.Find(x => x.name == "The Test Subject").unlocked;
-                    filedata.speedrunner = characters.Find(x => x.name == "The Speedrunner").unlocked;
+                    filedata.partygoer = partyman.unlocked;
+                    filedata.troublemaker = bullyman.unlocked;
+                    filedata.thinker = thinker.unlocked;
+                    filedata.backpacker = backpacker.unlocked;
+                    filedata.tinkerneer = tails.unlocked;
+                    filedata.testsubject = thetestjr.unlocked;
+                    filedata.speedrunner = shitass.unlocked;
                     if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.playablecharacters.modded"))
                     {
                         if (Chainloader.PluginInfos.ContainsKey("pixelguy.pixelmodding.baldiplus.bbextracontent"))
-                            filedata.magical = characters.Find(x => x.name == "Magical Student").unlocked;
+                            filedata.magical = playablesMetaStorage.Find(x => x.value.name == "Magical Student").value.unlocked;
                         if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
                         {
-                            filedata.protagonist = characters.Find(x => x.name == "The Main Protagonist").unlocked;
-                            filedata.dweller = characters.Find(x => x.name == "The Dweller").unlocked;
+                            filedata.protagonist = playablesMetaStorage.Find(x => x.value.name == "The Main Protagonist").value.unlocked;
+                            filedata.dweller = playablesMetaStorage.Find(x => x.value.name == "The Dweller").value.unlocked;
                         }
                     }
                     File.WriteAllText(Path.Combine(path, "unlockedChars.dat"), RijndaelEncryption.Encrypt(JsonUtility.ToJson(filedata), "PLAYABLECHARS_" + PlayerFileManager.Instance.fileName));
+                    extrasave = new PlayableCharsExtraSave();
+                    extrasave.selectedChar = new(extraSave.Item1 ?? PlayableCharsGame.Character);
+                    File.WriteAllText(Path.Combine(path, "extraPlayablesSaveData.dat"), RijndaelEncryption.Encrypt(JsonUtility.ToJson(extrasave), "PLAYABLECHARS_" + PlayerFileManager.Instance.fileName));
                 }
                 else if (File.Exists(Path.Combine(path, "unlockedChars.dat")))
                 {
@@ -450,10 +614,10 @@ namespace BBP_Playables.Core
         public static void UnlockCharacter(BepInEx.PluginInfo info, string charName)
         {
             if (!MTM101BaldiDevAPI.SaveGamesEnabled || (CoreGameManager.Instance != null && !CoreGameManager.Instance.SaveEnabled)
-                || characters.Find(x => x.name.ToLower().Replace(" ", "") == charName.ToLower().Replace(" ", "") && x.info == info) == null
-                || characters.Find(x => x.name.ToLower().Replace(" ", "") == charName.ToLower().Replace(" ", "") && x.info == info).unlocked) return;
+                || PlayableCharacterMetaStorage.Instance.Find(x => x.value.name.ToLower().Replace(" ", "") == charName.ToLower().Replace(" ", "") && x.info == info) == null
+                || PlayableCharacterMetaStorage.Instance.Find(x => x.value.name.ToLower().Replace(" ", "") == charName.ToLower().Replace(" ", "") && x.info == info).value.unlocked) return;
             MusicManager.Instance.PlaySoundEffect(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "BAL_Wow"));
-            characters.Find(x => x.name.ToLower().Replace(" ", "") == charName.ToLower().Replace(" ", "") && x.info == info).unlocked = true;
+            PlayableCharacterMetaStorage.Instance.Find(x => x.value.name.ToLower().Replace(" ", "") == charName.ToLower().Replace(" ", "") && x.info == info).value.unlocked = true;
             ModdedSaveSystem.CallSaveLoadAction(Instance, true, ModdedSaveSystem.GetCurrentSaveFolder(Instance));
         }
 
@@ -464,8 +628,8 @@ namespace BBP_Playables.Core
 
         public static void SetUnlockedCharacter(BepInEx.PluginInfo info, string charName, bool unlocked) // I see you cheaters! You can't really unlock CYLN_LOON manually!
         {
-            if (characters.Find(x => x.name.ToLower().Replace(" ", "") == charName.ToLower().Replace(" ", "") && x.info == info) != null)
-                characters.Find(x => x.name.ToLower().Replace(" ", "") == charName.ToLower().Replace(" ", "") && x.info == info).unlocked = unlocked;
+            if (PlayableCharacterMetaStorage.Instance.Find(x => x.value.name.ToLower().Replace(" ", "") == charName.ToLower().Replace(" ", "") && x.info == info) != null)
+                PlayableCharacterMetaStorage.Instance.Find(x => x.value.name.ToLower().Replace(" ", "") == charName.ToLower().Replace(" ", "") && x.info == info).value.unlocked = unlocked;
         }
     }
 
@@ -494,13 +658,15 @@ namespace BBP_Playables.Core
             gobj.ConvertToPrefab(true);
             ITM_TinkerneerWrench.TinkerneerObjectsPre.Add(thing.name, thing);
         }
+
+        public static PlayableCharacterMetaData GetMeta(this PlayableCharacter me) => PlayableCharsPlugin.playablesMetaStorage.Get(me);
     }
 
     class PluginInfo
     {
         public const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
         public const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        public const string PLUGIN_VERSION = "0.1.1.2"; // UPDATE EVERY TIME!!
+        public const string PLUGIN_VERSION = "0.1.1.5"; // UPDATE EVERY TIME!!
     }
 
     /// <summary>
@@ -519,6 +685,7 @@ namespace BBP_Playables.Core
         public string description { get; private set; }
         public Sprite sprselect { get; private set; }
         public PlayableFlags flags { get; private set; }
+        //public string[] tags { get; private set; } = new string[0];
 
         /// <summary>
         /// The speed of the character
@@ -560,6 +727,10 @@ namespace BBP_Playables.Core
         /// </summary>
         public ItemObject[] startingItems = new ItemObject[0];
 
+        public PlayerManager prefab { get; internal set; }
+
+        public Type componentType = typeof(PlayableCharacterComponent);
+
         public PlayableCharacter(BepInEx.PluginInfo Info, string n, string d, Sprite container, PlayableFlags f, bool unlockedfromStart = false)
         {
             info = Info;
@@ -574,6 +745,9 @@ namespace BBP_Playables.Core
                 flags &= ~PlayableFlags.UnlockedFromStart;
             unlocked = unlockedfromStart;
         }
+
+        //public void SetTags(string[] tagss) => tags = tagss;
+        //public void AddTags(string[] tagss) => tags = tags.AddRangeToArray(tagss);
     }
 
     [Flags]
@@ -602,6 +776,141 @@ namespace BBP_Playables.Core
         Abilitiless = 8,
     }
 
+    [RequireComponent(typeof(PlayerManager), typeof(ItemManager), typeof(PlayerMovement))]
+    public class PlayableCharacterComponent : MonoBehaviour
+    {
+        protected PlayerManager pm;
+        protected virtual void Start()
+        {
+            pm = gameObject.GetComponent<PlayerManager>();
+        }
+    }
+    // Took this from the API
+    public class PlayableCharacterBuilder<T> where T : PlayableCharacterComponent
+    {
+        private BepInEx.PluginInfo info;
+        private string name = "Unknown";
+        private string desc = "Who?";
+        private Sprite portrait = PlayableCharsPlugin.assetMan["Portrait/Placeholder"] as Sprite;
+        private PlayableFlags flags = PlayableFlags.Abilitiless;
+        private bool unlockedFromStart = true;
+        private PlayerManager prefab = PlayableCharsPlugin.assetMan["PlayerPrefab"] as PlayerManager;
+        private bool prefabSeparate = false;
+        private string[] tags = new string[0];
+        private ItemObject[] startingItems = new ItemObject[0];
+        private float walkSpeed = 16f;
+        private float runSpeed = 24f;
+        private float staminaDrop = 10f;
+        private float staminaRise = 20f;
+        private float staminaMax = 100f;
+        private int slots = 5;
+
+        public PlayableCharacterBuilder(BepInEx.PluginInfo Info, bool unlocked = true)
+        {
+            info = Info;
+            unlockedFromStart = unlocked;
+        }
+
+        public PlayableCharacter Build()
+        {
+            PlayableCharacter character = new PlayableCharacter(info, name, desc, portrait, flags, unlockedFromStart);
+            character.walkSpeed = walkSpeed;
+            character.runSpeed = runSpeed;
+            character.staminaDrop = staminaDrop;
+            character.staminaRise = staminaRise;
+            character.staminaMax = staminaMax;
+            character.slots = slots;
+            character.startingItems = startingItems;
+            character.prefab = prefabSeparate ? GameObject.Instantiate(prefab, MTM101BaldiDevAPI.prefabTransform) : prefab;
+            character.componentType = typeof(T);
+            PlayableCharacterMetaStorage.Instance.Add(new PlayableCharacterMetaData(info, character, tags));
+            return character;
+        }
+
+        public PlayableCharacterBuilder<T> SetNameAndDesc(string n, string d)
+        {
+            name = n;
+            desc = d;
+            return this;
+        }
+
+        public PlayableCharacterBuilder<T> SetPortrait(Sprite p)
+        {
+            portrait = p;
+            return this;
+        }
+
+        public PlayableCharacterBuilder<T> SeparatePrefab()
+        {
+            prefabSeparate = true;
+            return this;
+        }
+
+        public PlayableCharacterBuilder<T> SetStartingItems(params ItemObject[] i)
+        {
+            startingItems = i;
+            flags |= PlayableFlags.ContainsStartingItem;
+            return this;
+        }
+
+        public PlayableCharacterBuilder<T> SetFlags(PlayableFlags f)
+        {
+            flags = f;
+            return this;
+        }
+
+        public PlayableCharacterBuilder<T> SetTags(params string[] t)
+        {
+            tags = t;
+            return this;
+        }
+
+        public PlayableCharacterBuilder<T> SetStats(float w = 16f, float r = 24f, float sd = 10f, float sr = 20f, float sm = 100f, int s = 5)
+        {
+            walkSpeed = w;
+            runSpeed = r;
+            staminaDrop = sd;
+            staminaRise = sr;
+            staminaMax = sm;
+            slots = s;
+            return this;
+        }
+    }
+    // Also took this from the API
+    public class PlayableCharacterMetaData : IMetadata<PlayableCharacter>
+    {
+        public PlayableFlags flags => value != null ? value.flags : PlayableFlags.None;
+
+        public string nameLocalizationKey { get; private set; }
+
+        public PlayerManager prefab => value?.prefab;
+
+        public PlayableCharacter value { get; private set; }
+
+        public List<string> tags { get; private set; } = new List<string>();
+
+        public BepInEx.PluginInfo info { get; private set; }
+
+        public PlayableCharacterMetaData(BepInEx.PluginInfo info, PlayableCharacter character)
+        {
+            this.info = info;
+
+            value = character;
+            nameLocalizationKey = character.name;
+        }
+
+        public PlayableCharacterMetaData(BepInEx.PluginInfo info, PlayableCharacter character, string[] tags)
+            : this(info, character)
+        {
+            this.tags.AddRange(tags);
+        }
+    }
+    // Also also took this from the API
+    public class PlayableCharacterMetaStorage : BasicMetaStorage<PlayableCharacterMetaData, PlayableCharacter>
+    {
+        public static PlayableCharacterMetaStorage Instance => PlayableCharsPlugin.playablesMetaStorage;
+    }
+
     [Serializable]
     internal class PlayableCharsSave
     {
@@ -625,6 +934,12 @@ namespace BBP_Playables.Core
 
     }
 
+    [Serializable]
+    internal class PlayableCharsExtraSave
+    {
+        public PlayableCharacterIdentifier selectedChar;
+    }
+
     internal class PlayableCharsGame : ModdedSaveGameIOBinary
     {
         public override BepInEx.PluginInfo pluginInfo => PlayableCharsPlugin.Instance.Info;
@@ -634,7 +949,7 @@ namespace BBP_Playables.Core
 
         public override void Reset()
         {
-            Character = null;
+            Character = PlayableCharsPlugin.Instance.extraSave.Item1;
             prevSlots = 5;
             backpackerBackup = new ItemObject[9];
             for (int i = 0; i < backpackerBackup.Length; i++)
@@ -662,6 +977,12 @@ namespace BBP_Playables.Core
             for (int i = 0; i < data.backpackerBackup.Length; ++i)
                 backpackerBackup[i] = ModdedItemIdentifier.Read(reader).LocateObject();
 
+        }
+
+        public override void OnCGMCreated(CoreGameManager instance, bool isFromSavedGame)
+        {
+            if (!isFromSavedGame)
+                CharacterSelector.Instance?.SetValues();
         }
     }
 
@@ -692,7 +1013,7 @@ namespace BBP_Playables.Core
         public PlayableCharacter LocateObject()
         {
             PlayableCharacterIdentifier thiz = this;
-            PlayableCharacter[] array = PlayableCharsPlugin.characters.FindAll(x => x.info.Metadata.GUID == thiz.PluginGUID).Where(x => x.name.ToLower().Replace(" ", "") == thiz.playablecharName.ToLower().Replace(" ", "")).ToArray();
+            PlayableCharacter[] array = PlayableCharacterMetaStorage.Instance.FindAll(x => x.value.info.Metadata.GUID == thiz.PluginGUID && x.value.name.ToLower().Replace(" ", "") == thiz.playablecharName.ToLower().Replace(" ", "")).ToValues();
             if (array.Length != 0) return array.Last();
 
             return null;
@@ -700,7 +1021,7 @@ namespace BBP_Playables.Core
 
         public PlayableCharacterIdentifier(PlayableCharacter objct)
         {
-            PlayableCharacter chara = PlayableCharsPlugin.characters.Find(x => x == objct);
+            PlayableCharacter chara = PlayableCharacterMetaStorage.Instance.Find(x => x.value == objct).value;
             if (chara == null) throw new NullReferenceException("Playable character: " + objct.name + " does not exist! Can't create PlayableCharacterIdentifier!");
             version = 0;
             PluginGUID = chara.info.Metadata.GUID;

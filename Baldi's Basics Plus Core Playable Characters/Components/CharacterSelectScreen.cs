@@ -1,5 +1,6 @@
 ﻿using BBP_Playables.Core.Patches;
 using BepInEx.Bootstrap;
+using MTM101BaldAPI.Registers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace BBP_Playables.Core
         void OnEnable()
         {
             analogData = Resources.FindObjectsOfTypeAll<PlayerMovement>().First().movementAnalogData;
-            characters = PlayableCharsPlugin.characters.FindAll(x => x.unlocked);
+            characters = PlayableCharacterMetaStorage.Instance.FindAll(x => x.value.unlocked).ToValues().ToList();
             UpdateSelection();
             InputManager.Instance.ActivateActionSet("InGame");
 #if DEBUG
@@ -80,6 +81,52 @@ namespace BBP_Playables.Core
             nametext.text = LocalizationManager.Instance.GetLocalizedText(characters[curChar].name);
             desctext.text = LocalizationManager.Instance.GetLocalizedText(characters[curChar].description);
             portrait.sprite = characters[curChar].sprselect;
+        }
+    }
+    [RequireComponent(typeof(Image))]
+    public class CharacterSelector : MonoBehaviour
+    {
+        private int curChar = 0;
+        public Image portrait;
+        public TextMeshProUGUI text;
+        private List<PlayableCharacter> characters = new List<PlayableCharacter>();
+        public static CharacterSelector Instance { get; private set; }
+
+        void Awake()
+        {
+            Instance = this;
+        }
+
+        void Start()
+        {
+            characters = PlayableCharacterMetaStorage.Instance.FindAll(x => x.value.unlocked).ToValues().ToList();
+            curChar = characters.IndexOf(PlayableCharsPlugin.Instance.extraSave.Item1);
+            if (curChar < 0) curChar = 0;
+            UpdateSelection();
+        }
+
+        internal void ButtonPress(bool forward = true)
+        {
+            if (forward)
+                curChar++;
+            else
+                curChar--;
+            if (curChar > characters.Count - 1 || curChar < 0)
+                curChar = curChar < 0 ? characters.Count - 1 : 0;
+            UpdateSelection();
+        }
+
+        private void UpdateSelection()
+        {
+            PlayableCharsPlugin.Instance.extraSave = new(characters[curChar]);
+            portrait.sprite = characters[curChar].sprselect;
+            text.text = characters[curChar].name;
+        }
+
+        internal void SetValues()
+        {
+            PlayableCharsGame.Character = characters[curChar];
+            PlayableCharsPlugin.Instance.extraSave = new(characters[curChar]);
         }
     }
 }

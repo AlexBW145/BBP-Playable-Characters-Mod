@@ -34,7 +34,7 @@ namespace BBP_Playables.Core
                             (tinkerobject.Value.rm != RoomCategory.Null && tinkerobject.Value.rm != cell.room.category))
                             continue;
                         availableTinkers.Add(tinkerobject.Value);
-                        hudPre.GetComponentInChildren<TextMeshProUGUI>().text += ("\n({0}) " + tinkerobject.Value.name).Replace("{0}", availableTinkers.Count <= 6 ? InputManager.Instance.GetInputButtonName("Item" + availableTinkers.Count) : "OUT OF REACH!");
+                        hudPre.GetComponentInChildren<TextMeshProUGUI>().text += ("\n({0}) " + tinkerobject.Value.name).Replace("{0}", availableTinkers.Count <= 6 ? InputManager.Instance.GetInputButtonName("Item" + availableTinkers.Count, "InGame", false) : "OUT OF REACH!");
                     }
                     if (availableTinkers.Count > 0)
                     {

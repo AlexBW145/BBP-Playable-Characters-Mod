@@ -23,13 +23,12 @@ namespace BBP_Playables.Core
     }
 
     [RequireComponent(typeof(PlayerManager), typeof(ItemManager), typeof(PlayerMovement))]
-    public class BackpackerBackpack : MonoBehaviour
+    public class BackpackerBackpack : PlayableCharacterComponent
     {
-        private PlayerManager pm;
         private ValueModifier modifier = new ValueModifier(1f);
-        void Start()
+        protected override void Start()
         {
-            pm = gameObject.GetComponent<PlayerManager>();
+            base.Start();
             if (pm != null)
             {
                 for (int i = 0; i < items.Length; i++)

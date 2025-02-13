@@ -23,6 +23,10 @@
 {"key":"The Speedrunner","value":"The Speedrunner"},
 {"key":"Desc_Speedrunner","value":"He just wants to beat Hide and Seek for fun, Principal of the Thing considers this as \"running in the halls\" due to him breaking one of the school rules!"},
 
+{"key":"Itm_PartygoerPresentUnwrapped","value":"Wrapping Bundle"},
+{"key":"Desc_PartygoerPresentUnwrapped","value":"Wrapping Bundle\nWhen you do need to prepare some presents for your foes, find an item that they'll likely like!\nBut beware that the present inside will be very different!"},
+{"key":"Itm_PartygoerPresent","value":"A Present for {0}"},
+{"key":"Desc_PartygoerPresent","value":"Gifting Present\nWhat are you looking at? There's no description for this item."},
 {"key":"Itm_TinkerneerWrench","value":"Tinkerneering Wrench"},
 {"key":"Desc_TinkerneerWrench","value":"Tinkerneering Wrench\nThis wrench is the pathway to creating new inventions,\nalthough you'll need some education to use this!"},
 {"key":"Sfx_TinkerneerConstruct","value":"*Construction*"},
