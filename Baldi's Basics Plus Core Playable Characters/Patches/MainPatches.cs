@@ -76,6 +76,18 @@ namespace BBP_Playables.Core.Patches
             but.OnPress.AddListener(() => CharacterSelector.Instance.ButtonPress(true));
             but.OnHighlight = new UnityEngine.Events.UnityEvent();
             thething.transform.SetSiblingIndex(thething.transform.GetSiblingIndex() - 1);
+            var tooltip = GameObject.Instantiate(___seedInput.transform.parent.Find("TooltipHotspots").GetChild(1), /*___seedInput.transform.parent.Find("TooltipHotspots")*/ thething.transform, false).GetComponent<StandardMenuButton>();
+            var recttrans = tooltip.GetComponent<RectTransform>();
+            recttrans.anchorMin = Vector2.one/2f;
+            recttrans.anchorMax = Vector2.one/2f;
+            recttrans.pivot = Vector2.one/2f;
+            recttrans.anchoredPosition = text.rectTransform.anchoredPosition;
+            recttrans.sizeDelta = new Vector2(130f, 32f);
+            var controllert = ___seedInput.transform.parent.GetComponent<TooltipController>();
+            tooltip.OnHighlight = new UnityEngine.Events.UnityEvent();
+            tooltip.OnHighlight.AddListener(() => controllert.UpdateTooltip(CharacterSelector.Instance.GetDesc()));
+            tooltip.OffHighlight = new UnityEngine.Events.UnityEvent();
+            tooltip.OffHighlight.AddListener(controllert.CloseTooltip);
         }
     }
 

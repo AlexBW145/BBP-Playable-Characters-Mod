@@ -105,6 +105,8 @@ namespace BBP_Playables.Core
             UpdateSelection();
         }
 
+        public string GetDesc() => characters[curChar].description;
+
         internal void ButtonPress(bool forward = true)
         {
             if (forward)

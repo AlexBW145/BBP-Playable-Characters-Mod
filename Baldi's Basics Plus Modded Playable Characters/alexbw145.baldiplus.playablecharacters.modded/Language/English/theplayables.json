@@ -1,11 +1,11 @@
 {"items":[
 
 {"key":"The Main Protagonist","value":"The Main Protagonist"},
-{"key":"Desc_Protagonist","value":"One day, this student from another schoolhouse ended up in Baldi's world! And he's entering a world of \"real\" educational fun!\n\nAbility: A GUN\nAllows the player to use the item called \"Firewall Blaster\" which shoots anti-error bullets, useful for squashing random bugs!"},
+{"key":"Desc_Protagonist","value":"One day, this student from another schoolhouse\nended up in Baldi's world!\nAnd he's entering a world of \"real\" educational fun!\n\nAbility: A GUN\nAllows the player to use the item called \"Firewall Blaster\"\nwhich shoots anti-error bullets,\nuseful for squashing random bugs!"},
 {"key":"The Dweller","value":"The Dweller"},
-{"key":"Desc_Dweller","value":"This fella lives in the caves, and this fella hates going outside!\n\nAbility: Advanced GPS\nThe map now marks the items instead of labeling them as question marks"},
+{"key":"Desc_Dweller","value":"This fella lives in the caves,\nand this fella hates going outside!\n\nAbility: Advanced GPS\nThe map now marks the items instead of labeling them as question marks"},
 {"key":"Magical Student","value":"Magical Student"},
-{"key":"Desc_Magical","value":"Wields a magic wand and does not care about the school rules, so he randomly sends people to detention.\n* Has a dumb brain"},
+{"key":"Desc_Magical","value":"Wields a magic wand and does not care about the school rules,\nso he randomly sends people to detention.\n\n* Has a dumb brain"},
 
 {"key":"Itm_FirewallBlaster","value":"Firewall Blaster"},
 {"key":"Desc_FirewallBlaster","value":"Firewall Blaster\nThis weapon is set to \"safe mode\"\nand someone who uses it before knows how to set it to \"fire mode\"."},
