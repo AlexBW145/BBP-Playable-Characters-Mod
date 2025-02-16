@@ -95,13 +95,14 @@ namespace BBP_Playables.Core
         void Awake()
         {
             Instance = this;
+            characters = PlayableCharacterMetaStorage.Instance.FindAll(x => x.value.unlocked).ToValues().ToList();
+            curChar = characters.IndexOf(PlayableCharsPlugin.Instance.extraSave.Item1);
+            if (curChar < 0) curChar = 0;
+            SetValues();
         }
 
         void Start()
         {
-            characters = PlayableCharacterMetaStorage.Instance.FindAll(x => x.value.unlocked).ToValues().ToList();
-            curChar = characters.IndexOf(PlayableCharsPlugin.Instance.extraSave.Item1);
-            if (curChar < 0) curChar = 0;
             UpdateSelection();
         }
 

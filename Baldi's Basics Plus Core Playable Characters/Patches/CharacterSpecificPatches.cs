@@ -175,8 +175,10 @@ namespace BBP_Playables.Core.Patches
                     }
                 }
                 if (hallcells.Count > 0) {
-                    GameObject table = GameObject.Instantiate(prefabs[UnityEngine.Random.Range(0, prefabs.Count)], hallcells[UnityEngine.Random.Range(0, hallcells.Count)].CenterWorldPosition, default(Quaternion), null);
-                    table.AddComponent<ThrowableObject>();
+                    GameObject table = GameObject.Instantiate(PlayableCharsPlugin.assetMan.Get<Entity>("CYLN_Throwable").gameObject, hallcells[UnityEngine.Random.Range(0, hallcells.Count)].CenterWorldPosition, default(Quaternion), null);
+                    var prefab = prefabs[UnityEngine.Random.Range(0, prefabs.Count)];
+                    table.GetComponentInChildren<MeshFilter>(true).sharedMesh = prefab.GetComponent<MeshFilter>().sharedMesh;
+                    table.GetComponentInChildren<MeshRenderer>(true).SetMaterialArray(prefab.GetComponent<MeshRenderer>().GetMaterialArray());
                 }
                 yield return null;
             }

@@ -25,7 +25,6 @@ using UnityEngine;
 using UnityEngine.TextCore;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 namespace BBP_Playables.Core
 {
@@ -178,6 +177,24 @@ namespace BBP_Playables.Core
                 Resources.FindObjectsOfTypeAll<GameObject>().ToList().Find(x => x.name == "Chair_Test"),
                 //Resources.FindObjectsOfTypeAll<GameObject>().ToList().Find(x => x.name == "Decor_Banana")
                 ]);
+            var thorwable = new EntityBuilder()
+                .AddTrigger(4f)
+                .SetBaseRadius(0.5f)
+                .SetName("CYLN_Throwable")
+                .SetLayer("ClickableEntities")
+                .AddRenderbaseFunction((entity) =>
+                {
+                    var renderbase = new GameObject("RenderBase", typeof(MeshFilter), typeof(MeshRenderer));
+                    renderbase.transform.SetParent(entity.transform, false);
+                    renderbase.layer = LayerMask.NameToLayer("Ignore Raycast B");
+                    renderbase.AddComponent<MeshFilter>();
+                    renderbase.AddComponent<MeshRenderer>();
+                    entity.gameObject.AddComponent<RendererContainer>().renderers = [renderbase.GetComponent<MeshRenderer>()];
+                    return renderbase.transform;
+                })
+                .Build();
+            thorwable.gameObject.AddComponent<ThrowableObject>();
+            assetMan.Add("CYLN_Throwable", thorwable);
 #if DEBUG
             NPC_Present.sounds = [assetMan.Get<SoundObject>("Items/PresentOpen1"), assetMan.Get<SoundObject>("Items/PresentOpen2")];
             assetMan.Add<ItemObject>("PresentUnwrapped", new ItemBuilder(Info)
@@ -551,7 +568,7 @@ namespace BBP_Playables.Core
                     if (File.Exists(Path.Combine(path, "unlockedChars.dat"))) // Issue occured with Magical Student, addin' dis!
                         filedata = JsonUtility.FromJson<PlayableCharsSave>(RijndaelEncryption.Decrypt(File.ReadAllText(Path.Combine(path, "unlockedChars.dat")), "PLAYABLECHARS_" + PlayerFileManager.Instance.fileName));
                     filedata.modversion = new Version(PluginInfo.PLUGIN_VERSION);
-                    filedata.cyln = unlockedCylnLoon;
+                    filedata.cyln = glitched.unlocked ? true : unlockedCylnLoon;
                     filedata.partygoer = partyman.unlocked;
                     filedata.troublemaker = bullyman.unlocked;
                     filedata.thinker = thinker.unlocked;
