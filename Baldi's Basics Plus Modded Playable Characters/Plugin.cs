@@ -111,14 +111,14 @@ namespace BBP_Playables.Modded
                     .SetItemComponent(shooter.GetComponent<ITM_FirewallBlaster>())
                     .SetEnum("FirewallBlaster")
                     .SetNameAndDescription("Itm_FirewallBlaster", "Desc_FirewallBlaster")
-                    .SetShopPrice(int.MaxValue)
+                    .SetShopPrice(0)
                     .SetGeneratorCost(99)
                     .SetSprites(PlayableCharsPlugin.assetMan.Get<Sprite>("Items/FirewallBlaster_Small"), PlayableCharsPlugin.assetMan.Get<Sprite>("Items/FirewallBlaster_Large"))
                     .SetMeta(ItemFlags.MultipleUse | ItemFlags.CreatesEntity | ItemFlags.Persists, ["BCPP", "CharacterItemImportant"])
                     .Build());
-                Material wholeWhiteMat = new Material(Shader.Find("GUI/Text Shader"));
+                /*Material wholeWhiteMat = new Material(Shader.Find("GUI/Text Shader"));
                 wholeWhiteMat.name = "MapWhiteMat";
-                PlayableCharsPlugin.assetMan.Add<Material>("DwellerMapMat", wholeWhiteMat);
+                PlayableCharsPlugin.assetMan.Add<Material>("DwellerMapMat", wholeWhiteMat);*/
                 new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("The Main Protagonist", "Desc_Protagonist")
                 .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Placeholder"))
@@ -140,7 +140,7 @@ namespace BBP_Playables.Modded
                 Destroy(magic.GetComponent<ITM_BSODA>());
                 magic.AddComponent<ITM_MagicWandMagical>().entity = magic.GetComponent<Entity>();
                 magic.GetComponent<ITM_MagicWandMagical>().spriteRenderer = magic.transform.Find("RendereBase").GetComponentInChildren<SpriteRenderer>();
-                magic.GetComponent<ITM_MagicWandMagical>().spriteRenderer.sprite = Resources.FindObjectsOfTypeAll<Sprite>().ToList().Find(x => x.name == "SprMGS_Magic");
+                magic.GetComponent<ITM_MagicWandMagical>().spriteRenderer.sprite = Resources.FindObjectsOfTypeAll<Sprite>().ToList().Find(x => x.name == "SprBBTimesAsset_MGS_Magic");
                 magic.ConvertToPrefab(true);
                 magic.layer = LayerMask.NameToLayer("StandardEntities");
                 Destroy(magic.transform.Find("RendereBase").Find("Particles").gameObject);
@@ -179,6 +179,6 @@ namespace BBP_Playables.Modded
     {
         public const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters.modded";
         public const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Modded)";
-        public const string PLUGIN_VERSION = "0.10"; // UPDATE EVERY TIME!!
+        public const string PLUGIN_VERSION = "0.15"; // UPDATE EVERY TIME!!
     }
 }

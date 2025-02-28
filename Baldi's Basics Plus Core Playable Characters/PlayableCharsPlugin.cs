@@ -702,7 +702,7 @@ namespace BBP_Playables.Core
     {
         public const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
         public const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        public const string PLUGIN_VERSION = "0.1.1.5"; // UPDATE EVERY TIME!!
+        public const string PLUGIN_VERSION = "0.1.1.7"; // UPDATE EVERY TIME!!
     }
 
     /// <summary>

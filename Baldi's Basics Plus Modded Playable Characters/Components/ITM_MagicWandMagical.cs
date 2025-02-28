@@ -5,10 +5,8 @@ using BBP_Playables.Core;
 using MTM101BaldAPI.Components;
 using MTM101BaldAPI.PlusExtensions;
 using BBTimes.CustomContent.NPCs;
-using static UnityEngine.GraphicsBuffer;
 using BBTimes.CustomComponents.NpcSpecificComponents;
 using BBTimes.CustomContent.CustomItems;
-using static Entity;
 
 namespace BBP_Playables.Modded.BBTimes
 {
@@ -18,8 +16,15 @@ namespace BBP_Playables.Modded.BBTimes
         public Entity entity;
         public SpriteRenderer spriteRenderer;
         private static float cooldown = 0f;
+        private float existCooldown;
         public override bool Use(PlayerManager pm)
         {
+            if (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") != "Magical Student".ToLower().Replace(" ", ""))
+            {
+                Destroy(gameObject);
+                CoreGameManager.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Last(x => x.name == "BAL_Break"));
+                return true;
+            }
             if (cooldown > 0f)
             {
                 Destroy(gameObject);
@@ -32,7 +37,7 @@ namespace BBP_Playables.Modded.BBTimes
             entity.Initialize(ec, transform.position);
             entity.SetFrozen(true);
             pm.StartCoroutine(MagicShoot(pm));
-            return PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") != "magicalstudent";
+            return false;
         }
 
         private IEnumerator MagicShoot(PlayerManager pm)
@@ -41,7 +46,7 @@ namespace BBP_Playables.Modded.BBTimes
             ValueModifier modifier = new ValueModifier(0.1f);
             pm.GetComponent<PlayerMovementStatModifier>().AddModifier("walkSpeed", modifier);
             pm.GetComponent<PlayerMovementStatModifier>().AddModifier("runSpeed", modifier);
-            float cool = 4.5f;
+            float cool = 1.5f;
             while (cool > 0f)
             {
                 if (!CoreGameManager.Instance.audMan.QueuedAudioIsPlaying) // I ain't loopin' dat.
@@ -53,6 +58,7 @@ namespace BBP_Playables.Modded.BBTimes
             cool = 0.3f;
             CoreGameManager.Instance.audMan.FlushQueue(true);
             CoreGameManager.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(a => a.name == "Vfx_MGS_Magic"));
+            existCooldown = 5f;
             spriteRenderer.enabled = true;
             entity.SetFrozen(false);
             transform.position = pm.transform.position;
@@ -71,7 +77,14 @@ namespace BBP_Playables.Modded.BBTimes
         private void Update()
         {
             if (spriteRenderer.enabled)
+            {
                 entity.UpdateInternalMovement(transform.forward * 45f * ec.EnvironmentTimeScale);
+                if (existCooldown <= 0f)
+                    Destroy(gameObject);
+                else
+                    existCooldown -= Time.deltaTime * ec.EnvironmentTimeScale;
+            }
+
         }
 
         public void EntityTriggerEnter(Collider other)
@@ -104,15 +117,15 @@ namespace BBP_Playables.Modded.BBTimes
         {
         }
 
-        void OnTriggerExit(Collider other)
+        /*void OnTriggerExit(Collider other)
         {
             if (other.CompareTag("Wall") && other.name.Contains("WallCollider") && other.gameObject.activeSelf && spriteRenderer.enabled && other.enabled)
                 Destroy(gameObject, 2f);
-        }
+        }*/
 
         static IEnumerator Cooldown()
         {
-            cooldown = 23.5f;
+            cooldown = 15.5f;
             while (cooldown > 0f)
             {
                 if (BaseGameManager.Instance.Ec == null)

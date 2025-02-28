@@ -329,7 +329,7 @@ namespace BBP_Playables.Core.Patches
                 && __instance.items.Count(x => !x.GetMeta().tags.Contains("CharacterItemImportant")) > 0
                 && ___slotLocked[val])
                 __instance.RemoveRandomItem();
-            return !__instance.items[val].GetMeta().tags.Contains("CharacterItemImportant");
+            return !(__instance.items[val].GetMeta().tags.Contains("CharacterItemImportant") && ___slotLocked[val]);
         }
 
         [HarmonyPatch(typeof(ItemManager), nameof(ItemManager.AddItem), [typeof(ItemObject)]), HarmonyPriority(Priority.High), HarmonyPrefix] // I hate you.
@@ -387,8 +387,8 @@ namespace BBP_Playables.Core.Patches
             // If the item is important to the character? (Given at the start of the game and the slot of it is locked...)
             bool[] slotlocked = (bool[])AccessTools.DeclaredField(typeof(ItemManager), "slotLocked").GetValue(CoreGameManager.Instance.GetPlayer(player).itm);
             bool isStorageLocker = (__instance.transform.GetComponentInParent<StorageLocker>() != null
-                && ItemMetaStorage.Instance.Get(CoreGameManager.Instance.GetPlayer(player).itm.items[CoreGameManager.Instance.GetPlayer(player).itm.selectedItem]).tags.Contains("CharacterItemImportant")
-                && slotlocked[CoreGameManager.Instance.GetPlayer(player).itm.selectedItem]);
+                && CoreGameManager.Instance.GetPlayer(player).itm.items[CoreGameManager.Instance.GetPlayer(player).itm.selectedItem].GetMeta().tags.Contains("CharacterItemImportant")
+                && slotlocked[CoreGameManager.Instance.GetPlayer(player).itm.selectedItem] == true);
             if (isStorageLocker)
                 CoreGameManager.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "ErrorMaybe"));
             return !isStorageLocker;
