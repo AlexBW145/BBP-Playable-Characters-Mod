@@ -80,6 +80,10 @@ namespace BBP_Playables.Core
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Partygoer.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Thinker.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "TestSubject.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Troublemaker.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Backpacker.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Tinkerneer.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Speedrunner.png"),
 
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "BackpackerBackpack_Large.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "BackpackerBackpack_Small.png"),
@@ -103,6 +107,12 @@ namespace BBP_Playables.Core
                 "Portrait/Partygoer", // By CottyKot on Gamebanana
                 "Portrait/Thinker", // I should request a redesign... Redrawn by BigThinker
                 "Portrait/TestSubject",
+                // By https://gamebanana.com/members/3165945
+                "Portrait/Troublemaker",
+                "Portrait/Backpacker",
+                "Portrait/Tinkerneer",
+                "Portrait/Speedrunner",
+                //
 
                 "Items/BackpackerBackpack_Large",
                 "Items/BackpackerBackpack_Small",
@@ -135,7 +145,7 @@ namespace BBP_Playables.Core
                 "Items/PresentOpen2",
 #endif
             ]);
-#if DEBUG
+/*#if DEBUG
             assetMan.AddRange<string>([
                 AssetLoader.MidiFromMod("mus_charSel", this, "mus_charSel.mid"),
                 AssetLoader.MidiFromMod("mus_charSelINF", this, "mus_charSelINF.mid")
@@ -144,7 +154,7 @@ namespace BBP_Playables.Core
                 "charSel",
                 "charSelINF"
             ]);
-#endif
+#endif*/
         }
 
         IEnumerator BBCRDataLoad()
@@ -469,9 +479,9 @@ namespace BBP_Playables.Core
                 .SetStartingItems(ItemMetaStorage.Instance.FindByEnum(Items.Quarter).value)
                 .Build();
             var bullyman = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
-                .SetNameAndDesc("The Troublemaker", "Desc_Troublemaker") //Schemes of Naught\nIncreases the detention timer, allows the player to get past through Its a Bully with no items at all, and BSODA duration is increased.
-                .SetPortrait(assetMan.Get<Sprite>("Portrait/Placeholder"))
-                .SetStats(s: 3, w: 10f, r: 20f, sm: 110f)
+                .SetNameAndDesc("The Troublemaker", "Desc_Troublemaker") // SCRAPPED IDEA: Schemes of Naught\nIncreases the detention timer, allows the player to get past through Its a Bully with no items at all, and BSODA duration is increased.
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/Troublemaker"))
+                .SetStats(s: 3, r: 28f, sm: 110f)
                 .SetStartingItems(ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value, ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value)
                 .SeparatePrefab()
                 .Build();
@@ -484,7 +494,7 @@ namespace BBP_Playables.Core
                 .Build();
             var backpacker = new PlayableCharacterBuilder<BackpackerBackpack>(Info, false)
                 .SetNameAndDesc("The Backpacker", "Desc_Backpacker")
-                .SetPortrait(assetMan.Get<Sprite>("Portrait/Placeholder"))
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/Backpacker"))
                 .SetStats(s: 9, w: 19f, r: 31f, sd: 5f, sr: 15f, sm: 50f)
                 .SetFlags(PlayableFlags.ContainsStartingItem)
                 // there are 16 slots in total...
@@ -493,7 +503,7 @@ namespace BBP_Playables.Core
             backpacker.prefab.gameObject.GetComponent<CapsuleCollider>().radius = 2.5f;
             var tails = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("The Tinkerneer", "Desc_Tinkerneer")
-                .SetPortrait(assetMan.Get<Sprite>("Portrait/Placeholder"))
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/Tinkerneer"))
                 .SetStats(s: 6, w: 18f, r: 28f, sd: 18f, sr: 28f)
                 .SetFlags(PlayableFlags.None)
                 .SetStartingItems(assetMan.Get<ItemObject>("TinkerneerWrench"))
@@ -508,7 +518,7 @@ namespace BBP_Playables.Core
             thetestjr.prefab.gameObject.GetComponent<CapsuleCollider>().radius = 1.5f;
             var shitass = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("The Speedrunner", "Desc_Speedrunner")
-                .SetPortrait(assetMan.Get<Sprite>("Portrait/Placeholder"))
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/Speedrunner"))
                 .SetStats(s: 1, w: 34f, r: 52f, sd: 30f, sr: 10f, sm: 200f)
                 .SetFlags(PlayableFlags.Abilitiless)
                 .Build();

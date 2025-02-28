@@ -210,6 +210,16 @@ namespace BBP_Playables.Core.Patches
             }
             return true;
         }
+        [HarmonyPatch(typeof(ItemManager), nameof(ItemManager.RemoveItemSlot)), HarmonyPrefix]
+        static void ShrinkingPatch(int val, ItemManager __instance)
+        {
+            var backpack = __instance.gameObject.GetComponent<BackpackerBackpack>();
+            if (backpack == null) return;
+            for (int i = val; i < __instance.maxItem; i++)
+                backpack.items[i] = backpack.items[i + 1];
+
+            backpack.items[__instance.maxItem] = __instance.nothing;
+        }
     }
 #if DEBUG
     [HarmonyPatch]
@@ -305,6 +315,42 @@ namespace BBP_Playables.Core.Patches
         }
     }
 #endif
+
+    [HarmonyPatch]
+    class TroublemakerPatches
+    {
+        [HarmonyPatch(typeof(Bully), nameof(Bully.StealItem)), HarmonyPrefix, HarmonyPriority(Priority.High)]
+        static bool TheyFriendsTho(PlayerManager pm)
+        {
+            if (pm.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
+                return false;
+            return true;
+        }
+        [HarmonyPatch(typeof(Bully_Active), nameof(Bully_Active.PlayerSighted)), HarmonyPrefix]
+        static bool LazyPatch(PlayerManager player) => player.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") != "The Troublemaker".ToLower().Replace(" ", "");
+        [HarmonyPatch(typeof(ITM_AlarmClock), nameof(ITM_AlarmClock.Use))]
+        [HarmonyPatch(typeof(ITM_Tape), nameof(ITM_Tape.Use))]
+        [HarmonyPatch(typeof(ITM_PrincipalWhistle), nameof(ITM_PrincipalWhistle.Use))]
+        [HarmonyPostfix]
+        static void IsThisAnAbsolutePrank(PlayerManager pm)
+        {
+            if (pm.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
+                pm.RuleBreak("Bullying", 5f, 0.3f);
+        }
+        [HarmonyPatch(typeof(TapePlayer), nameof(TapePlayer.InsertItem)), HarmonyPostfix]
+        static void YeahNoYouAreInTrouble(PlayerManager player, EnvironmentController ec)
+        {
+            if (player.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
+                player.RuleBreak("Bullying", 5f, 0.3f);
+        }
+
+        [HarmonyPatch(typeof(Principal), nameof(Principal.SendToDetention)), HarmonyPostfix]
+        static void OhNoHow(Principal __instance, ref PlayerManager ___targetedPlayer, ref int ___detentionLevel, ref SoundObject[] ___audTimes)
+        {
+            if (__instance.ec.offices.Count > 0 && ___targetedPlayer.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
+                ___detentionLevel = Mathf.Min(___detentionLevel + 1, ___audTimes.Length - 1);
+        }
+    }
     // Affects the culling manager, useless
     /*[HarmonyPatch(typeof(LevelBuilder), "LoadRoom")]
     class ObjectBecomesNullThrowable

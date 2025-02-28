@@ -17,7 +17,7 @@ namespace BBP_Playables.Modded.Patches
         static void Prefix(BaseGameManager __instance)
         {
             if (CoreGameManager.Instance.currentMode == Mode.Free || __instance.levelObject == null) return;
-            if (__instance.levelObject.name == "Basement1" &&
+            if (__instance.levelObject == BasePlugin.Instance.lBasement &&
                 __instance.levelObject.finalLevel)
                 PlayableCharsPlugin.UnlockCharacter(Plugin.info, "The Dweller");
             if (__instance.levelObject.finalLevel && (CoreGameManager.Instance.GetPlayer(0).itm.items.Contains(PlayableCharsPlugin.assetMan.Get<ItemObject>("FirewallBlaster"))
@@ -31,12 +31,12 @@ namespace BBP_Playables.Modded.Patches
     {
         static void Postfix()
         {
-            if (DwellerAbility.crisped.Count > 0)
+            /*if (DwellerAbility.crisped.Count > 0)
                 foreach (var crisp in DwellerAbility.crisped)
                 {
-                    DwellerAbility.crisped.Remove(crisp);
-                    GameObject.Destroy(crisp);
-                }
+                    DwellerAbility.crisped.Remove(crisp.Key);
+                    GameObject.Destroy(crisp.Value);
+                }*/
             if (BCPPSave.Instance.basementCompleted)
                 PlayableCharsPlugin.UnlockCharacter(Plugin.info, "The Dweller");
         }
@@ -45,15 +45,17 @@ namespace BBP_Playables.Modded.Patches
     [ConditionalPatchMod("alexbw145.baldiplus.bcarnellchars"), HarmonyPatch(typeof(Pickup), "Start")]
     class DwellerAbility
     {
-        internal static List<Sprite> crisped = new List<Sprite>();
+        internal static Dictionary<ItemObject, Sprite> crisped = new Dictionary<ItemObject, Sprite>();
         static void Postfix(Pickup __instance)
         {
-            if (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") == "thedweller") {
-                Sprite crisp = Sprite.Create(__instance.item.itemSpriteLarge.texture, new Rect(0f,0f, __instance.item.itemSpriteLarge.texture.width, __instance.item.itemSpriteLarge.texture.height), Vector2.one/2f, 80f, 0u, SpriteMeshType.FullRect);
+            if (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") == "thedweller"
+                && !__instance.free && __instance.price == 0) {
+                Sprite crisp = crisped.ContainsKey(__instance.item) ? crisped[__instance.item] : Sprite.Create(__instance.item.itemSpriteLarge.texture, new Rect(0f, 0f, __instance.item.itemSpriteLarge.texture.width, __instance.item.itemSpriteLarge.texture.height), Vector2.one / 2f, 80f, 0u, SpriteMeshType.FullRect);
                 crisp.name = "CrispedItemIconSpr_" + __instance.item.name;
-                crisped.Add(crisp);
+                if (!crisped.ContainsKey(__instance.item))
+                    crisped.Add(__instance.item, crisp);
                 __instance.icon.spriteRenderer.sprite = crisp;
-                __instance.icon.spriteRenderer.material = PlayableCharsPlugin.assetMan.Get<Material>("DwellerMapMat");
+                //__instance.icon.spriteRenderer.material = PlayableCharsPlugin.assetMan.Get<Material>("DwellerMapMat");
             }
         }
     }

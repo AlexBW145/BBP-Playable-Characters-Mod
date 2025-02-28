@@ -38,6 +38,7 @@ namespace BBP_Playables.Modded
 
             PlayableCharsPlugin.assetMan.AddRange<Sprite>([
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Magical.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Dweller.png"),
 
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "MagicWand_Large.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MagicWand_Small.png"),
@@ -54,6 +55,7 @@ namespace BBP_Playables.Modded
             ],
             [
                 "Portrait/MagicalStudent",
+                "Portrait/Dweller", // By https://gamebanana.com/members/3165945
 
                 "Items/MagicalStudentWand_Large",
                 "Items/MagicalStudentWand_Small",
@@ -123,9 +125,9 @@ namespace BBP_Playables.Modded
                 .SetStats(s: 5, w: 18, r: 28) // Original Stats: 14, 18
                 .SetTags("BCPP")
                 .Build();
-                new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
+                new PlayableCharacterBuilder<DwellerComponent>(Info, false)
                 .SetNameAndDesc("The Dweller", "Desc_Dweller")
-                .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Placeholder"))
+                .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Dweller"))
                 .SetStats(s: 6, w: 26, r: 26, sm: 0f) // Original Stats: 14, 18
                 .SetFlags(PlayableFlags.None)
                 .Build();
