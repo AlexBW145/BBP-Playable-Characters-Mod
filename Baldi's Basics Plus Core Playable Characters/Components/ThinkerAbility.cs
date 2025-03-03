@@ -31,10 +31,12 @@ namespace BBP_Playables.Core
         public List<Transform> _hitTransforms = new List<Transform>();
         private bool mathMachineVisible = false;
         private float timeLooking = 0f;
+        private AudioManager musicMan;
 
         protected override void Start()
         {
             base.Start();
+            musicMan = Instantiate(CoreGameManager.Instance.musicMan, transform, false);
             cam = CoreGameManager.Instance.GetCamera(pm.playerNumber).camCom;
         }
 
@@ -93,7 +95,7 @@ namespace BBP_Playables.Core
                     {
                         blinded = false;
                         BaseGameManager.Instance.Ec.RemoveFog(ThinkerBlind);
-                        CoreGameManager.Instance.musicMan.FlushQueue(true);
+                        musicMan.FlushQueue(true);
                     }
                     while (time > 0f)
                     {
@@ -111,9 +113,9 @@ namespace BBP_Playables.Core
                 {
                     blinded = true;
                     BaseGameManager.Instance.Ec.AddFog(ThinkerBlind);
-                    CoreGameManager.Instance.musicMan.QueueAudio(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "LAt_BlindStart"), true);
-                    CoreGameManager.Instance.musicMan.QueueAudio(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "LAt_BlindLoop"));
-                    CoreGameManager.Instance.musicMan.SetLoop(true);
+                    musicMan.QueueAudio(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "LAt_BlindStart"), true);
+                    musicMan.QueueAudio(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "LAt_BlindLoop"));
+                    musicMan.SetLoop(true);
                 }
                 yield return null;
             }

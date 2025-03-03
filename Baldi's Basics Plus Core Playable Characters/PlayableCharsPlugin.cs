@@ -51,8 +51,8 @@ namespace BBP_Playables.Core
         // TODO:
         /*
          * CYLN_LOON is done
-         * Partygoer isn't done
-         * Troublemaker isn't done
+         * Partygoer isn't done and is being worked on.
+         * Troublemaker is barely done
          * Thinker is done
          * Backpacker is done
          * Tinkerneer is very not done
@@ -475,7 +475,7 @@ namespace BBP_Playables.Core
             var partyman = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false) // Todo: Ability overhaul
                 .SetNameAndDesc("The Partygoer", "Desc_Partygoer") // SCRAPPED IDEA: Party Bash\nBy finding the necessary items to host, you can host a party any room! But can alert Baldi after doing so...
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Partygoer"))
-                .SetStats(s: 6, w: 19f, r: 26f, sd: 90f, sr: 15f)
+                .SetStats(s: 6, w: 19f, r: 26f, sm: 90f, sr: 15f)
                 .SetStartingItems(ItemMetaStorage.Instance.FindByEnum(Items.Quarter).value)
                 .Build();
             var bullyman = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)

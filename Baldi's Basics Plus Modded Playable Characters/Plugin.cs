@@ -3,7 +3,6 @@
 using BBP_Playables.Modded.BCPP;
 #endif
 using BBP_Playables.Modded.BBTimes;
-using BCarnellChars.OtherStuff;
 using BepInEx;
 using BepInEx.Bootstrap;
 using HarmonyLib;
@@ -15,6 +14,8 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 using MTM101BaldAPI.SaveSystem;
+using BBP_Playables.Modded.Patches;
+using MonoMod.Utils;
 
 namespace BBP_Playables.Modded
 {
@@ -70,6 +71,33 @@ namespace BBP_Playables.Modded
                 "HUD/StaminaGradientBCMAC",
                 "HUD/StaminaPointBCMAC",
             ]);
+            PlayableCharsPlugin.assetMan.AddRange<Sprite[]>([
+                AssetLoader.SpritesFromSpritesheet(2,1,29.8f,Vector2.one/2f,AssetLoader.TextureFromMod(this, "Texture2D", "PlayerVisuals", "Default.png")),
+            AssetLoader.SpritesFromSpritesheet(2,1,29.8f,Vector2.one/2f,AssetLoader.TextureFromMod(this, "Texture2D", "PlayerVisuals", "Fanon.png")),
+            AssetLoader.SpritesFromSpritesheet(2,1,29.8f,Vector2.one/2f,AssetLoader.TextureFromMod(this, "Texture2D", "PlayerVisuals", "CYLN_LOON.png")),
+            AssetLoader.SpritesFromSpritesheet(2,1,29.8f,Vector2.one/2f,AssetLoader.TextureFromMod(this, "Texture2D", "PlayerVisuals", "Partygoer.png")),
+            AssetLoader.SpritesFromSpritesheet(2,1,29.8f,Vector2.one/2f,AssetLoader.TextureFromMod(this, "Texture2D", "PlayerVisuals", "Troublemaker.png")),
+            AssetLoader.SpritesFromSpritesheet(2,1,29.8f,Vector2.one/2f,AssetLoader.TextureFromMod(this, "Texture2D", "PlayerVisuals", "Thinker.png")),
+            AssetLoader.SpritesFromSpritesheet(2,1,29.8f,Vector2.one/2f,AssetLoader.TextureFromMod(this, "Texture2D", "PlayerVisuals", "Backpacker.png")),
+            AssetLoader.SpritesFromSpritesheet(2,1,29.8f,Vector2.one/2f,AssetLoader.TextureFromMod(this, "Texture2D", "PlayerVisuals", "Tinkerneer.png")),
+            AssetLoader.SpritesFromSpritesheet(2,1,29.8f,Vector2.one/2f,AssetLoader.TextureFromMod(this, "Texture2D", "PlayerVisuals", "TestSubject.png")),
+            AssetLoader.SpritesFromSpritesheet(2,1,29.8f,Vector2.one/2f,AssetLoader.TextureFromMod(this, "Texture2D", "PlayerVisuals", "Speedrunner.png")),
+            AssetLoader.SpritesFromSpritesheet(2,1,29.8f,Vector2.one/2f,AssetLoader.TextureFromMod(this, "Texture2D", "PlayerVisuals", "MgS.png")),
+            AssetLoader.SpritesFromSpritesheet(2,1,29.8f,Vector2.one/2f,AssetLoader.TextureFromMod(this, "Texture2D", "PlayerVisuals", "Dweller.png")),],
+                [
+                    "Visual/Default",
+                    "Visual/Fanon",
+                    "Visual/CYLN_LOON",
+                    "Visual/Partygoer",
+                    "Visual/Troublemaker",
+                    "Visual/Thinker",
+                    "Visual/Backpacker",
+                    "Visual/Tinkerneer",
+                    "Visual/TestSubject",
+                    "Visual/Speedrunner",
+                    "Visual/MagicalStudent",
+                    "Visual/Dweller"
+                ]);
             // Seems like rect was used for some reason...
             Sprite sprite = Sprite.Create(PlayableCharsPlugin.assetMan.Get<Sprite>("HUD/ItemSlotsBCMAC").texture, new Rect(0f, 0f, 40f, 36f), Vector2.one / 2f, 1f, 0u, SpriteMeshType.FullRect);
             sprite.name = "SprItemSlotsBCMAC_left";
@@ -159,6 +187,21 @@ namespace BBP_Playables.Modded
                 .SetStats(s: 4, w: 16, r: 16, sm: 0f)
                 .SetStartingItems(PlayableCharsPlugin.assetMan.Get<ItemObject>("MagicalWandTimesCharacter"))
                 .Build();
+
+                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Default").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Default"));
+                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Predicted Fanon").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Fanon"));
+                //PlayerVisualPatch.playableEmotions.Add(default, [Resources.FindObjectsOfTypeAll<Sprite>().ToList().First(x => x.name == "BBTimesAsset_player0_0"), Resources.FindObjectsOfTypeAll<Sprite>().ToList().First(x => x.name == "BBTimesAsset_player1_0")]);
+                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "CYLN_LOON").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/CYLN_LOON"));
+                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Partygoer").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Partygoer"));
+                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Troublemaker").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Troublemaker"));
+                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Thinker").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Thinker"));
+                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Backpacker").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Backpacker"));
+                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Tinkerneer").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Tinkerneer"));
+                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Test Subject").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/TestSubject"));
+                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Speedrunner").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Speedrunner"));
+                if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
+                    PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Dweller").value, [PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Dweller")[0], PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Dweller")[0]]);
+                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "Magical Student").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/MagicalStudent"));
             }
 
             GeneratorManagement.Register(this, GenerationModType.Addend, (name, num, ld) =>
@@ -179,6 +222,6 @@ namespace BBP_Playables.Modded
     {
         public const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters.modded";
         public const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Modded)";
-        public const string PLUGIN_VERSION = "0.15"; // UPDATE EVERY TIME!!
+        public const string PLUGIN_VERSION = "0.16"; // UPDATE EVERY TIME!!
     }
 }
