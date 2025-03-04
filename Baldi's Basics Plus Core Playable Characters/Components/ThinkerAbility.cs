@@ -40,6 +40,8 @@ namespace BBP_Playables.Core
             cam = CoreGameManager.Instance.GetCamera(pm.playerNumber).camCom;
         }
 
+        public override void SpoopBegin(BaseGameManager manager) => StartCoroutine(ThinkerDrain());
+
         void Update()
         {
             if (pm.ec.Active)

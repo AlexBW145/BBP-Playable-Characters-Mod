@@ -34,13 +34,10 @@ namespace BBP_Playables.Core.Patches
     [HarmonyPatch(typeof(BaseGameManager))]
     class ManagerPatches
     {
-        private static TimeScaleModifier subjectScale = new TimeScaleModifier();
 
         [HarmonyPatch("Initialize"), HarmonyPostfix]
         static void ResetStuff(BaseGameManager __instance)
         {
-            __instance.Ec.RemoveTimeScale(subjectScale);
-            subjectScale = new TimeScaleModifier();
             if (CoreGameManager.Instance.musicMan.QueuedAudioIsPlaying)
                 CoreGameManager.Instance.musicMan.FlushQueue(true);
         }
@@ -49,39 +46,27 @@ namespace BBP_Playables.Core.Patches
         static void BeginPostfix(BaseGameManager __instance)
         {
             for (int i = 0; i < CoreGameManager.Instance.setPlayers; i++)
-            {
-                if (CoreGameManager.Instance.GetPlayer(i).GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable() == null) continue;
-                switch (CoreGameManager.Instance.GetPlayer(i).GetComponent<PlrPlayableCharacterVars>().GetCurrentPlayable().name.ToLower().Replace(" ", ""))
-                {
-                    case "thetestsubject":
-                        __instance.Ec.AddTimeScale(subjectScale);
-                        break;
-                }
-            }
+                CoreGameManager.Instance.GetPlayer(i).GetComponent<PlayableCharacterComponent>().GameBegin(__instance);
         }
 
         [HarmonyPatch("BeginSpoopMode"), HarmonyPostfix]
         static void SpoopModePostfix(BaseGameManager __instance)
         {
             for (int i = 0; i < CoreGameManager.Instance.setPlayers; i++)
-                switch (CoreGameManager.Instance.GetPlayer(i).GetComponent<PlrPlayableCharacterVars>().GetCurrentPlayable().name.ToLower().Replace(" ", ""))
-                {
-                    case "thethinker":
-                        CoreGameManager.Instance.GetPlayer(i).StartCoroutine(CoreGameManager.Instance.GetPlayer(0).gameObject.GetComponent<ThinkerAbility>().ThinkerDrain());
-                        break;
-                    case "thetestsubject":
-                        if (CoreGameManager.Instance.GetPlayer(i).gameObject.GetComponent<TestSubjectMan>() == null)
-                            CoreGameManager.Instance.GetPlayer(i).gameObject.AddComponent<TestSubjectMan>();
-                        break;
-                }
+                CoreGameManager.Instance.GetPlayer(i).GetComponent<PlayableCharacterComponent>().SpoopBegin(__instance);
         }
         static FieldInfo timeScaleModifiers = AccessTools.DeclaredField(typeof(EnvironmentController), "timeScaleModifiers");
         [HarmonyPatch("ActivityCompleted"), HarmonyPostfix]
         static void TestSubjectTimeScaleIncrease(bool correct, Activity activity, BaseGameManager __instance)
         {
             var tsm = (List<TimeScaleModifier>)timeScaleModifiers.GetValue(__instance.Ec);
-            if (!correct && tsm.Contains(subjectScale))
-                subjectScale.npcTimeScale += 0.2f;
+            if (!correct)
+                for (int i = 0; i < CoreGameManager.Instance.setPlayers; i++)
+                    if (CoreGameManager.Instance.GetPlayer(i).GetComponent<TestSubjectMan>() != null && tsm.Contains(CoreGameManager.Instance.GetPlayer(i).GetComponent<TestSubjectMan>().subjectScale))
+                    {
+                        CoreGameManager.Instance.GetPlayer(i).GetComponent<TestSubjectMan>().MessUpAndIncreaseTimeScale();
+                        break;
+                    }
         }
     }
 
@@ -131,58 +116,10 @@ namespace BBP_Playables.Core.Patches
     [HarmonyPatch(typeof(MathMachine), nameof(MathMachine.Completed), [typeof(int)])]
     class TestSubjectExtra
     {
-        static void Prefix(int player, ref bool ___givePoints)
+        static void Prefix(int player, ref bool ___givePoints, ref int ___normalPoints)
         {
             if (___givePoints && CoreGameManager.Instance.GetPlayer(player).GetComponent<PlrPlayableCharacterVars>().GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thetestsubject")
-                CoreGameManager.Instance.AddPoints(30, player, true);
-        }
-    }
-
-    [HarmonyPatch(typeof(BaseGameManager), nameof(BaseGameManager.BeginSpoopMode))]
-    class NullObjectThrowableSpawn
-    {
-        public static List<GameObject> prefabs = new List<GameObject>();
-        static void Postfix(BaseGameManager __instance)
-        {
-            if (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") != "CYLN_LOON".ToLower().Replace(" ", "")) return;
-            __instance.StartCoroutine(CylnObjects());
-        }
-
-        static IEnumerator CylnObjects()
-        {
-            float time;
-            while (BaseGameManager.Instance != null)
-            {
-                time = UnityEngine.Random.Range(60f, 90f);
-                while (time > 0f)
-                {
-                    if (BaseGameManager.Instance == null)
-                        yield break;
-                    time -= BaseGameManager.Instance.Ec.EnvironmentTimeScale * Time.deltaTime;
-                    yield return null;
-                }
-                if (BaseGameManager.Instance == null)
-                    yield break;
-                List<Cell> hallcells = new List<Cell>();
-                for (int i = 0; i < BaseGameManager.Instance.Ec.levelSize.x; i++)
-                {
-                    for (int j = 0; j < BaseGameManager.Instance.Ec.levelSize.z; j++)
-                    {
-                        if (BaseGameManager.Instance.Ec.cells[i, j] != null && BaseGameManager.Instance.Ec.cells[i, j].room.category == RoomCategory.Hall 
-                            && !BaseGameManager.Instance.Ec.cells[i, j].open && !BaseGameManager.Instance.Ec.cells[i, j].HasObjectBase
-                            && !Physics.OverlapSphere(BaseGameManager.Instance.Ec.cells[i, j].CenterWorldPosition, 0.5f).ToList().Exists(x => x.gameObject.GetComponent<ThrowableObject>()))
-                            hallcells.Add(BaseGameManager.Instance.Ec.cells[i, j]);
-                    }
-                }
-                if (hallcells.Count > 0) {
-                    GameObject table = GameObject.Instantiate(PlayableCharsPlugin.assetMan.Get<Entity>("CYLN_Throwable").gameObject, hallcells[UnityEngine.Random.Range(0, hallcells.Count)].CenterWorldPosition, default(Quaternion), null);
-                    var prefab = prefabs[UnityEngine.Random.Range(0, prefabs.Count)];
-                    table.GetComponentInChildren<MeshFilter>(true).sharedMesh = prefab.GetComponent<MeshFilter>().sharedMesh;
-                    table.GetComponentInChildren<MeshRenderer>(true).SetMaterialArray(prefab.GetComponent<MeshRenderer>().GetMaterialArray());
-                }
-                yield return null;
-            }
-            yield break;
+                CoreGameManager.Instance.AddPoints(___normalPoints, player, true);
         }
     }
 

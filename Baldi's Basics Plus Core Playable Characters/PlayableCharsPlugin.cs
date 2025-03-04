@@ -182,7 +182,7 @@ namespace BBP_Playables.Core
             Resources.FindObjectsOfTypeAll<PlayerManager>().First().gameObject.AddComponent<PlrPlayableCharacterVars>();
             assetMan.Add("PlayerPrefab", Resources.FindObjectsOfTypeAll<PlayerManager>().First());
             yield return "Creating specific character stuff";
-            NullObjectThrowableSpawn.prefabs.AddRange([
+            CYLN_LOONComponent.prefabs.AddRange([
                 Resources.FindObjectsOfTypeAll<GameObject>().ToList().Find(x => x.name == "Table_Test"),
                 Resources.FindObjectsOfTypeAll<GameObject>().ToList().Find(x => x.name == "Chair_Test"),
                 //Resources.FindObjectsOfTypeAll<GameObject>().ToList().Find(x => x.name == "Decor_Banana")
@@ -464,7 +464,7 @@ namespace BBP_Playables.Core
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/FanonBBT"))
                 .SetStats(s: 3)
                 .Build();
-            var glitched = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, unlockedCylnLoon)
+            var glitched = new PlayableCharacterBuilder<CYLN_LOONComponent>(Info, unlockedCylnLoon)
                 .SetNameAndDesc("CYLN_LOON", "Desc_LOON")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Cylnloon"))
                 .SetStats(s: 2, w: 24f, r: 48f, sd: 25f, sr: 15, sm: 200f)
@@ -820,6 +820,9 @@ namespace BBP_Playables.Core
         {
             pm = gameObject.GetComponent<PlayerManager>();
         }
+
+        public virtual void GameBegin(BaseGameManager manager) { }
+        public virtual void SpoopBegin(BaseGameManager manager) { }
     }
     // Took this from the API
     public class PlayableCharacterBuilder<T> where T : PlayableCharacterComponent
