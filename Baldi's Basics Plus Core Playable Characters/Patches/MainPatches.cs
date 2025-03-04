@@ -244,7 +244,7 @@ namespace BBP_Playables.Core.Patches
                         __instance.itm.SetItem(PlayableCharsPlugin.Instance.Character.startingItems[i], i);
                 CoreGameManager.Instance.GetHud(__instance.playerNumber).UpdateInventorySize(PlayableCharsPlugin.Instance.Character.slots);
             }
-            __instance.gameObject.GetComponent<PlayableCharacterComponent>()?.Initialize(BaseGameManager.Instance);
+            __instance.gameObject.GetComponent<PlayableCharacterComponent>()?.Initialize();
             switch (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", ""))
             {
                 case "magicalstudent":

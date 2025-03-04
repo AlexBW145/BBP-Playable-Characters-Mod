@@ -11,8 +11,9 @@ namespace BBP_Playables.Modded.BCPP
 {
     public class MainProtagonistHUDInit : PlayableCharacterComponent
     {
-        public override void Initialize(BaseGameManager manager)
+        public override void Initialize()
         {
+            base.Initialize();
             // HUD CHANGES
             if (PlayerFileManager.Instance.authenticMode || CoreGameManager.Instance.authenticScreen.gameObject.activeSelf
                 || !Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))

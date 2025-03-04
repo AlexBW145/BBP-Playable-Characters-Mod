@@ -40,8 +40,9 @@ namespace BBP_Playables.Core
                 pm.GetComponent<PlayerMovementStatModifier>().AddModifier("runSpeed", modifier);
             }
         }
-        public override void Initialize(BaseGameManager manager)
+        public override void Initialize()
         {
+            base.Initialize();
             pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("BackpackClosed"), pm.itm.maxItem);
             pm.itm.LockSlot(pm.itm.maxItem, true);
             if ((bool)CoreGameManager.Instance.ReflectionGetVariable("restoreItemsOnSpawn") || PlayableCharsPlugin.gameStarted)

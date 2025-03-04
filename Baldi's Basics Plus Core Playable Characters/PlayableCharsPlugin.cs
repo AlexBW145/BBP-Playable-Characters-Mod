@@ -818,10 +818,9 @@ namespace BBP_Playables.Core
         protected PlayerManager pm;
         protected virtual void Start()
         {
-            pm = gameObject.GetComponent<PlayerManager>();
         }
 
-        public virtual void Initialize(BaseGameManager manager) { }
+        public virtual void Initialize() { pm = gameObject.GetComponent<PlayerManager>(); }
         public virtual void GameBegin(BaseGameManager manager) { }
         public virtual void SpoopBegin(BaseGameManager manager) { }
     }
