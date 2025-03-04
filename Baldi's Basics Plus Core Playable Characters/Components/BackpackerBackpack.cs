@@ -1,6 +1,7 @@
 ﻿using MTM101BaldAPI;
 using MTM101BaldAPI.Components;
 using MTM101BaldAPI.PlusExtensions;
+using MTM101BaldAPI.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,13 @@ namespace BBP_Playables.Core
                 pm.GetComponent<PlayerMovementStatModifier>().AddModifier("walkSpeed", modifier);
                 pm.GetComponent<PlayerMovementStatModifier>().AddModifier("runSpeed", modifier);
             }
+        }
+        public override void Initialize(BaseGameManager manager)
+        {
+            pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("BackpackClosed"), pm.itm.maxItem);
+            pm.itm.LockSlot(pm.itm.maxItem, true);
+            if ((bool)CoreGameManager.Instance.ReflectionGetVariable("restoreItemsOnSpawn") || PlayableCharsPlugin.gameStarted)
+                gameObject.GetComponent<BackpackerBackpack>().items = PlayableCharsGame.backpackerBackup;
         }
 
         private bool open = false;

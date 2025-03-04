@@ -40,6 +40,11 @@ namespace BBP_Playables.Core
             cam = CoreGameManager.Instance.GetCamera(pm.playerNumber).camCom;
         }
 
+        public override void Initialize(BaseGameManager manager)
+        {
+            if (CoreGameManager.Instance.GetPoints(pm.playerNumber) <= 0)
+                CoreGameManager.Instance.AddPoints(Mathf.Abs(CoreGameManager.Instance.GetPoints(pm.playerNumber)) + 50, 0, false);
+        }
         public override void SpoopBegin(BaseGameManager manager) => StartCoroutine(ThinkerDrain());
 
         void Update()

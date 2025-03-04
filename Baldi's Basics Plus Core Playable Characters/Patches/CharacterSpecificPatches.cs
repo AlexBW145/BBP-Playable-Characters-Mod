@@ -46,14 +46,14 @@ namespace BBP_Playables.Core.Patches
         static void BeginPostfix(BaseGameManager __instance)
         {
             for (int i = 0; i < CoreGameManager.Instance.setPlayers; i++)
-                CoreGameManager.Instance.GetPlayer(i).GetComponent<PlayableCharacterComponent>().GameBegin(__instance);
+                CoreGameManager.Instance.GetPlayer(i).GetComponent<PlayableCharacterComponent>()?.GameBegin(__instance);
         }
 
         [HarmonyPatch("BeginSpoopMode"), HarmonyPostfix]
         static void SpoopModePostfix(BaseGameManager __instance)
         {
             for (int i = 0; i < CoreGameManager.Instance.setPlayers; i++)
-                CoreGameManager.Instance.GetPlayer(i).GetComponent<PlayableCharacterComponent>().SpoopBegin(__instance);
+                CoreGameManager.Instance.GetPlayer(i).GetComponent<PlayableCharacterComponent>()?.SpoopBegin(__instance);
         }
         static FieldInfo timeScaleModifiers = AccessTools.DeclaredField(typeof(EnvironmentController), "timeScaleModifiers");
         [HarmonyPatch("ActivityCompleted"), HarmonyPostfix]

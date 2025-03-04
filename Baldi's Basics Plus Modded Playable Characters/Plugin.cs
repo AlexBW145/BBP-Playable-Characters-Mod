@@ -147,7 +147,7 @@ namespace BBP_Playables.Modded
                 /*Material wholeWhiteMat = new Material(Shader.Find("GUI/Text Shader"));
                 wholeWhiteMat.name = "MapWhiteMat";
                 PlayableCharsPlugin.assetMan.Add<Material>("DwellerMapMat", wholeWhiteMat);*/
-                new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
+                new PlayableCharacterBuilder<MainProtagonistHUDInit>(Info, false)
                 .SetNameAndDesc("The Main Protagonist", "Desc_Protagonist")
                 .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Placeholder"))
                 .SetStats(s: 5, w: 18, r: 28) // Original Stats: 14, 18
