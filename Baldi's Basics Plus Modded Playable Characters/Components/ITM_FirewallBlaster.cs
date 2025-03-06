@@ -1,5 +1,4 @@
 ﻿using BBP_Playables.Core;
-using BBTimes.CustomContent.NPCs;
 using MTM101BaldAPI;
 using System;
 using System.Collections;

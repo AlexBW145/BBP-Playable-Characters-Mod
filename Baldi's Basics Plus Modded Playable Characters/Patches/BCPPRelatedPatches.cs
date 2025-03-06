@@ -26,7 +26,7 @@ namespace BBP_Playables.Modded.Patches
         }
     }
 
-    [ConditionalPatchMod("alexbw145.baldiplus.bcarnellchars"), HarmonyPatch(typeof(MainMenu), "Start")]
+    [ConditionalPatchMod("alexbw145.baldiplus.bcarnellchars"), HarmonyPatch(typeof(BCPPSave), "Load")]
     class DwellerAlreadyUnlockedCheck
     {
         static void Postfix()

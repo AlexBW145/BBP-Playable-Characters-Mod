@@ -152,7 +152,7 @@ namespace BBP_Playables.Core.Patches
                 text = "0" + Mathf.Floor(time % 60f);
             }
 
-            Debug.Log("Required time: " + Mathf.Floor(time / 60f) + ":" + text);
+            PlayableCharsPlugin.Log.LogInfo("Required time: " + Mathf.Floor(time / 60f) + ":" + text);
 #endif
             if (MainGameManager.Instance.levelObject.name == "Main1" && (float)__instance.ReflectionGetVariable("time") < time && CoreGameManager.Instance.Lives == 2
                 && PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") == "thedefault" && PlayableCharsPlugin.Instance.Character.info == PlayableCharsPlugin.Instance.Info

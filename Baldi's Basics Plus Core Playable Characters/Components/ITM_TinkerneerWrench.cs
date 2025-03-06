@@ -50,10 +50,7 @@ namespace BBP_Playables.Core
             return false;
         }
 
-        private bool TinkerneerExclusive(TinkerneerObject tinkerobject)
-        {
-            return (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") == "thetinkerneer" && tinkerobject.tinkerneerCharExclusive) || !tinkerobject.tinkerneerCharExclusive;
-        }
+        private bool TinkerneerExclusive(TinkerneerObject tinkerobject) => (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") == "thetinkerneer" && tinkerobject.tinkerneerCharExclusive) || !tinkerobject.tinkerneerCharExclusive;
 
         private bool HasRequiredItems(List<ItemObject> items)
         {

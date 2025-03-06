@@ -266,8 +266,7 @@ namespace BBP_Playables.Core.Patches
         [HarmonyPatch(typeof(Bully_Active), nameof(Bully_Active.PlayerSighted)), HarmonyPrefix]
         static bool LazyPatch(PlayerManager player) => player.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") != "The Troublemaker".ToLower().Replace(" ", "");
         [HarmonyPatch(typeof(ITM_AlarmClock), nameof(ITM_AlarmClock.Use))]
-        [HarmonyPatch(typeof(ITM_Tape), nameof(ITM_Tape.Use))]
-        [HarmonyPatch(typeof(ITM_PrincipalWhistle), nameof(ITM_PrincipalWhistle.Use))]
+        [HarmonyPatch(typeof(ITM_NanaPeel), nameof(ITM_NanaPeel.Use))]
         [HarmonyPostfix]
         static void IsThisAnAbsolutePrank(PlayerManager pm)
         {
@@ -286,6 +285,13 @@ namespace BBP_Playables.Core.Patches
         {
             if (__instance.ec.offices.Count > 0 && ___targetedPlayer.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
                 ___detentionLevel = Mathf.Min(___detentionLevel + 1, ___audTimes.Length - 1);
+        }
+
+        [HarmonyPatch(typeof(ITM_BSODA), nameof(ITM_BSODA.Use)), HarmonyPrefix]
+        static void BuffedBSODA(PlayerManager pm, ref float ___time)
+        {
+            if (pm.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
+                ___time *= 2f;
         }
     }
     // Affects the culling manager, useless
