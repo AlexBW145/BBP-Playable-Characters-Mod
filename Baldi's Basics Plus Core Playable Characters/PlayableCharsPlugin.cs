@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using TMPro;
 using UnityCipher;
@@ -29,7 +30,7 @@ using UnityEngine.UI;
 namespace BBP_Playables.Core
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", "5.0.0.0")]
+    [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", "6.3.0.0")]
     [BepInDependency("mtm101.rulerp.baldiplus.endlessfloors", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInProcess("BALDI.exe")]
     public class PlayableCharsPlugin : BaseUnityPlugin
@@ -239,7 +240,7 @@ namespace BBP_Playables.Core
             {
                 Baldi bald = npc as Baldi;
                 int chance = UnityEngine.Random.Range(1, 8);
-                if (chance >= 7 && chance <= 8) // Sudden Bomb
+                if (chance >= 7) // Sudden Bomb
                 {
                     var animator = bald.gameObject.GetOrAddComponent<CustomSpriteAnimator>();
                     animator.spriteRenderer = bald.spriteRenderer[0];
@@ -289,21 +290,54 @@ namespace BBP_Playables.Core
                     bald.StartCoroutine(BombMan());
                     return 7.9f;
                 }
-                else if (chance <= 6 && chance >= 3) // New Ruler
+                else if (chance >= 3 && chance <= 6) // New Ruler
                 {
 
                 }
                 else // An Apple
                 {
                     bald.GetComponent<Animator>().enabled = true;
-                    bald.TakeApple();
+                    IEnumerator WaitForApple(Baldi itsbald)
+                    {
+                        while (itsbald.behaviorStateMachine.CurrentState is NPC_PresentAftermath)
+                            yield return null;
+                        itsbald.TakeApple();
+                        yield break;
+                    }
+                    bald.StartCoroutine(WaitForApple(bald));
                     return 0f;
                 }
                 return 1f;
             });
-            //ITM_PartygoerPresent.RewardedSound.Add(global::Character.Principal, Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "BAL_Apple"));
+            ITM_PartygoerPresent.RewardedSound.Add(global::Character.Principal, Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "PRI_Scold3"));
             NPC_PresentAftermath.actions.Add(global::Character.Principal, (npc) =>
             {
+                Principal pri = npc as Principal;
+                PlayerManager player = pri.ReflectionGetVariable("targetedPlayer") as PlayerManager;
+                int chance = UnityEngine.Random.Range(-1, 8);
+                if (chance >= 3 && player != null && player.plm.Entity.CurrentRoom?.functionObject?.GetComponent<DetentionRoomFunction>() != null) // Free Detention Pass
+                {
+                    if ((bool)player.plm.Entity.CurrentRoom.functionObject.GetComponent<DetentionRoomFunction>().ReflectionGetVariable("active"))
+                    {
+                        player.plm.Entity.CurrentRoom.functionObject.GetComponent<DetentionRoomFunction>().Activate(0f, pri.ec);
+                        foreach (Door door in player.plm.Entity.CurrentRoom.doors)
+                            door.Unlock();
+                        return 0f;
+                    }
+                }
+                else if (chance <= 1)
+                {
+                    float nearest = float.PositiveInfinity;
+                    foreach (var plr in pri.players)
+                        if (Vector3.Distance(pri.transform.position, plr.transform.position) < nearest)
+                            player = plr;
+                    if (player != null)
+                    {
+                        player.RuleBreak(chance == 1 ? "Lockers" : "Faculty", 99, -5f);
+                        pri.ObservePlayer(player);
+                    }
+                    return 0f;
+                }
                 return 1f;
             });
             ITM_PartygoerPresent.RewardedSound.Add(global::Character.Bully, Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "BUL_TakeThat"));
@@ -360,6 +394,61 @@ namespace BBP_Playables.Core
                     bul.GetComponent<AudioManager>().PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "BUL_Donation"));
                     return 0f;
                 }
+            });
+            ITM_PartygoerPresent.RewardedSound.Add(global::Character.Beans, Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "Ben_HippityHey"));
+            NPC_PresentAftermath.actions.Add(global::Character.Beans, (npc) =>
+            {
+                Beans ben = npc as Beans;
+                return 2f; // How tf Beans has no randomness applied??
+            });
+            /*NPC_PresentAftermath.actions.Add(global::Character.Crafters, (npc) =>
+            {
+                ArtsAndCrafters crafters = npc as ArtsAndCrafters;
+                return 0f; // Same for Crafters...
+            });*/
+            NPC_PresentAftermath.actions.Add(global::Character.Sweep, (npc) =>
+            {
+                return 1f; // Can't do anything with him...
+            });
+            ITM_PartygoerPresent.RewardedSound.Add(global::Character.Pomp, Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "NoL_JustinTime"));
+            NPC_PresentAftermath.actions.Add(global::Character.Pomp, (npc) =>
+            {
+                NoLateTeacher pomp = npc as NoLateTeacher;
+                var curstate = pomp.behaviorStateMachine.currentState as NPC_PresentAftermath;
+                if (curstate.PreviousState is NoLateTeacher_Waiting)
+                    pomp.Dismiss();
+                pomp.behaviorStateMachine.ChangeState(new NoLateTeacher_Cooldown(pomp, pomp.Cooldown));
+                pomp.behaviorStateMachine.ChangeNavigationState(new NavigationState_WanderRounds(pomp, 0));
+                return 0f;
+            });
+            ITM_PartygoerPresent.RewardedSound.Add(global::Character.Playtime, Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "PT_Laugh"));
+            NPC_PresentAftermath.actions.Add(global::Character.Playtime, (npc) =>
+            {
+                Playtime pt = npc as Playtime;
+                if (UnityEngine.Random.Range(1, 6) <= 2) // HOW DARE YOU NOT GIVE HER A NEW JUMPROPE??
+                    return 2f;
+                pt.GetComponent<AudioManager>().PlaySingle(pt.ReflectionGetVariable("audCongrats") as SoundObject);
+                pt.behaviorStateMachine.ChangeState(new Playtime_Cooldown(pt, pt, 25f));
+                return 0f;
+            });
+            ITM_PartygoerPresent.RewardedSound.Add(global::Character.DrReflex, Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "DrR_GoodJob"));
+            NPC_PresentAftermath.actions.Add(global::Character.DrReflex, (npc) =>
+            {
+                DrReflex reflex = npc as DrReflex;
+                var curstate = reflex.behaviorStateMachine.currentState as NPC_PresentAftermath;
+                reflex.AudioManager.FlushQueue(true);
+                if ((curstate.PreviousState is DrReflex_Testing && !reflex.PlayerLeft(reflex.players[0])) || curstate.PreviousState is not DrReflex_Testing)
+                    reflex.behaviorStateMachine.ChangeState(new DrReflex_Wandering(reflex, 30f));
+                if (!reflex.PlayerLeft(reflex.players[0]))
+                    reflex.ReflectionInvoke("WinTest", []);
+                else if (curstate.PreviousState is DrReflex_Testing)
+                {
+                    /*reflex.behaviorStateMachine.ChangeState(new NpcState(reflex));
+                    reflex.behaviorStateMachine.ChangeNavigationState(new NavigationState_DoNothing(reflex, 127));
+                    reflex.EndTest(false, reflex.players[0]);*/
+                    return 0f;
+                }
+                return 4f;
             });
             #endregion
 #endif
@@ -476,7 +565,7 @@ namespace BBP_Playables.Core
                 .SetNameAndDesc("The Partygoer", "Desc_Partygoer") // SCRAPPED IDEA: Party Bash\nBy finding the necessary items to host, you can host a party any room! But can alert Baldi after doing so...
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Partygoer"))
                 .SetStats(s: 6, w: 19f, r: 26f, sm: 90f, sr: 15f)
-                .SetStartingItems(ItemMetaStorage.Instance.FindByEnum(Items.Quarter).value)
+                .SetStartingItems(assetMan.Get<ItemObject>("PresentUnwrapped"))
                 .Build();
             var bullyman = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("The Troublemaker", "Desc_Troublemaker") // SCRAPPED IDEA: Schemes of Naught\nIncreases the detention timer, allows the player to get past through Its a Bully with no items at all, and BSODA duration is increased.
@@ -550,6 +639,13 @@ namespace BBP_Playables.Core
             GeneratorManagement.Register(this, GenerationModType.Addend, (name, num, ld) =>
             {
                 ld.shopItems = ld.shopItems.AddToArray(new() { selection = assetMan.Get<ItemObject>("TinkerneerWrench"), weight = 80 });
+                if (ld.manager is MainGameManager or EndlessGameManager)
+                {
+                    var presentt = assetMan.Get<ItemObject>("PresentUnwrapped");
+                    ld.levelObject?.forcedItems.AddRange([presentt, presentt]);
+                    foreach (var level in ld?.randomizedLevelObject)
+                        level.selection.forcedItems.AddRange([presentt, presentt]);
+                }
             });
             if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.endlessfloors"))
                 EndlessFloorsFuncs.ArcadeModeAdd();
@@ -816,12 +912,25 @@ namespace BBP_Playables.Core
     public class PlayableCharacterComponent : MonoBehaviour
     {
         protected PlayerManager pm;
+        /// <summary>
+        /// This function gets called after initialization
+        /// </summary>
         protected virtual void Start()
         {
         }
-
+        /// <summary>
+        /// This function gets called within the player manager initialization
+        /// </summary>
         public virtual void Initialize() { pm = gameObject.GetComponent<PlayerManager>(); }
+        /// <summary>
+        /// This function gets called after the game has begun
+        /// </summary>
+        /// <param name="manager"></param>
         public virtual void GameBegin(BaseGameManager manager) { }
+        /// <summary>
+        /// This function gets called after spoop mode begins
+        /// </summary>
+        /// <param name="manager"></param>
         public virtual void SpoopBegin(BaseGameManager manager) { }
     }
     // Took this from the API
@@ -891,6 +1000,7 @@ namespace BBP_Playables.Core
 
         public PlayableCharacterBuilder<T> SetStartingItems(params ItemObject[] i)
         {
+            if (i.Length <= 0) return this; // Who would do such thing to insert an empty item object array?
             startingItems = i;
             flags |= PlayableFlags.ContainsStartingItem;
             return this;

@@ -162,6 +162,20 @@ namespace BBP_Playables.Core.Patches
     [HarmonyPatch]
     class PartygoerPatches
     {
+        [HarmonyPatch(typeof(Pickup), nameof(Pickup.Start)), HarmonyPostfix]
+        static void YouSureHeExists(Pickup __instance)
+        {
+            if (__instance.item == PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentUnwrapped"))
+            {
+                for (int i = 0; i < CoreGameManager.Instance.setPlayers; i++)
+                    if (CoreGameManager.Instance.GetPlayer(i).GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Partygoer".ToLower().Replace(" ", ""))
+                        return;
+                __instance.AssignItem(ItemMetaStorage.Instance.FindByEnum(Items.None).value);
+                __instance.gameObject.SetActive(value: false);
+                if (__instance.icon != null)
+                    __instance.icon.spriteRenderer.enabled = false;
+            }
+        }
         [HarmonyPatch(typeof(HudManager), nameof(HudManager.SetItemSelect)), HarmonyPostfix]
         static void WhoIsItFor(int value, string key, HudManager __instance, ref RawImage[] ___itemBackgrounds, ref TMP_Text ___itemTitle)
         {

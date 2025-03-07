@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace BBP_Playables.Modded.BBTimes;
 
-public static class BBTInventions
+internal static class BBTInventions
 {
     internal static void DoStuff()
     {
@@ -138,8 +138,8 @@ public class BasketBallThrower : TinkerneerObject
         if (cooldownToShoot < 0f)
         {
             cooldownToShoot += UnityEngine.Random.Range(8f, 10f);
-            ITM_Basketball iTM_Basketball = GameObject.Instantiate(basketBallPre);
-            iTM_Basketball.Setup(ec, transform.forward, transform.position + transform.forward * 7f + Vector3.up * 5f, ec.mainHall, 0.8f);
+            ITM_Basketball iTM_Basketball = Instantiate(basketBallPre);
+            iTM_Basketball.Setup(ec, transform.forward, transform.position + transform.forward * 7f + Vector3.up * 5f, ec.mainHall, 0.6f);
             iTM_Basketball.ReflectionSetVariable("maxHitsBeforeDying", 1);
             iTM_Basketball.ReflectionSetVariable("lifeTime", 8f);
             for (int i = 0; i < CoreGameManager.Instance.setPlayers; i++)

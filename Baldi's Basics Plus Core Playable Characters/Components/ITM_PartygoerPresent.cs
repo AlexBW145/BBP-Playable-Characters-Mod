@@ -17,13 +17,33 @@ namespace BBP_Playables.Core
         public Character Character => Gift;
         public static Dictionary<BepInEx.PluginInfo, Func<ItemObject, bool>> modAction = new Dictionary<BepInEx.PluginInfo, Func<ItemObject, bool>>();
         public static Dictionary<Character, SoundObject> RewardedSound = new Dictionary<Character, SoundObject>();
+        public static HashSet<Type> disallowedStates = new HashSet<Type>()
+        {
+            typeof(DrReflex_Angry),
+            typeof(DrReflex_Hunting),
+            typeof(NoLateTeacher_TimeOut),
+            typeof(NoLateTeacher_AttackDelay),
+            typeof(NoLateTeacher_Triggered),
+            typeof(NoLateTeacher_Returning),
+            typeof(NoLateTeacher_AngryTeach),
+            typeof(NoLateTeacher_Inform),
+            typeof(Principal_WhistleApproach),
+            typeof(Baldi_Apple),
+            typeof(Baldi_Attack),
+            typeof(Baldi_Chase_Tutorial),
+            typeof(ArtsAndCrafters_Teleporting),
+            typeof(LookAtGuy_Blinding),
+            typeof(Beans_Watch),
+            typeof(Playtime_Playing)
+        };
 
         public override bool Use(PlayerManager pm)
         {
             if (Unwrapped && Physics.Raycast(pm.transform.position, CoreGameManager.Instance.GetCamera(pm.playerNumber).transform.forward, out var hit, pm.pc.reach, LayerMask.GetMask("Default")))
             {
                 var item = hit.transform.GetComponent<Pickup>();
-                if (item != null)
+                if (item != null && item.transform.GetComponentInParent<StorageLocker>() == null
+                    && item.price == 0 && item.free)
                 {
                     if (new Items[] { Items.Apple, Items.Wd40, 
                         Items.PrincipalWhistle, Items.DetentionKey, 
@@ -54,9 +74,9 @@ namespace BBP_Playables.Core
                         case Items.Scissors: // Playtime
                             pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + Character.Playtime.ToString()), pm.itm.selectedItem);
                             return false;
-                        case Items.AlarmClock or Items.Teleporter: // Arts and Crafters
+                        /*case Items.AlarmClock or Items.Teleporter: // Arts and Crafters
                             pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + Character.Crafters.ToString()), pm.itm.selectedItem);
-                            return false;
+                            return false;*/
                         case Items.Boots: // Gotta Sweep
                             pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + Character.Sweep.ToString()), pm.itm.selectedItem);
                             return false;
@@ -84,7 +104,8 @@ namespace BBP_Playables.Core
             else if (Physics.Raycast(pm.transform.position, CoreGameManager.Instance.GetCamera(pm.playerNumber).transform.forward, out hit, pm.pc.reach, LayerMask.GetMask("NPCs")))
             {
                 var npc = hit.transform.GetComponent<NPC>();
-                if (npc != null && npc.Character == Gift && !npc.behaviorStateMachine.currentState.GetType().Equals(typeof(NPC_Present)) && !npc.behaviorStateMachine.currentState.GetType().Equals(typeof(NPC_PresentAftermath)))
+                if (npc != null && npc.Character == Gift && npc.behaviorStateMachine.currentState is not NPC_Present && npc.behaviorStateMachine.currentState is not NPC_PresentAftermath
+                    && !disallowedStates.Contains(npc.behaviorStateMachine.currentState.GetType()))
                 {
                     if (RewardedSound.TryGetValue(npc.Character, out var soundObject))
                         npc.GetComponent<AudioManager>()?.PlaySingle(soundObject);
@@ -111,7 +132,7 @@ namespace BBP_Playables.Core
         private NpcState previousState;
         private float time;
         private MovementModifier stopMoving = new MovementModifier(Vector3.zero, 0f);
-        private float introTime = 7f;
+        private float introTime = 2.4f;
         internal static SoundObject[] sounds = new SoundObject[2];
         private AudioManager audman;
         public NPC_Present(NPC npc, NpcState previousState, float time) : base(npc)
@@ -120,6 +141,8 @@ namespace BBP_Playables.Core
             this.time = time;
             audman = npc.gameObject.GetComponent<AudioManager>();
             if (npc.GetComponent<Animator>() != null) npc.GetComponent<Animator>().enabled = false;
+            if (ITM_PartygoerPresent.RewardedSound.TryGetValue(npc.Character, out var soundObject))
+                introTime += soundObject.subDuration;
         }
 
         public override void Enter()
@@ -127,6 +150,7 @@ namespace BBP_Playables.Core
             base.Enter();
             //npc.Navigator.Entity.SetInteractionState(false);
             npc.Navigator.Entity.ExternalActivity.moveMods.Add(stopMoving);
+            npc.StopAllCoroutines();
         }
 
         public override void Resume()
@@ -159,6 +183,7 @@ namespace BBP_Playables.Core
     public class NPC_PresentAftermath : NpcState
     {
         private NpcState previousState;
+        public NpcState PreviousState => previousState;
         private AudioManager audman;
         public static Dictionary<Character, Func<NPC, float>> actions = new Dictionary<Character, Func<NPC, float>>();
         private float time = 5f;
