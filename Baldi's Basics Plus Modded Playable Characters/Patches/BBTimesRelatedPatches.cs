@@ -7,6 +7,7 @@ using BBTimes.CustomContent.NPCs;
 using BBTimes.ModPatches;
 using HarmonyLib;
 using MTM101BaldAPI;
+using MTM101BaldAPI.Reflection;
 using UnityEngine;
 
 namespace BBP_Playables.Modded.Patches
@@ -29,6 +30,14 @@ namespace BBP_Playables.Modded.Patches
             if (!playableEmotions.ContainsKey(PlayableCharsPlugin.Instance.Character)) return;
             ___emotions = playableEmotions[PlayableCharsPlugin.Instance.Character];
             __instance.SetEmotion(0);
+        }
+        [HarmonyPatch(typeof(PlayableCharacterComponent), "Start"), HarmonyPostfix]
+        static void RandomizerSetVisual(ref PlayerManager ___pm)
+        {
+            if (!playableEmotions.ContainsKey(PlayableCharsPlugin.Instance.Character) || !PlayableCharsPlugin.IsRandom) return;
+            var visual = PlayerVisual.GetPlayerVisual(___pm.playerNumber);
+            visual.ReflectionSetVariable("emotions", playableEmotions[PlayableCharsPlugin.Instance.Character]);
+            visual.SetEmotion(0);
         }
     }
 }
