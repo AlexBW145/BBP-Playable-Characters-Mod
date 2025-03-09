@@ -123,7 +123,7 @@ namespace BBP_Playables.Core
         {
             PlayableCharsPlugin.Instance.extraSave = new(characters[curChar]);
             portrait.sprite = characters[curChar].sprselect;
-            text.text = characters[curChar].name;
+            text.text = LocalizationManager.Instance.GetLocalizedText(characters[curChar].name);
         }
 
         internal void SetValues()

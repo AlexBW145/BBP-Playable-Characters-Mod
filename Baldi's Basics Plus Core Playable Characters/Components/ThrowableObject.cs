@@ -34,7 +34,7 @@ namespace BBP_Playables.Core
         public void Clicked(int player)
         {
             if (!ready || held ||
-                CoreGameManager.Instance.GetPlayer(player).GetComponent<PlrPlayableCharacterVars>().GetCurrentPlayable().name.ToLower().Replace(" ", "") != "CYLN_LOON".ToLower().Replace(" ", "")) return;
+                PlrPlayableCharacterVars.GetPlayable(player)?.GetCurrentPlayable().name.ToLower().Replace(" ", "") != "CYLN_LOON".ToLower().Replace(" ", "")) return;
             clickBuffer = true;
             held = true;
             heldSelf = true;

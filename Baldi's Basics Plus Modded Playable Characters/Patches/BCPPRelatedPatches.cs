@@ -20,13 +20,13 @@ namespace BBP_Playables.Modded.Patches
             if (__instance.levelObject == BasePlugin.Instance.lBasement &&
                 __instance.levelObject.finalLevel)
                 PlayableCharsPlugin.UnlockCharacter(Plugin.info, "The Dweller");
-            if (__instance.levelObject.finalLevel && (CoreGameManager.Instance.GetPlayer(0).itm.items.Contains(PlayableCharsPlugin.assetMan.Get<ItemObject>("FirewallBlaster"))
+            if (__instance.levelObject.finalLevel && (PlrPlayableCharacterVars.GetLocalPlayable().GetPlayer().itm.items.Contains(PlayableCharsPlugin.assetMan.Get<ItemObject>("FirewallBlaster"))
                 || CoreGameManager.Instance.currentLockerItems.Contains(PlayableCharsPlugin.assetMan.Get<ItemObject>("FirewallBlaster"))))
                 PlayableCharsPlugin.UnlockCharacter(Plugin.info, "The Main Protagonist");
         }
     }
 
-    [ConditionalPatchMod("alexbw145.baldiplus.bcarnellchars"), HarmonyPatch(typeof(BCPPSave), "Load")]
+    [ConditionalPatchMod("alexbw145.baldiplus.bcarnellchars"), HarmonyPatch(typeof(MainMenu), "Start")]
     class DwellerAlreadyUnlockedCheck
     {
         static void Postfix()
@@ -37,7 +37,7 @@ namespace BBP_Playables.Modded.Patches
                     DwellerAbility.crisped.Remove(crisp.Key);
                     GameObject.Destroy(crisp.Value);
                 }*/
-            if (BCPPSave.Instance.basementCompleted)
+            if (!PlayableCharacterMetaStorage.Instance.Find(x => x.value.name == "The Dweller").value.unlocked && BCPPSave.Instance.basementCompleted)
                 PlayableCharsPlugin.UnlockCharacter(Plugin.info, "The Dweller");
         }
     }
@@ -50,7 +50,7 @@ namespace BBP_Playables.Modded.Patches
         [HarmonyPatch(nameof(Pickup.AssignItem))]
         static void Postfix(Pickup __instance)
         {
-            if (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") == "thedweller"
+            if (PlrPlayableCharacterVars.GetLocalPlayable()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thedweller"
                 && __instance.icon != null && __instance.item.itemType != Items.None) {
                 Sprite crisp = crisped.ContainsKey(__instance.item) ? crisped[__instance.item] : Sprite.Create(__instance.item.itemSpriteLarge.texture, new Rect(0f, 0f, __instance.item.itemSpriteLarge.texture.width, __instance.item.itemSpriteLarge.texture.height), Vector2.one / 2f, 80f, 0u, SpriteMeshType.FullRect);
                 crisp.name = "CrispedItemIconSpr_" + __instance.item.name;

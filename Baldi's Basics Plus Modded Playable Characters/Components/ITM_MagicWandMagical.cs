@@ -19,7 +19,7 @@ namespace BBP_Playables.Modded.BBTimes
         private float existCooldown;
         public override bool Use(PlayerManager pm)
         {
-            if (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") != "Magical Student".ToLower().Replace(" ", ""))
+            if (pm.GetPlayable().GetCurrentPlayable().name.ToLower().Replace(" ", "") != "Magical Student".ToLower().Replace(" ", ""))
             {
                 Destroy(gameObject);
                 CoreGameManager.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Last(x => x.name == "BAL_Break"));

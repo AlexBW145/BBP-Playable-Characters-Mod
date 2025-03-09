@@ -209,22 +209,44 @@ namespace BBP_Playables.Core.Patches
     class PlayerPatches
     {
         [HarmonyPatch(typeof(CoreGameManager), nameof(CoreGameManager.SpawnPlayers)), HarmonyPrefix, HarmonyPriority(Priority.High)]
-        static void ReplacePrefabs(CoreGameManager __instance)
+        static void ReplacePrefabs(CoreGameManager __instance, ref HudManager ___hudPref, ref HudManager[] ___huds)
         {
+            if (PlayableCharsPlugin.Instance.Character.componentType == typeof(PlayableRandomizer)
+                || ((bool?)__instance.sceneObject?.CustomLevelObject()?.GetCustomModValue(PlayableCharsPlugin.Instance.Info, "randomizeralways") == true && PlayableCharsPlugin.Instance.extraSave.Item1.componentType == typeof(PlayableRandomizer)))
+                PlayableRandomizer.RandomizePlayable();
+            /*if (CoreGameManager.Instance.GetPlayer(0) != null) // Was using this for reiniting the HUD on every next level, but whatever...
+                CoreGameManager.Instance.ReflectionInvoke("DestroyPlayers", []);*/
             // Nothing good to do, this will possibly have multiplayer issues.
             __instance.playerPref = PlayableCharsPlugin.Instance.Character.prefab;
+            for (int i = 0; i < __instance.setPlayers; i++)
+                if (__instance.GetPlayer(i) != null)
+                {
+                    HudManager oldhud = CoreGameManager.Instance.GetHud(i);
+                    ___huds[i] = GameObject.Instantiate(___hudPref);
+                    ___huds[i].hudNum = i;
+                    if (!PlayerFileManager.Instance.authenticMode)
+                        ___huds[i].Canvas().worldCamera = CoreGameManager.Instance.GetCamera(i).canvasCam;
+                    GameObject.Destroy(oldhud.gameObject);
+                }
+        }
+        [HarmonyPatch(typeof(CoreGameManager),nameof(CoreGameManager.SpawnPlayers)), HarmonyPostfix]
+        static void InitVars(CoreGameManager __instance) // Bugfix with Partygoer's Wrapping Bundles
+        {
+            for (int i = 0; i < __instance.setPlayers; i++)
+            {
+                var player = __instance.GetPlayer(i);
+                player.gameObject.GetOrAddComponent<PlrPlayableCharacterVars>().Init(player);
+            }
         }
         [HarmonyPatch(typeof(PlayerManager), "Start"), HarmonyPrefix, HarmonyPriority(Priority.High)]
         static void PatchEmStats(PlayerManager __instance)
         {
-            //__instance.gameObject.AddComponent<PlrPlayableCharacterVars>();
             __instance.plm.walkSpeed = PlayableCharsPlugin.Instance.Character.walkSpeed;
             __instance.plm.runSpeed = PlayableCharsPlugin.Instance.Character.runSpeed;
             __instance.plm.staminaDrop = PlayableCharsPlugin.Instance.Character.staminaDrop;
             __instance.plm.staminaRise = PlayableCharsPlugin.Instance.Character.staminaRise;
             __instance.plm.staminaMax = PlayableCharsPlugin.Instance.Character.staminaMax;
-            if (PlayableCharsPlugin.Instance.Character.staminaMax <= 0f)
-                CoreGameManager.Instance.GetHud(__instance.playerNumber).transform.Find("Staminometer").gameObject.SetActive(false);
+            CoreGameManager.Instance.GetHud(__instance.playerNumber).transform.Find("Staminometer").gameObject.SetActive(PlayableCharsPlugin.Instance.Character.staminaMax > 0f);
             __instance.plm.stamina = __instance.plm.staminaMax;
             __instance.gameObject.AddComponent(PlayableCharsPlugin.Instance.Character.componentType);
             bool endless = false;

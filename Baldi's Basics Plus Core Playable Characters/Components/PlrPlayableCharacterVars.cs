@@ -1,4 +1,6 @@
 ﻿using JetBrains.Annotations;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace BBP_Playables.Core
@@ -8,14 +10,18 @@ namespace BBP_Playables.Core
     {
         [SerializeField] private PlayableCharacter curCharacter;
         [SerializeField] private PlayerManager curPlayer;
+        public static PlrPlayableCharacterVars[] PlayerPlayables { get; private set; } = new PlrPlayableCharacterVars[12];
 
-        void Start()
+        internal void Init(PlayerManager pm)
         {
-            curPlayer = gameObject.GetComponent<PlayerManager>();
+            curPlayer = pm;
             if (PlayableCharsGame.Character != null) curCharacter = PlayableCharsGame.Character;
+            PlayerPlayables[curPlayer.playerNumber] = this;
         }
 
         public PlayableCharacter GetCurrentPlayable() => curCharacter;
         public PlayerManager GetPlayer() => curPlayer;
+        public static PlrPlayableCharacterVars GetPlayable(int player) => PlayerPlayables[player];
+        public static PlrPlayableCharacterVars GetLocalPlayable() => BaseGameManager.Instance?.Ec?.Players[0]?.GetPlayable();
     }
 }

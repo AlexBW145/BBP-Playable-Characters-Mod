@@ -75,7 +75,7 @@ namespace BBP_Playables.Core.Patches
     {
         static void Postfix(int player, bool correct, Activity activity, Activity __instance)
         {
-            if (__instance.GetComponent<MathMachine>() != null && !correct && CoreGameManager.Instance.GetPlayer(player).GetComponent<PlrPlayableCharacterVars>().GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thethinker"
+            if (__instance.GetComponent<MathMachine>() != null && !correct && PlrPlayableCharacterVars.GetPlayable(player)?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thethinker"
                 && CoreGameManager.Instance.GetPoints(player) > 0)
                 CoreGameManager.Instance.AddPoints(CoreGameManager.Instance.GetPoints(player) < 50 ? -CoreGameManager.Instance.GetPoints(player) : -50, player, true);
 
@@ -118,7 +118,7 @@ namespace BBP_Playables.Core.Patches
     {
         static void Prefix(int player, ref bool ___givePoints, ref int ___normalPoints)
         {
-            if (___givePoints && CoreGameManager.Instance.GetPlayer(player).GetComponent<PlrPlayableCharacterVars>().GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thetestsubject")
+            if (___givePoints && PlrPlayableCharacterVars.GetPlayable(player)?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thetestsubject")
                 CoreGameManager.Instance.AddPoints(___normalPoints, player, true);
         }
     }
@@ -168,7 +168,7 @@ namespace BBP_Playables.Core.Patches
             if (__instance.item == PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentUnwrapped"))
             {
                 for (int i = 0; i < CoreGameManager.Instance.setPlayers; i++)
-                    if (CoreGameManager.Instance.GetPlayer(i).GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Partygoer".ToLower().Replace(" ", ""))
+                    if (PlrPlayableCharacterVars.GetPlayable(i)?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Partygoer".ToLower().Replace(" ", ""))
                         return;
                 __instance.AssignItem(ItemMetaStorage.Instance.FindByEnum(Items.None).value);
                 __instance.gameObject.SetActive(value: false);
@@ -273,38 +273,38 @@ namespace BBP_Playables.Core.Patches
         [HarmonyPatch(typeof(Bully), nameof(Bully.StealItem)), HarmonyPrefix, HarmonyPriority(Priority.High)]
         static bool TheyFriendsTho(PlayerManager pm)
         {
-            if (pm.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
+            if (pm.GetPlayable()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
                 return false;
             return true;
         }
         [HarmonyPatch(typeof(Bully_Active), nameof(Bully_Active.PlayerSighted)), HarmonyPrefix]
-        static bool LazyPatch(PlayerManager player) => player.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") != "The Troublemaker".ToLower().Replace(" ", "");
+        static bool LazyPatch(PlayerManager player) => player.GetPlayable()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") != "The Troublemaker".ToLower().Replace(" ", "");
         [HarmonyPatch(typeof(ITM_AlarmClock), nameof(ITM_AlarmClock.Use))]
         [HarmonyPatch(typeof(ITM_NanaPeel), nameof(ITM_NanaPeel.Use))]
         [HarmonyPostfix]
         static void IsThisAnAbsolutePrank(PlayerManager pm)
         {
-            if (pm.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
+            if (pm.GetPlayable()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
                 pm.RuleBreak("Bullying", 5f, 0.3f);
         }
         [HarmonyPatch(typeof(TapePlayer), nameof(TapePlayer.InsertItem)), HarmonyPostfix]
         static void YeahNoYouAreInTrouble(PlayerManager player, EnvironmentController ec)
         {
-            if (player.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
+            if (player.GetPlayable()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
                 player.RuleBreak("Bullying", 5f, 0.3f);
         }
 
         [HarmonyPatch(typeof(Principal), nameof(Principal.SendToDetention)), HarmonyPostfix]
         static void OhNoHow(Principal __instance, ref PlayerManager ___targetedPlayer, ref int ___detentionLevel, ref SoundObject[] ___audTimes)
         {
-            if (__instance.ec.offices.Count > 0 && ___targetedPlayer.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
+            if (__instance.ec.offices.Count > 0 && ___targetedPlayer.GetPlayable()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
                 ___detentionLevel = Mathf.Min(___detentionLevel + 1, ___audTimes.Length - 1);
         }
 
         [HarmonyPatch(typeof(ITM_BSODA), nameof(ITM_BSODA.Use)), HarmonyPrefix]
         static void BuffedBSODA(PlayerManager pm, ref float ___time)
         {
-            if (pm.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
+            if (pm.GetPlayable()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Troublemaker".ToLower().Replace(" ", ""))
                 ___time *= 2f;
         }
     }

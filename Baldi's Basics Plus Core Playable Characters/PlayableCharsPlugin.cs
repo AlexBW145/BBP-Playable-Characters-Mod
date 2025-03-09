@@ -85,6 +85,7 @@ namespace BBP_Playables.Core
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Backpacker.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Tinkerneer.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Speedrunner.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Random.png"),
 
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "BackpackerBackpack_Large.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "BackpackerBackpack_Small.png"),
@@ -114,6 +115,7 @@ namespace BBP_Playables.Core
                 "Portrait/Tinkerneer",
                 "Portrait/Speedrunner",
                 //
+                "Portrait/Random",
 
                 "Items/BackpackerBackpack_Large",
                 "Items/BackpackerBackpack_Small",
@@ -539,6 +541,11 @@ namespace BBP_Playables.Core
             bonusqGen.GetComponent<MathMachineRegen>().render.transform.localPosition = Vector3.down * 0.5f;
             #endregion INVENTIONS
             yield return "Adding new characters";
+            var randomman = new PlayableCharacterBuilder<PlayableRandomizer>(Info)
+                .SetNameAndDesc("Random Playable", "Desc_RandomPlayable")
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/Random"))
+                .SetFlags(PlayableFlags.None)
+                .Build();
             var _default = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
                 .SetNameAndDesc("The Default", "Desc_Default")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Default"))
@@ -636,6 +643,18 @@ namespace BBP_Playables.Core
             assetMan.Add<GameObject>("CharSelectScreen", screen);*/
 
             yield return "Doing the rest of contents";
+            GeneratorManagement.Register(this, GenerationModType.Base, (title, num, scene) =>
+            {
+                switch (scene.nameKey)
+                {
+                    default:
+                        scene.CustomLevelObject()?.SetCustomModValue(Info, "randomizeralways", false);
+                        break;
+                    case "Level_EndlessLooped" or "Level_NotebookFrenzy":
+                        scene.CustomLevelObject()?.SetCustomModValue(Info, "randomizeralways", true);
+                        break;
+                }
+            });
             GeneratorManagement.Register(this, GenerationModType.Addend, (name, num, ld) =>
             {
                 ld.shopItems = ld.shopItems.AddToArray(new() { selection = assetMan.Get<ItemObject>("TinkerneerWrench"), weight = 80 });
@@ -665,7 +684,7 @@ namespace BBP_Playables.Core
                         extrasave.selectedChar = _default.name;
                         extrasave.charGUID = _default.info.Metadata.GUID;
                     }
-                    PlayableCharacter[] array = playablesMetaStorage.FindAll(x => x.value.name == extrasave.selectedChar && x.value.info.Metadata.GUID == extrasave.charGUID).ToValues();
+                    PlayableCharacter[] array = playablesMetaStorage.FindAll(x => x.value.name.ToLower().Replace(" ", "") == extrasave.selectedChar.ToLower().Replace(" ", "") && x.value.info.Metadata.GUID == extrasave.charGUID).ToValues();
                     extraSave = new(array.Length != 0 ? array.Last() : _default);
                 }
                 if (isSave)
@@ -738,6 +757,11 @@ namespace BBP_Playables.Core
             });
         }
 
+        /// <summary>
+        /// Unlocks a playable character (NOTE: Only saves for Core and Core Modded playables, currently you must invoke your own save action for your playable's unlock status to be saved.)
+        /// </summary>
+        /// <param name="info">The plugin that contains the character</param>
+        /// <param name="charName">The name of the playable to unlock (not case sensitive)</param>
         public static void UnlockCharacter(BepInEx.PluginInfo info, string charName)
         {
             if (!MTM101BaldiDevAPI.SaveGamesEnabled || (CoreGameManager.Instance != null && !CoreGameManager.Instance.SaveEnabled)
@@ -792,13 +816,19 @@ namespace BBP_Playables.Core
         /// <param name="me">The playable character scriptable object</param>
         /// <returns>The metadata from the playable character</returns>
         public static PlayableCharacterMetaData GetMeta(this PlayableCharacter me) => PlayableCharsPlugin.playablesMetaStorage.Get(me);
+        /// <summary>
+        /// Grabs the player's playable variables
+        /// </summary>
+        /// <param name="me">The player themself</param>
+        /// <returns>The component that contains playable variables</returns>
+        public static PlrPlayableCharacterVars GetPlayable(this PlayerManager me) => PlrPlayableCharacterVars.PlayerPlayables[me.playerNumber];
     }
 
     class PluginInfo
     {
         public const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
         public const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        public const string PLUGIN_VERSION = "0.1.1.8"; // UPDATE EVERY TIME!!
+        public const string PLUGIN_VERSION = "0.1.2.0"; // UPDATE EVERY TIME!!
     }
 
     /// <summary>
@@ -932,6 +962,21 @@ namespace BBP_Playables.Core
         /// </summary>
         /// <param name="manager"></param>
         public virtual void SpoopBegin(BaseGameManager manager) { }
+    }
+    internal class PlayableRandomizer : PlayableCharacterComponent
+    {
+        public static void RandomizePlayable()
+        {
+            PlayableCharsPlugin.gameStarted = false;
+            var chars = PlayableCharacterMetaStorage.Instance.FindAll(chara => chara.value.unlocked && chara.value.componentType != typeof(PlayableRandomizer));
+            WeightedSelection<PlayableCharacter>[] weights = new WeightedSelection<PlayableCharacter>[0];
+            foreach (var character in chars)
+                weights = weights.AddToArray(new() { selection = character.value, weight = 100});
+            PlayableCharsGame.Character = WeightedSelection<PlayableCharacter>.RandomSelection(weights);
+#if DEBUG
+            PlayableCharsPlugin.Log.LogInfo($"Randomly selected {PlayableCharsGame.Character.name} for Player!");
+#endif
+        }
     }
     // Took this from the API
     public class PlayableCharacterBuilder<T> where T : PlayableCharacterComponent

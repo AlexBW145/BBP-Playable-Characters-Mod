@@ -66,12 +66,12 @@ namespace BBP_Playables.Modded.Patches
         [HarmonyPatch(typeof(TheBestOne_Wander), nameof(TheBestOne_Wander.PlayerSighted))]
         [HarmonyPatch(typeof(TheBestOne_Wander), nameof(TheBestOne_Wander.PlayerInSight))]
         [HarmonyPrefix]
-        static bool AvoidYellowing(PlayerManager player) => player.GetComponent<PlrPlayableCharacterVars>().GetCurrentPlayable().name.ToLower().Replace(" ", "") != "thetestsubject";
+        static bool AvoidYellowing(PlayerManager player) => player.GetPlayable()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") != "thetestsubject";
 
         [HarmonyPatch(typeof(Bluxam), nameof(Bluxam.HelpPlayer)), HarmonyPrefix]
         static bool ToNoteboos(PlayerManager player, Bluxam __instance)
         {
-            if (player.GetComponent<PlrPlayableCharacterVars>().GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thetestsubject")
+            if (player.GetPlayable()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thetestsubject")
             {
                 List<Vector3> list = new List<Vector3>();
                 foreach (RoomController room in __instance.ec.rooms.FindAll(x => x.category == RoomCategory.Class))
@@ -94,7 +94,7 @@ namespace BBP_Playables.Modded.Patches
         [HarmonyPatch(typeof(Bluxam_Wander), nameof(Bluxam_Wander.PlayerInSight)), HarmonyPrefix]
         static bool IGuessCheck(PlayerManager player, ref Bluxam ___npc)
         {
-            if (player.GetComponent<PlrPlayableCharacterVars>().GetCurrentPlayable().name.ToLower().Replace(" ", "") != "thetestsubject")
+            if (player.GetPlayable()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") != "thetestsubject")
                 return true;
 
             bool flag = ___npc.ec.CellFromPosition(player.transform.position).room.category != RoomCategory.Class && (___npc.ec.activities.Count(x => x.room.category == RoomCategory.Class && !x.IsCompleted && !x.InBonusMode && !x.gameObject.name.ToLower().Contains("NoActivity".ToLower())) + GameObject.FindObjectsOfType<Notebook>(false).Count(x => x.gameObject.GetComponentInChildren<SpriteRenderer>(true).gameObject.activeSelf)) > 0;
@@ -109,13 +109,14 @@ namespace BBP_Playables.Modded.Patches
         [HarmonyPatch(typeof(Qrid_Wander), nameof(Qrid_Wander.Update)), HarmonyPostfix]
         static void CoolestFriend(Qrid_Wander __instance, ref Qrid ___npc)
         {
-            if (CoreGameManager.Instance.GetPlayer(0).gameObject.GetComponent<PlrPlayableCharacterVars>().GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thetestsubject"
-                && ___npc.looker.PlayerInSight(___npc.ec.Players[0])
-                && !___npc.ec.Players[0].Tagged && !___npc.onCooldown)
+            var local = PlrPlayableCharacterVars.GetLocalPlayable();
+            if (local?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thetestsubject"
+                && ___npc.looker.PlayerInSight(local.GetPlayer())
+                && !local.GetPlayer().Tagged && !___npc.onCooldown)
             {
                 ___npc.Navigator.SetSpeed(34f);
                 ___npc.Navigator.maxSpeed = 37f;
-                __instance.ChangeNavigationState(new NavigationState_TargetPlayer(___npc, 2, ___npc.ec.Players[0].transform.position));
+                __instance.ChangeNavigationState(new NavigationState_TargetPlayer(___npc, 2, local.transform.position));
             }
             else if (__instance.CurrentNavigationState.GetType().Equals(typeof(NavigationState_TargetPlayer)) && !___npc.Navigator.HasDestination)
                 __instance.ChangeNavigationState(new NavigationState_WanderRandom(___npc, 0));
@@ -124,11 +125,12 @@ namespace BBP_Playables.Modded.Patches
         [HarmonyPatch(typeof(Qrid_Friendly), nameof(Qrid_Friendly.Update)), HarmonyPrefix]
         static bool QridMoreFriendly(Qrid_Friendly __instance, ref Qrid ___npc)
         {
-            if (CoreGameManager.Instance.GetPlayer(0).gameObject.GetComponent<PlrPlayableCharacterVars>().GetCurrentPlayable().name.ToLower().Replace(" ", "") != "thetestsubject")
+            var local = PlrPlayableCharacterVars.GetLocalPlayable();
+            if (local?.GetCurrentPlayable().name.ToLower().Replace(" ", "") != "thetestsubject")
                 return true;
 
-            __instance.CurrentNavigationState.UpdatePosition(___npc.ec.Players[0].transform.position);
-            if ((___npc.ec.Players[0].transform.position - ___npc.transform.position).magnitude <= 20f)
+            __instance.CurrentNavigationState.UpdatePosition(local.transform.position);
+            if ((local.transform.position - ___npc.transform.position).magnitude <= 20f)
             {
                 ___npc.Navigator.SetSpeed(0f);
                 ___npc.Navigator.maxSpeed = 0f;
@@ -151,7 +153,7 @@ namespace BBP_Playables.Modded.Patches
         [HarmonyPatch(typeof(Gummin_Wander), nameof(Gummin_Wander.PlayerInSight))]
         [HarmonyPatch(typeof(Gummin_Wander), nameof(Gummin_Wander.PlayerSighted))]
         [HarmonyPrefix]
-        static bool GumminNo(PlayerManager player) => player.gameObject.GetComponent<PlrPlayableCharacterVars>().GetCurrentPlayable().name.ToLower().Replace(" ", "") != "thetestsubject";
+        static bool GumminNo(PlayerManager player) => player.GetPlayable()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") != "thetestsubject";
         [HarmonyPatch(typeof(Plit_Maul), nameof(Plit_Maul.Enter)), HarmonyPostfix]
         static void PainLess(ref Plit ___npc, ref float ___maultime)
         {
@@ -161,7 +163,7 @@ namespace BBP_Playables.Modded.Patches
         [HarmonyPatch(typeof(PalbyFan_Show), nameof(PalbyFan_Show.Enter)), HarmonyPostfix]
         static void IPlead(ref float ___timr)
         {
-            if (CoreGameManager.Instance.GetPlayer(0).gameObject.GetComponent<PlrPlayableCharacterVars>().GetCurrentPlayable().name.ToLower().Replace(" ", "") != "thetestsubject") return;
+            if (PlrPlayableCharacterVars.GetPlayable(0)?.GetCurrentPlayable().name.ToLower().Replace(" ", "") != "thetestsubject") return;
             ___timr += 5f;
         }
     }

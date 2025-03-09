@@ -21,7 +21,7 @@ namespace BBP_Playables.Modded.BCPP
         {
             ec = pm.ec;
             entity.enabled = false;
-            if (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") == "themainprotagonist" && !shooting)
+            if (pm.GetPlayable().GetCurrentPlayable().name.ToLower().Replace(" ", "") == "themainprotagonist" && !shooting)
                 pm.StartCoroutine(Shoot(pm));
             Destroy(gameObject);
             return false;
