@@ -277,6 +277,9 @@ namespace BBP_Playables.Core.Patches
                 __instance.itm.selectedItem = 0;
             PlayableCharsPlugin.gameStarted = true;
             __instance.itm.UpdateItems();
+            if (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") != "thebackpacker" && PlayableCharsGame.backpackerBackup.Any(x => x.itemType != Items.None))
+                for (int i = 0; i < PlayableCharsGame.backpackerBackup.Length; i++)
+                    PlayableCharsGame.backpackerBackup[i] = ItemMetaStorage.Instance.FindByEnum(Items.None).value;
         }
 
         [HarmonyPatch(typeof(CoreGameManager), nameof(CoreGameManager.SaveAndQuit)), HarmonyPrefix]

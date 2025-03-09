@@ -1,5 +1,4 @@
-﻿#if DEBUG
-using BepInEx;
+﻿using BepInEx;
 using HarmonyLib;
 using MTM101BaldAPI.Reflection;
 using System;
@@ -219,4 +218,3 @@ namespace BBP_Playables.Core
         }
     }
 }
-#endif

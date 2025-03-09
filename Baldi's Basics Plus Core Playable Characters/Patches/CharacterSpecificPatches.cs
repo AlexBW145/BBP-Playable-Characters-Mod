@@ -158,7 +158,7 @@ namespace BBP_Playables.Core.Patches
             backpack.items[__instance.maxItem] = __instance.nothing;
         }
     }
-#if DEBUG
+
     [HarmonyPatch]
     class PartygoerPatches
     {
@@ -265,7 +265,6 @@ namespace BBP_Playables.Core.Patches
             return true;
         }
     }
-#endif
 
     [HarmonyPatch]
     class TroublemakerPatches

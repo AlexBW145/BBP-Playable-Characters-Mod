@@ -66,7 +66,9 @@ namespace BBP_Playables.Core
             Harmony harmony = new Harmony(PluginInfo.PLUGIN_GUID);
             Instance = this;
             harmony.PatchAllConditionals();
-            MTM101BaldiDevAPI.AddWarningScreen("<color=orange>THIS MOD IS UNFINISHED!</color>\nPlayable Characters Mod is a unfinished and this build is the <color=orange>full mod public demo</color> edition, things are subject to change!\nThere will be improvements and additions once new updates come out, but some characters currently does not have such exclusivity.", false);
+            MTM101BaldiDevAPI.AddWarningScreen(@"<color=orange>THIS MOD IS UNFINISHED!</color>
+Playable Characters Mod is a unfinished and this build is the <color=orange>full mod public demo</color> edition, things are subject to change!
+There will be improvements and additions once new updates come out, but some characters currently does not have such exclusivity.", false);
             LoadingEvents.RegisterOnLoadingScreenStart(Info, BBCRDataLoad());
             LoadingEvents.RegisterOnAssetsLoaded(Info, PreLoad(), false);
             ModdedSaveGame.AddSaveHandler(gameSave);
@@ -92,6 +94,10 @@ namespace BBP_Playables.Core
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "BackpackerBackpack_SmallOpen.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "TinkerneerWrench_Large.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "TinkerneerWrench_Small.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "PartygoerPresent_Large.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "PartygoerPresent_Small.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "PartygoerWrappingBundle_Large.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "PartygoerWrappingBundle_Small.png"),
 
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "Inventions", "InventionPlayerOpen.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "Inventions", "InventionPlayerClosed.png"),
@@ -122,6 +128,10 @@ namespace BBP_Playables.Core
                 "Items/BackpackerBackpack_SmallOpen",
                 "Items/TinkerneerWrench_Large",
                 "Items/TinkerneerWrench_Small",
+                "Items/Present_Large",
+                "Items/Present_Small",
+                "Items/WrappingBundle_Large",
+                "Items/WrappingBundle_Small",
 
                 "Inventions/TapeQuarterPlayerOpen",
                 "Inventions/TapeQuarterPlayerClosed",
@@ -134,19 +144,15 @@ namespace BBP_Playables.Core
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "Tinkerneering1.wav"), "Sfx_TinkerneerConstruct", SoundType.Effect, Color.white),
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "Tinkerneering2.wav"), "Sfx_TinkerneerConstruct", SoundType.Effect, Color.white),
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "Tinkerneering3.wav"), "Sfx_TinkerneerConstruct", SoundType.Effect, Color.white),
-#if DEBUG
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "NPC_openingpresent1.wav"), "Sfx_ShrinkMachine_Door", SoundType.Effect, Color.white),
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "NPC_openingpresent2.wav"), "Sfx_ShrinkMachine_Door", SoundType.Effect, Color.white)
-#endif
             ],
             [
                 "Items/Tinkerneering1",
                 "Items/Tinkerneering2",
                 "Items/Tinkerneering3",
-#if DEBUG
                 "Items/PresentOpen1",
                 "Items/PresentOpen2",
-#endif
             ]);
 /*#if DEBUG
             assetMan.AddRange<string>([
@@ -208,7 +214,7 @@ namespace BBP_Playables.Core
                 .Build();
             thorwable.gameObject.AddComponent<ThrowableObject>();
             assetMan.Add("CYLN_Throwable", thorwable);
-#if DEBUG
+
             NPC_Present.sounds = [assetMan.Get<SoundObject>("Items/PresentOpen1"), assetMan.Get<SoundObject>("Items/PresentOpen2")];
             assetMan.Add<ItemObject>("PresentUnwrapped", new ItemBuilder(Info)
                     .SetItemComponent<ITM_PartygoerPresent>()
@@ -216,7 +222,7 @@ namespace BBP_Playables.Core
                     .SetNameAndDescription("Itm_PartygoerPresentUnwrapped", "Desc_PartygoerPresentUnwrapped")
                     .SetShopPrice(25)
                     .SetGeneratorCost(5)
-                    .SetSprites(assetMan.Get<Sprite>("Items/BackpackerBackpack_Small"), assetMan.Get<Sprite>("Items/BackpackerBackpack_Large"))
+                    .SetSprites(assetMan.Get<Sprite>("Items/WrappingBundle_Small"), assetMan.Get<Sprite>("Items/WrappingBundle_Large"))
                     .SetMeta(ItemFlags.None, ["gift"])
                     .Build());
             var present = assetMan.Get<ItemObject>("PresentUnwrapped").item as ITM_PartygoerPresent;
@@ -229,7 +235,7 @@ namespace BBP_Playables.Core
                     .SetNameAndDescription("Itm_PartygoerPresent", "Desc_PartygoerPresent")
                     .SetShopPrice(25)
                     .SetGeneratorCost(5)
-                    .SetSprites(assetMan.Get<Sprite>("Items/BackpackerBackpack_Small"), assetMan.Get<Sprite>("Items/BackpackerBackpack_Large"))
+                    .SetSprites(assetMan.Get<Sprite>("Items/Present_Small"), assetMan.Get<Sprite>("Items/Present_Large"))
                     .SetMeta(ItemFlags.None, ["gift"])
                     .Build();
                 goodpresent.item.GetComponent<ITM_PartygoerPresent>().ReflectionSetVariable("Gift", (Character)npc);
@@ -453,7 +459,7 @@ namespace BBP_Playables.Core
                 return 4f;
             });
             #endregion
-#endif
+
             assetMan.Add<ItemObject>("BackpackClosed", new ItemBuilder(Info)
                     .SetItemComponent<ITM_BackpackerBackpack>()
                     .SetEnum("BackpackerBackpack")
@@ -541,7 +547,7 @@ namespace BBP_Playables.Core
             bonusqGen.GetComponent<MathMachineRegen>().render.transform.localPosition = Vector3.down * 0.5f;
             #endregion INVENTIONS
             yield return "Adding new characters";
-            var randomman = new PlayableCharacterBuilder<PlayableRandomizer>(Info)
+            new PlayableCharacterBuilder<PlayableRandomizer>(Info)
                 .SetNameAndDesc("Random Playable", "Desc_RandomPlayable")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Random"))
                 .SetFlags(PlayableFlags.None)
@@ -578,6 +584,7 @@ namespace BBP_Playables.Core
                 .SetNameAndDesc("The Troublemaker", "Desc_Troublemaker") // SCRAPPED IDEA: Schemes of Naught\nIncreases the detention timer, allows the player to get past through Its a Bully with no items at all, and BSODA duration is increased.
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Troublemaker"))
                 .SetStats(s: 3, r: 28f, sm: 110f)
+                .SetFlags(PlayableFlags.None)
                 .SetStartingItems(ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value, ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value)
                 .SeparatePrefab()
                 .Build();
