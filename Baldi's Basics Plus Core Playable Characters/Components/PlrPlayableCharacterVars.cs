@@ -22,6 +22,6 @@ namespace BBP_Playables.Core
         public PlayableCharacter GetCurrentPlayable() => curCharacter;
         public PlayerManager GetPlayer() => curPlayer;
         public static PlrPlayableCharacterVars GetPlayable(int player) => PlayerPlayables[player];
-        public static PlrPlayableCharacterVars GetLocalPlayable() => CoreGameManager.Instance.GetPlayer(0).GetPlayable();
+        public static PlrPlayableCharacterVars GetLocalPlayable() => CoreGameManager.Instance?.GetPlayer(0)?.GetPlayable();
     }
 }

@@ -42,6 +42,7 @@ namespace BBP_Playables.Core
         public static AssetManager assetMan = new AssetManager();
         [Obsolete("Use PlayableCharacterMetaStorage.Instance.All() instead.", true)]
         public static List<PlayableCharacter> characters => playablesMetaStorage.All().ToValues().ToList();
+        public static bool IsRandom => Instance?.extraSave?.Item1.componentType == typeof(PlayableRandomizer);
         internal bool unlockedCylnLoon { get; private set; } = false;
         public PlayableCharacter Character => PlayableCharsGame.Character;
         internal PlayableCharsGame gameSave = new PlayableCharsGame();
@@ -52,7 +53,7 @@ namespace BBP_Playables.Core
         // TODO:
         /*
          * CYLN_LOON is done
-         * Partygoer isn't done and is being worked on.
+         * Partygoer and his items are done
          * Troublemaker is barely done
          * Thinker is done
          * Backpacker is done
@@ -227,6 +228,7 @@ There will be improvements and additions once new updates come out, but some cha
                     .Build());
             var present = assetMan.Get<ItemObject>("PresentUnwrapped").item as ITM_PartygoerPresent;
             present.ReflectionSetVariable("Unwrapped", true);
+            var presentmeta = assetMan.Get<ItemObject>("PresentUnwrapped").GetMeta();
             for (int npc = 1; npc <= 13; npc++)
             {
                 var goodpresent = new ItemBuilder(Info)
@@ -236,7 +238,7 @@ There will be improvements and additions once new updates come out, but some cha
                     .SetShopPrice(25)
                     .SetGeneratorCost(5)
                     .SetSprites(assetMan.Get<Sprite>("Items/Present_Small"), assetMan.Get<Sprite>("Items/Present_Large"))
-                    .SetMeta(ItemFlags.None, ["gift"])
+                    .SetMeta(presentmeta)
                     .Build();
                 goodpresent.item.GetComponent<ITM_PartygoerPresent>().ReflectionSetVariable("Gift", (Character)npc);
                 assetMan.Add<ItemObject>("PresentGift_" + ((Character)npc).ToStringExtended(), goodpresent);
@@ -668,7 +670,7 @@ There will be improvements and additions once new updates come out, but some cha
                 if (ld.manager is MainGameManager or EndlessGameManager)
                 {
                     var presentt = assetMan.Get<ItemObject>("PresentUnwrapped");
-                    ld.levelObject?.forcedItems.AddRange([presentt, presentt]);
+                    ld?.levelObject.forcedItems.AddRange([presentt, presentt]);
                     foreach (var level in ld?.randomizedLevelObject)
                         level.selection.forcedItems.AddRange([presentt, presentt]);
                 }

@@ -15,6 +15,9 @@ public class DwellerComponent : PlayableCharacterComponent
         base.Start();
         Map = pm.ec.map;
         cells = pm.ec.AllCells();
+        foreach (var item in pm.ec.items)
+            if (item.icon != null && item.item.itemType != Items.None)
+                item.AssignItem(item.item);
     }
     void Update()
     {
