@@ -29,7 +29,7 @@ namespace BBP_Playables.Core
             audMan.audioDevice.spatialBlend = 1f;
             audMan.audioDevice.rolloffMode = AudioRolloffMode.Linear;
             ec = itm.pm.ec;
-            dijkstraMap = new DijkstraMap(ec, PathType.Const, base.transform);
+            dijkstraMap = new DijkstraMap(ec, PathType.Const, int.MaxValue, base.transform);
             InsertItem(itm.pm, ec);
         }
 
@@ -97,7 +97,7 @@ namespace BBP_Playables.Core
             baldman.looker.Raycast(transform, Mathf.Min((baldman.transform.position - transform.position).magnitude + baldman.Navigator.Velocity.magnitude, baldman.looker.distance, baldman.ec.MaxRaycast), LayerMask.GetMask("Default", "Block Raycast", "Windows"), out var sighted);
             if (sighted && !recognizedAsFake)
                 if (!baldman.looker.PlayerInSight())
-                    baldman.Hear(transform.position, 114, false);
+                    baldman.Hear(null, transform.position, 114, false);
                 else if (baldman.looker.PlayerInSight() || Vector3.Distance(transform.position, baldman.transform.position) < Mathf.Min(baldman.looker.distance, baldman.ec.MaxRaycast)) {
                     recognizedAsFake = true;
                     baldman.ClearSoundLocations();
@@ -131,7 +131,7 @@ namespace BBP_Playables.Core
             baldman.looker.Raycast(transform, Mathf.Min((baldman.transform.position - transform.position).magnitude + baldman.Navigator.Velocity.magnitude, baldman.looker.distance, baldman.ec.MaxRaycast), LayerMask.GetMask("Default", "Block Raycast", "Windows"), out var sighted);
             if (sighted && !baldman.looker.PlayerInSight()) {
                 baldman.ClearSoundLocations();
-                baldman.Hear(transform.position, 127, false);
+                baldman.Hear(null, transform.position, 127, false);
             }
         }
 
@@ -160,6 +160,8 @@ namespace BBP_Playables.Core
             320f
         ];
         private int amountTimes;
+
+        public override bool AppropriateLocation(Cell cell) => base.AppropriateLocation(cell) && cell.room.category == RoomCategory.Class;
 
         public override void Create(ItemManager itm)
         {
@@ -190,7 +192,7 @@ namespace BBP_Playables.Core
             while (!ec.activities.Find(x => x.room == room).IsCompleted)
                 yield return null;
             yield return new WaitForSecondsEnvironmentTimescale(ec, times[amountTimes]);
-            ec.GetBaldi()?.Hear(transform.position, 78, true);
+            ec.GetBaldi()?.Hear(null, transform.position, 78, true);
             ec.activities.Find(x => x.room == room).Corrupt(false);
             ec.activities.Find(x => x.room == room).SetBonusMode(true);
             render.sprite = PlayableCharsPlugin.assetMan.Get<Sprite>("Inventions/BonusGenActive");

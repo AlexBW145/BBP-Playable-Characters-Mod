@@ -44,16 +44,12 @@ namespace BBP_Playables.Core
             this.player = CoreGameManager.Instance.GetPlayer(player);
         }
 
-        private bool ready = false;
-        private bool thrown = false;
-        private static bool held = false;
-        private bool heldSelf = false;
-        private bool clickBuffer = false;
+        private bool ready, thrown, held, heldSelf, clickBuffer = false;
         private EnvironmentController ec;
         private PlayerManager player;
         private LayerMask initLayer;
         private float life = 10f;
-        private MovementModifier moveMod = new MovementModifier(default(Vector3), 0.12f);
+        private MovementModifier moveMod = new MovementModifier(default, 0.12f);
         private MaterialPropertyBlock spriteProperties;
         private Entity entity;
         private Transform render;

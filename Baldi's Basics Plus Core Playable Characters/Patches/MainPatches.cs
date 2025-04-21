@@ -211,8 +211,9 @@ namespace BBP_Playables.Core.Patches
         [HarmonyPatch(typeof(CoreGameManager), nameof(CoreGameManager.SpawnPlayers)), HarmonyPrefix, HarmonyPriority(Priority.High)]
         static void ReplacePrefabs(CoreGameManager __instance, ref HudManager ___hudPref, ref HudManager[] ___huds)
         {
+            CustomLevelObject lvl = BaseGameManager.Instance.levelObject as CustomLevelObject;
             if (PlayableCharsPlugin.Instance.Character.componentType == typeof(PlayableRandomizer)
-                || ((bool?)__instance.sceneObject?.CustomLevelObject()?.GetCustomModValue(PlayableCharsPlugin.Instance.Info, "randomizeralways") == true && PlayableCharsPlugin.IsRandom))
+                || ((bool?)lvl?.GetCustomModValue(PlayableCharsPlugin.Instance.Info, "randomizeralways") == true && PlayableCharsPlugin.IsRandom))
                 PlayableRandomizer.RandomizePlayable();
             /*if (CoreGameManager.Instance.GetPlayer(0) != null) // Was using this for reiniting the HUD on every next level, but whatever...
                 CoreGameManager.Instance.ReflectionInvoke("DestroyPlayers", []);*/

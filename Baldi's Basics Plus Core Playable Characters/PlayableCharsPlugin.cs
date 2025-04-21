@@ -30,9 +30,10 @@ using UnityEngine.UI;
 namespace BBP_Playables.Core
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", "6.3.0.0")]
+    [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", "7.0.0.0")]
     [BepInDependency("mtm101.rulerp.baldiplus.endlessfloors", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInProcess("BALDI.exe")]
+    [BepInProcess("Baldi's Basics Plus Prerelease.exe")]
     public class PlayableCharsPlugin : BaseUnityPlugin
     {
         public static PlayableCharsPlugin Instance { get; private set; }
@@ -224,7 +225,7 @@ There will be improvements and additions once new updates come out, but some cha
                     .SetShopPrice(25)
                     .SetGeneratorCost(5)
                     .SetSprites(assetMan.Get<Sprite>("Items/WrappingBundle_Small"), assetMan.Get<Sprite>("Items/WrappingBundle_Large"))
-                    .SetMeta(ItemFlags.None, ["gift"])
+                    .SetMeta(ItemFlags.None, ["gift", "StackableItems_NotAllowStacking"])
                     .Build());
             var present = assetMan.Get<ItemObject>("PresentUnwrapped").item as ITM_PartygoerPresent;
             present.ReflectionSetVariable("Unwrapped", true);
@@ -338,7 +339,7 @@ There will be improvements and additions once new updates come out, but some cha
                 else if (chance <= 1)
                 {
                     float nearest = float.PositiveInfinity;
-                    foreach (var plr in pri.players)
+                    foreach (var plr in pri.ec.Players)
                         if (Vector3.Distance(pri.transform.position, plr.transform.position) < nearest)
                             player = plr;
                     if (player != null)
@@ -447,9 +448,9 @@ There will be improvements and additions once new updates come out, but some cha
                 DrReflex reflex = npc as DrReflex;
                 var curstate = reflex.behaviorStateMachine.currentState as NPC_PresentAftermath;
                 reflex.AudioManager.FlushQueue(true);
-                if ((curstate.PreviousState is DrReflex_Testing && !reflex.PlayerLeft(reflex.players[0])) || curstate.PreviousState is not DrReflex_Testing)
+                if ((curstate.PreviousState is DrReflex_Testing && !reflex.PlayerLeft(reflex.ec.Players[0])) || curstate.PreviousState is not DrReflex_Testing)
                     reflex.behaviorStateMachine.ChangeState(new DrReflex_Wandering(reflex, 30f));
-                if (!reflex.PlayerLeft(reflex.players[0]))
+                if (!reflex.PlayerLeft(reflex.ec.Players[0]))
                     reflex.ReflectionInvoke("WinTest", []);
                 else if (curstate.PreviousState is DrReflex_Testing)
                 {
@@ -657,10 +658,10 @@ There will be improvements and additions once new updates come out, but some cha
                 switch (scene.nameKey)
                 {
                     default:
-                        scene.CustomLevelObject()?.SetCustomModValue(Info, "randomizeralways", false);
+                        scene.GetCustomLevelObjects()?.Do(lvl => lvl.SetCustomModValue(Info, "randomizeralways", false));
                         break;
                     case "Level_EndlessLooped" or "Level_NotebookFrenzy":
-                        scene.CustomLevelObject()?.SetCustomModValue(Info, "randomizeralways", true);
+                        scene.GetCustomLevelObjects()?.Do(lvl => lvl.SetCustomModValue(Info, "randomizeralways", true));
                         break;
                 }
             });
@@ -670,9 +671,8 @@ There will be improvements and additions once new updates come out, but some cha
                 if (ld.manager is MainGameManager or EndlessGameManager)
                 {
                     var presentt = assetMan.Get<ItemObject>("PresentUnwrapped");
-                    ld?.levelObject.forcedItems.AddRange([presentt, presentt]);
-                    foreach (var level in ld?.randomizedLevelObject)
-                        level.selection.forcedItems.AddRange([presentt, presentt]);
+                    foreach (var level in ld.GetCustomLevelObjects())
+                        level.forcedItems.AddRange([presentt, presentt]);
                 }
             });
             if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.endlessfloors"))
@@ -837,7 +837,7 @@ There will be improvements and additions once new updates come out, but some cha
     {
         public const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
         public const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        public const string PLUGIN_VERSION = "0.1.2.0"; // UPDATE EVERY TIME!!
+        public const string PLUGIN_VERSION = "0.1.2.1"; // UPDATE EVERY TIME!!
     }
 
     /// <summary>

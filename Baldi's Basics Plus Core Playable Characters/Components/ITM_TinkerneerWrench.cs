@@ -30,7 +30,7 @@ namespace BBP_Playables.Core
                     foreach (var tinkerobject in TinkerneerObjectsPre)
                     {
                         List<ItemObject> requiredItems = tinkerobject.Value.requiredItems.ToList();
-                        if (!HasRequiredItems(requiredItems) || !TinkerneerExclusive(tinkerobject.Value) || availableTinkers.Count > 6 ||
+                        if (!HasRequiredItems(requiredItems) || !TinkerneerExclusive(tinkerobject.Value) || !tinkerobject.Value.AppropriateLocation(cell) || availableTinkers.Count > 6 ||
                             (tinkerobject.Value.rm != RoomCategory.Null && tinkerobject.Value.rm != cell.room.category))
                             continue;
                         availableTinkers.Add(tinkerobject.Value);
@@ -112,6 +112,8 @@ namespace BBP_Playables.Core
         public virtual void Create(ItemManager itm)
         {
         }
+
+        public virtual bool AppropriateLocation(Cell cell) => !cell.Null;
     }
 }
 #endif

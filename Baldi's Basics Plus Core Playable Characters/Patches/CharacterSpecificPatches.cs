@@ -86,20 +86,23 @@ namespace BBP_Playables.Core.Patches
     class TestSubjectTestBlindPatch
     {
         [HarmonyPatch(nameof(LookAtGuy.Blind))]
-        static bool Prefix(LookAtGuy __instance, ref SpriteRenderer ___sprite, ref int ___ogLayer, ref Animator ___animator, ref AudioManager ___audMan, ref SoundObject ___audBlindStart, ref SoundObject ___audBlindLoop, ref float ___fogTime)
+        static bool Prefix(LookAtGuy __instance, ref SpriteRenderer ___sprite, ref int ___ogLayer, ref AudioManager ___audMan, 
+            ref SoundObject ___audExplode, ref QuickExplosion ___explosionPrefab, ref Transform ___billboardedTransform,
+            ref AnimatedSpriteRotator ___spriteRotator, ref Sprite ___crumbledSprite, ref Transform ___headTransform)
         {
             if (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") == "thetestsubject")
             {
                 __instance.FreezeNPCs(false);
                 __instance.Navigator.maxSpeed = 0f;
-                ___sprite.enabled = false;
                 ___ogLayer = __instance.gameObject.layer;
                 __instance.gameObject.layer = 20;
-                ___animator.Play("Reset", -1, 0f);
-                ___audMan.QueueAudio(___audBlindStart, true);
-                ___audMan.QueueAudio(___audBlindLoop);
-                ___audMan.SetLoop(true);
-                __instance.behaviorStateMachine.ChangeState(new LookAtGuy_Blinding(__instance, ___fogTime));
+                ___audMan.PlaySingle(___audExplode);
+                __instance.SetTargetTimeScale(1f);
+                __instance.Respawn();
+                GameObject.Instantiate(___explosionPrefab, ___billboardedTransform).transform.localPosition += Vector3.forward * 0.015f;
+                ___spriteRotator.enabled = false;
+                ___sprite.sprite = ___crumbledSprite;
+                ___headTransform.gameObject.SetActive(false);
                 return false;
             }
             return true;
