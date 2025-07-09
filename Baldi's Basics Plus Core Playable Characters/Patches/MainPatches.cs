@@ -135,10 +135,7 @@ namespace BBP_Playables.Core.Patches
             if (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") == "thebackpacker" && CoreGameManager.Instance.GetPlayer(0).gameObject.GetComponent<BackpackerBackpack>() != null)
                 PlayableCharsGame.backpackerBackup = CoreGameManager.Instance.GetPlayer(0).gameObject.GetComponent<BackpackerBackpack>().items;
             if (CoreGameManager.Instance.currentMode == Mode.Free || __instance.levelObject == null) return;
-            if (Testy
-                && CoreGameManager.Instance.sceneObject.levelTitle == "F3"
-                && CoreGameManager.Instance.sceneObject.levelNo == 2
-                && __instance.levelObject.name == "Main3")
+            if (Testy && __instance is MainGameManager)
                 PlayableCharsPlugin.UnlockCharacter(PlayableCharsPlugin.Instance.Info, "The Test Subject");
             if (CoreGameManager.Instance.GetPlayer(0).itm.items.ToList().FindAll(x => x.itemType == Items.ZestyBar).Count + CoreGameManager.Instance.currentLockerItems.ToList().FindAll(x => x.itemType == Items.ZestyBar).Count >= 3
                 && __instance.levelObject.finalLevel)
@@ -154,7 +151,7 @@ namespace BBP_Playables.Core.Patches
 
             PlayableCharsPlugin.Log.LogInfo("Required time: " + Mathf.Floor(time / 60f) + ":" + text);
 #endif
-            if (MainGameManager.Instance.levelObject.name == "Main1" && (float)__instance.ReflectionGetVariable("time") < time && CoreGameManager.Instance.Lives == 2
+            if (CoreGameManager.Instance.sceneObject.name == "MainLevel_1" && (float)__instance.ReflectionGetVariable("time") < time && CoreGameManager.Instance.Lives == 2
                 && PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") == "thedefault" && PlayableCharsPlugin.Instance.Character.info == PlayableCharsPlugin.Instance.Info
                 && backup[0].ToList().TrueForAll(x => x == ItemMetaStorage.Instance.FindByEnum(Items.None).value)
                 && __instance.FoundNotebooks == __instance.NotebookTotal)
@@ -211,7 +208,7 @@ namespace BBP_Playables.Core.Patches
         [HarmonyPatch(typeof(CoreGameManager), nameof(CoreGameManager.SpawnPlayers)), HarmonyPrefix, HarmonyPriority(Priority.High)]
         static void ReplacePrefabs(CoreGameManager __instance, ref HudManager ___hudPref, ref HudManager[] ___huds)
         {
-            CustomLevelObject lvl = BaseGameManager.Instance.levelObject as CustomLevelObject;
+            CustomLevelGenerationParameters lvl = BaseGameManager.Instance.levelObject as CustomLevelGenerationParameters;
             if (PlayableCharsPlugin.Instance.Character.componentType == typeof(PlayableRandomizer)
                 || ((bool?)lvl?.GetCustomModValue(PlayableCharsPlugin.Instance.Info, "randomizeralways") == true && PlayableCharsPlugin.IsRandom))
                 PlayableRandomizer.RandomizePlayable();

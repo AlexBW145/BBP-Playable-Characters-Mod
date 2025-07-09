@@ -44,7 +44,7 @@ namespace BBP_Playables.Core
             this.player = CoreGameManager.Instance.GetPlayer(player);
         }
 
-        private bool ready, thrown, held, heldSelf, clickBuffer = false;
+        private bool ready, thrown, held, heldSelf, clickBuffer;
         private EnvironmentController ec;
         private PlayerManager player;
         private LayerMask initLayer;

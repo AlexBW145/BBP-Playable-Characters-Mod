@@ -18,7 +18,7 @@ namespace BBP_Playables.Modded.Patches
         static void Postfix(Collider other, ref MagicalStudent ___student, ref bool ___leftStudent)
         {
             if (other.transform == ___student.transform && ___leftStudent)
-                PlayableCharsPlugin.UnlockCharacter(Plugin.info, "Magical Student");
+                PlayableCharsPlugin.UnlockCharacter(Plugin.coreInfo, "Magical Student");
         }
     }
     [ConditionalPatchMod("pixelguy.pixelmodding.baldiplus.bbextracontent"), HarmonyPatch(typeof(PlayerVisual), nameof(PlayerVisual.Initialize))]

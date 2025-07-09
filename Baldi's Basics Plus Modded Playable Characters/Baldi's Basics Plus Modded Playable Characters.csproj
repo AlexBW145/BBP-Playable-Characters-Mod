@@ -8,6 +8,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <Configurations>Debug;Release;DEMO</Configurations>
+    <RootNamespace>BBP_Playables</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

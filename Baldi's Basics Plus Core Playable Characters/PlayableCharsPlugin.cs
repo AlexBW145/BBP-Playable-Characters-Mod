@@ -12,6 +12,7 @@ using MTM101BaldAPI.ObjectCreation;
 using MTM101BaldAPI.Reflection;
 using MTM101BaldAPI.Registers;
 using MTM101BaldAPI.SaveSystem;
+using MTM101BaldAPI.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ using System.Xml.Linq;
 using TMPro;
 using UnityCipher;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.TextCore;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
@@ -30,7 +32,7 @@ using UnityEngine.UI;
 namespace BBP_Playables.Core
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", "7.0.0.0")]
+    [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", "8.1.0.0")]
     [BepInDependency("mtm101.rulerp.baldiplus.endlessfloors", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInProcess("BALDI.exe")]
     [BepInProcess("Baldi's Basics Plus Prerelease.exe")]
@@ -41,10 +43,11 @@ namespace BBP_Playables.Core
         internal static bool gameStarted = false;
 
         public static AssetManager assetMan = new AssetManager();
-        [Obsolete("Use PlayableCharacterMetaStorage.Instance.All() instead.", true)]
-        public static List<PlayableCharacter> characters => playablesMetaStorage.All().ToValues().ToList();
+        [Obsolete("Use PlayableCharacterMetaStorage.Instance.All() instead.", true)] public static List<PlayableCharacter> characters => playablesMetaStorage.All().ToValues().ToList();
         public static bool IsRandom => Instance?.extraSave?.Item1.componentType == typeof(PlayableRandomizer);
         internal bool unlockedCylnLoon { get; private set; } = false;
+        private static SoundObject NewCharacterUnlocked => (SoundObject)assetMan["Music/NewPlayerUnlocked"];
+        private static PlayableUnlockedUI PlayableUnlockedUI => (PlayableUnlockedUI)assetMan["UnlockedCharacterUI"];
         public PlayableCharacter Character => PlayableCharsGame.Character;
         internal PlayableCharsGame gameSave = new PlayableCharsGame();
         internal Tuple<PlayableCharacter> extraSave;
@@ -71,8 +74,8 @@ namespace BBP_Playables.Core
             MTM101BaldiDevAPI.AddWarningScreen(@"<color=orange>THIS MOD IS UNFINISHED!</color>
 Playable Characters Mod is a unfinished and this build is the <color=orange>full mod public demo</color> edition, things are subject to change!
 There will be improvements and additions once new updates come out, but some characters currently does not have such exclusivity.", false);
-            LoadingEvents.RegisterOnLoadingScreenStart(Info, BBCRDataLoad());
-            LoadingEvents.RegisterOnAssetsLoaded(Info, PreLoad(), false);
+            LoadingEvents.RegisterOnAssetsLoaded(Info, BBCRDataLoad(), LoadingEventOrder.Start);
+            LoadingEvents.RegisterOnAssetsLoaded(Info, PreLoad(), LoadingEventOrder.Pre);
             ModdedSaveGame.AddSaveHandler(gameSave);
             AssetLoader.LocalizationFromMod(this);
 
@@ -143,6 +146,7 @@ There will be improvements and additions once new updates come out, but some cha
                 "Inventions/BonusGenActive",
             ]);
             assetMan.AddRange<SoundObject>([
+                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "mus_newplayerunlocked.mp3"), "New Player Unlocked", SoundType.Music, Color.clear),
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "Tinkerneering1.wav"), "Sfx_TinkerneerConstruct", SoundType.Effect, Color.white),
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "Tinkerneering2.wav"), "Sfx_TinkerneerConstruct", SoundType.Effect, Color.white),
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "Tinkerneering3.wav"), "Sfx_TinkerneerConstruct", SoundType.Effect, Color.white),
@@ -150,6 +154,7 @@ There will be improvements and additions once new updates come out, but some cha
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "NPC_openingpresent2.wav"), "Sfx_ShrinkMachine_Door", SoundType.Effect, Color.white)
             ],
             [
+                "Music/NewPlayerUnlocked",
                 "Items/Tinkerneering1",
                 "Items/Tinkerneering2",
                 "Items/Tinkerneering3",
@@ -192,6 +197,62 @@ There will be improvements and additions once new updates come out, but some cha
             yield return "Setting up stuff";
             Resources.FindObjectsOfTypeAll<PlayerManager>().First().gameObject.AddComponent<PlrPlayableCharacterVars>();
             assetMan.Add("PlayerPrefab", Resources.FindObjectsOfTypeAll<PlayerManager>().First());
+
+            var unlockedUI = Instantiate(Resources.FindObjectsOfTypeAll<Gum>().ToList().First().transform.Find("GumOverlay").gameObject, MTM101BaldiDevAPI.prefabTransform).GetComponent<Canvas>();
+            unlockedUI.gameObject.name = "UnlockedPlayableUI";
+            unlockedUI.gameObject.SetActive(true);
+            Destroy(unlockedUI.transform.Find("Image").gameObject);
+            var unlockedImageParent = new GameObject("UnlockedImageParent", typeof(RectTransform)).GetComponent<RectTransform>();
+            unlockedImageParent.SetParent(unlockedUI.transform);
+            unlockedImageParent.anchorMin = new Vector2(1, 0);
+            unlockedImageParent.anchorMax = new Vector2(1, 0);
+            unlockedImageParent.pivot = new Vector2(1, 0);
+            unlockedImageParent.localScale = Vector2.one / 4f;
+            unlockedImageParent.sizeDelta = new Vector2(640f, 360f);
+            unlockedImageParent.anchoredPosition = new Vector2(-50f, 0f);
+            var unlockedTV = new GameObject("TV", typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
+            unlockedTV.SetParent(unlockedImageParent);
+            unlockedTV.gameObject.GetComponent<Image>().sprite = Resources.FindObjectsOfTypeAll<Sprite>().Last(spr => spr.name == "ScreenSwingSheet_0");
+            unlockedTV.anchorMin = new Vector2(0f, 0.5f);
+            unlockedTV.anchorMax = new Vector2(1f, 0.5f);
+            unlockedTV.pivot = new Vector2(0.5f, 0.5f);
+            unlockedTV.sizeDelta = new Vector2(0f, 360f);
+            unlockedTV.localScale = new Vector3(0.6f, -1f, 1f);
+            var unlockedText = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI)).GetComponent<TextMeshProUGUI>();
+            unlockedText.rectTransform.SetParent(unlockedImageParent);
+            unlockedText.text = "YOU HAVE UNLOCKED\nA NEW PLAYABLE";
+            unlockedText.color = Color.white;
+            unlockedText.font = BaldiFonts.ComicSans18.FontAsset();
+            unlockedText.fontSize = BaldiFonts.ComicSans18.FontSize();
+            unlockedText.alignment = TextAlignmentOptions.Center;
+            unlockedText.rectTransform.anchorMin = new Vector2(0.5f, 1f);
+            unlockedText.rectTransform.anchorMax = new Vector2(0.5f, 1f);
+            unlockedText.rectTransform.pivot = new Vector2(0.5f, 1f);
+            unlockedText.rectTransform.anchoredPosition = new Vector2(0f, -100f);
+            unlockedText.rectTransform.localScale = Vector3.one;
+            var unlockedPortrait = new GameObject("Portrait", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+            unlockedPortrait.rectTransform.SetParent(unlockedImageParent, false);
+            unlockedPortrait.sprite = assetMan.Get<Sprite>("Portrait/Partygoer");
+            unlockedPortrait.rectTransform.anchorMin = Vector2.one / 2f;
+            unlockedPortrait.rectTransform.anchorMax = Vector2.one / 2f;
+            unlockedPortrait.rectTransform.pivot = Vector2.one / 2f;
+            unlockedPortrait.rectTransform.localScale = Vector2.one * 1.2f;
+            unlockedPortrait.rectTransform.anchoredPosition = new Vector2(0f, -35f);
+            var unlockedComponent = unlockedUI.gameObject.AddComponent<PlayableUnlockedUI>();
+            unlockedComponent.portraitMan = unlockedPortrait;
+            unlockedComponent.textMan = unlockedText;
+            unlockedComponent.animatorMan = unlockedUI.gameObject.AddComponent<CustomImageAnimator>();
+            unlockedComponent.animatorMan.image = unlockedTV.GetComponent<Image>();
+            unlockedComponent.animatorMan.useUnscaledTime = true;
+            Sprite[] tvsprites = Resources.FindObjectsOfTypeAll<Sprite>().ToList().FindAll(spr => spr.name.StartsWith("ScreenSwingSheet_")).ToArray();
+            for (int i = 0; i < tvsprites.Length; i++)
+            {
+                if (tvsprites[i].name != $"ScreenSwingSheet_{i}")
+                    tvsprites[i] = Resources.FindObjectsOfTypeAll<Sprite>().Last(spr => spr.name == $"ScreenSwingSheet_{i}");
+            }
+            unlockedComponent.tvsprites = tvsprites;
+            assetMan.Add("UnlockedCharacterUI", unlockedComponent);
+
             yield return "Creating specific character stuff";
             CYLN_LOONComponent.prefabs.AddRange([
                 Resources.FindObjectsOfTypeAll<GameObject>().ToList().Find(x => x.name == "Table_Test"),
@@ -767,7 +828,7 @@ There will be improvements and additions once new updates come out, but some cha
         }
 
         /// <summary>
-        /// Unlocks a playable character (NOTE: Only saves for Core and Core Modded playables, currently you must invoke your own save action for your playable's unlock status to be saved.)
+        /// Unlocks a playable character
         /// </summary>
         /// <param name="info">The plugin that contains the character</param>
         /// <param name="charName">The name of the playable to unlock (not case sensitive)</param>
@@ -776,9 +837,25 @@ There will be improvements and additions once new updates come out, but some cha
             if (!MTM101BaldiDevAPI.SaveGamesEnabled || (CoreGameManager.Instance != null && !CoreGameManager.Instance.SaveEnabled)
                 || PlayableCharacterMetaStorage.Instance.Find(x => x.value.name.ToLower().Replace(" ", "") == charName.ToLower().Replace(" ", "") && x.info == info) == null
                 || PlayableCharacterMetaStorage.Instance.Find(x => x.value.name.ToLower().Replace(" ", "") == charName.ToLower().Replace(" ", "") && x.info == info).value.unlocked) return;
-            MusicManager.Instance.PlaySoundEffect(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "BAL_Wow"));
-            PlayableCharacterMetaStorage.Instance.Find(x => x.value.name.ToLower().Replace(" ", "") == charName.ToLower().Replace(" ", "") && x.info == info).value.unlocked = true;
-            ModdedSaveSystem.CallSaveLoadAction(Instance, true, ModdedSaveSystem.GetCurrentSaveFolder(Instance));
+            if (SceneManager.GetActiveScene().name != "MainMenu")
+                MusicManager.Instance.PlaySoundEffect(NewCharacterUnlocked);
+            var characterToUnlock = PlayableCharacterMetaStorage.Instance.Find(x => x.value.name.ToLower().Replace(" ", "") == charName.ToLower().Replace(" ", "") && x.info == info);
+            var unlockMan = Instantiate(PlayableUnlockedUI, null, false);
+            DontDestroyOnLoad(unlockMan);
+            unlockMan.portraitMan.sprite = characterToUnlock.value.sprselect;
+            unlockMan.DoThang();
+            characterToUnlock.value.unlocked = true;
+            ModdedSaveSystem.CallSaveLoadAction(info.Instance, true, ModdedSaveSystem.GetCurrentSaveFolder(info.Instance));
+        }
+
+        internal static void TestUnlockUI()
+        {
+            MusicManager.Instance.PlaySoundEffect(NewCharacterUnlocked);
+            var unlockMan = Instantiate(PlayableUnlockedUI, null, false);
+            DontDestroyOnLoad(unlockMan);
+            var randomguys = PlayableCharacterMetaStorage.Instance.All();
+            unlockMan.portraitMan.sprite = randomguys[UnityEngine.Random.RandomRangeInt(0, randomguys.Length - 1)].value.sprselect;
+            unlockMan.DoThang();
         }
 
         /// <summary>
@@ -805,7 +882,7 @@ There will be improvements and additions once new updates come out, but some cha
         /// <param name="gobj">The game object of the tinkerneer component.</param> <param name="info">The plugin that you want to store for the object</param>
         /// <param name="name"></param> <param name="desc"></param> <param name="acceptables">The items required to invent and place a tinkereer component.</param>
         /// <param name="tinkerneerCharExclusive">Is this component exclusively craftable from The Tinkerneer character?</param>
-        /// <param name="rmcategory">What category can this room be placed in. (Leave as RoomCategory.Null to make this component craftable anywhere.)</param>
+        /// <param name="rmcategory">What category can this room be placed in. (Leave as <see cref="RoomCategory.Null"/> to make this component craftable anywhere.)</param>
         public static void CreateTinkerneeringObject<T>(this GameObject gobj, BepInEx.PluginInfo info,  string name, string desc, ItemObject[] acceptables, bool tinkerneerCharExclusive = true, RoomCategory rmcategory = RoomCategory.Null) where T : TinkerneerObject
         {
             TinkerneerObject thing = gobj.AddComponent<T>();
@@ -837,7 +914,7 @@ There will be improvements and additions once new updates come out, but some cha
     {
         public const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
         public const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        public const string PLUGIN_VERSION = "0.1.2.1"; // UPDATE EVERY TIME!!
+        public const string PLUGIN_VERSION = "0.1.2.2"; // UPDATE EVERY TIME!!
     }
 
     /// <summary>

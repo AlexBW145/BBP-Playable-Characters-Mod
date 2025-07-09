@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -9,6 +9,7 @@
     <LangVersion>latest</LangVersion>
     <Configurations>Debug;Release;DEMO</Configurations>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <RootNamespace>BBP_Playables</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />

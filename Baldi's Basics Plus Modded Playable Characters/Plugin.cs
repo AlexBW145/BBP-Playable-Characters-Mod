@@ -16,6 +16,7 @@ using UnityEngine;
 using MTM101BaldAPI.SaveSystem;
 using BBP_Playables.Modded.Patches;
 using MTM101BaldAPI.Reflection;
+using UnityEngine.TextCore;
 
 namespace BBP_Playables.Modded
 {
@@ -28,12 +29,14 @@ namespace BBP_Playables.Modded
     public class Plugin : BaseUnityPlugin
     {
         internal static BepInEx.PluginInfo info { get; private set; }
+        internal static BepInEx.PluginInfo coreInfo { get; private set; }
         private void Awake()
         {
             Harmony harmony = new Harmony(PluginInfo.PLUGIN_GUID);
             info = Info;
+            coreInfo = PlayableCharsPlugin.Instance.Info;
             harmony.PatchAllConditionals();
-            LoadingEvents.RegisterOnAssetsLoaded(Info, PreLoad(), false);
+            LoadingEvents.RegisterOnAssetsLoaded(Info, PreLoad(), LoadingEventOrder.Pre);
             ModdedSaveGame.AddSaveHandler(Info);
             AssetLoader.LocalizationFromMod(this);
 

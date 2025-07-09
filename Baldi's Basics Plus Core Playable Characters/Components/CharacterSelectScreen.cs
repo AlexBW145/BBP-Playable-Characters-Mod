@@ -15,16 +15,13 @@ namespace BBP_Playables.Core
     public class CharacterSelectScreen : MonoBehaviour
     {
         private int curChar = 0;
-        private bool selected = false;
+        private bool selected = false, inputDown = false;
         public bool Loading => selected;
-        public TextMeshProUGUI nametext;
-        public TextMeshProUGUI desctext;
+        public TextMeshProUGUI nametext, desctext;
         public Image portrait;
         private List<PlayableCharacter> characters = new List<PlayableCharacter>();
         private AnalogInputData analogData;
-        private Vector2 _absoluteVector;
-        private Vector2 _deltaVector;
-        private bool inputDown = false;
+        private Vector2 _absoluteVector, _deltaVector;
 
 
         void OnEnable()
