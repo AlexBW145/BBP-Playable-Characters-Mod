@@ -721,7 +721,7 @@ There will be improvements and additions once new updates come out, but some cha
                     default:
                         scene.GetCustomLevelObjects()?.Do(lvl => lvl.SetCustomModValue(Info, "randomizeralways", false));
                         break;
-                    case "Level_EndlessLooped" or "Level_NotebookFrenzy":
+                    case "Level_EndlessLooped":
                         scene.GetCustomLevelObjects()?.Do(lvl => lvl.SetCustomModValue(Info, "randomizeralways", true));
                         break;
                 }
