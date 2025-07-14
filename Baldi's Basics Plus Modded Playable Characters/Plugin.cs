@@ -212,13 +212,16 @@ namespace BBP_Playables.Modded
             GeneratorManagement.Register(this, GenerationModType.Addend, (name, num, ld) =>
             {
                 if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
-                    ld.levelObject.potentialItems = ld.levelObject.potentialItems.AddRangeToArray([
+                    foreach (var levelobject in ld.GetCustomLevelObjects())
+                    {
+                        levelobject.potentialItems = levelobject.potentialItems.AddRangeToArray([
                         new ()
                         {
                             selection = PlayableCharsPlugin.assetMan.Get<ItemObject>("FirewallBlaster"),
                             weight = 9
                         }
                     ]);
+                    }
             });
         }
     }

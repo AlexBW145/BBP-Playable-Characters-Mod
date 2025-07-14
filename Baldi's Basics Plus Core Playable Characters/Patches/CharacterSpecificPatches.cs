@@ -192,7 +192,7 @@ namespace BBP_Playables.Core.Patches
             if (itm.Has(EnumExtensions.GetFromExtendedName<Items>("PartygoerPresent")))
             {
                 ItemObject present = itm.items.ToList().Find(item => item == PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + Character.Baldi.ToString()));
-                if (present != null)
+                if (present != null && baldi.Character == Character.Baldi)
                 {
                     Tuple<string, double, bool> prevMidi = new Tuple<string, double, bool>("", 0, false);
                     if (MusicManager.Instance.MidiPlaying)

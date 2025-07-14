@@ -623,7 +623,7 @@ There will be improvements and additions once new updates come out, but some cha
             var predicted = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
                 .SetNameAndDesc("The Predicted Fanon", "Desc_Predicted")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Fanon"))
-                .SetStats(s: 3, w: 10f, r: 16, sd: 5f)
+                .SetStats(s: 3, w: 10f, r: 16)
                 .Build();
             var predicted2 = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, Chainloader.PluginInfos.ContainsKey("pixelguy.pixelmodding.baldiplus.bbextracontent"))
                 .SetNameAndDesc("The Predicted Fanon [Times]", "Desc_PredictedBBT")
