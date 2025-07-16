@@ -153,7 +153,7 @@ namespace BBP_Playables.Modded
                 new PlayableCharacterBuilder<MainProtagonistHUDInit>(Info, false)
                 .SetNameAndDesc("The Main Protagonist", "Desc_Protagonist")
                 .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Placeholder"))
-                .SetStats(s: 5, w: 18, r: 28) // Original Stats: 14, 18
+                .SetStats(s: 5, w: 18, r: 28, maxslots: 9) // Original Stats: 14, 18
                 .SetTags("BCPP")
                 .Build();
                 new PlayableCharacterBuilder<DwellerComponent>(Info, false)
@@ -187,7 +187,7 @@ namespace BBP_Playables.Modded
                 new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("Magical Student", "Desc_Magical")
                 .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/MagicalStudent"))
-                .SetStats(s: 4, w: 16, r: 16, sm: 0f)
+                .SetStats(s: 4, w: 16, r: 16, sm: 0f, maxslots: 5)
                 .SetStartingItems(PlayableCharsPlugin.assetMan.Get<ItemObject>("MagicalWandTimesCharacter"))
                 .Build();
 

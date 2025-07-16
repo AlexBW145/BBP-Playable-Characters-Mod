@@ -249,8 +249,8 @@ namespace BBP_Playables.Core.Patches
             __instance.gameObject.AddComponent(PlayableCharsPlugin.Instance.Character.componentType);
             bool endless = false;
 #if !DEMO
-            if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.endlessfloors"))
-                endless = !(Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.endlessfloors") && EndlessFloorsFuncs.Is99());
+            if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.arcadeendlessforever"))
+                endless = Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.arcadeendlessforever") && EndlessFloorsFuncs.Is99();
 #endif
             if (!endless)
             {
@@ -267,6 +267,10 @@ namespace BBP_Playables.Core.Patches
             __instance.gameObject.GetComponent<PlayableCharacterComponent>()?.Initialize();
             switch (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", ""))
             {
+                default:
+                    if (!endless)
+                        PlayableCharsPlugin.Instance.Character.OnInitAction?.Invoke(__instance, false);
+                    break;
                 case "magicalstudent":
                     __instance.itm.LockSlot(0, true);
                     break;
@@ -324,12 +328,7 @@ namespace BBP_Playables.Core.Patches
             return true;
         }
 
-        [HarmonyPatch(typeof(ItemManager), nameof(ItemManager.UseItem)), HarmonyPostfix]
-        static void OhItsTheDisables(ItemManager __instance, ref bool ___disabled) // Ok yeah. Pitshop.
-        {
-            if (___disabled && __instance.items[__instance.selectedItem].itemType == EnumExtensions.GetFromExtendedName<Items>("BackpackerBackpack"))
-                GameObject.Instantiate(__instance.items[__instance.selectedItem].item).Use(__instance.pm);
-        }
+        // I removed a backpacker patch because of the override variable that I didn't see.
 
         [HarmonyPatch(typeof(Bully), nameof(Bully.Initialize)), HarmonyPostfix]
         static void ItemNoLongerBeStolen(ref List<Items> ___itemsToReject)

@@ -4,11 +4,12 @@ using MTM101BaldAPI;
 using MTM101BaldAPI.Reflection;
 using UnityEngine.UI;
 using UnityEngine;
-using BaldiEndless;
+using EndlessFloorsForever;
 using MTM101BaldAPI.Registers;
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using EndlessFloorsForever.Components;
 #if !DEMO
 namespace BBP_Playables.Core.Patches
 {
@@ -16,7 +17,7 @@ namespace BBP_Playables.Core.Patches
     {
         internal static void ArcadeModeAdd()
         {
-            EndlessFloorsPlugin.AddGeneratorAction(PlayableCharsPlugin.Instance.Info, (data) =>
+            EndlessForeverPlugin.AddGeneratorAction(PlayableCharsPlugin.Instance.Info, (data) =>
             {
                 data.items.Add(new() { selection = PlayableCharsPlugin.assetMan.Get<ItemObject>("TinkerneerWrench"), weight = 75 });
                 if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
@@ -26,24 +27,25 @@ namespace BBP_Playables.Core.Patches
 
         internal static bool Is99()
         {
-            return CoreGameManager.Instance.currentMode == EndlessFloorsPlugin.NNFloorMode;
+            return EndlessForeverPlugin.Instance.InGameMode;
         }
     }
 
-    [ConditionalPatchMod("mtm101.rulerp.baldiplus.endlessfloors"), HarmonyPatch(typeof(PlayerManager))]
+    [ConditionalPatchMod("alexbw145.baldiplus.arcadeendlessforever"), HarmonyPatch(typeof(PlayerManager))]
     class CharacterINFPatches
     {
         [HarmonyPatch("Start"), HarmonyPrefix, HarmonyPriority(Priority.VeryHigh)]
         static void INFModeStarts(PlayerManager __instance)
         {
-            if (EndlessFloorsFuncs.Is99()) return;
+            if (!EndlessForeverPlugin.Instance.InGameMode) return;
             if (!PlayableCharsPlugin.gameStarted)
             {
                 switch (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", ""))
                 {
                     default:
+                        PlayableCharsPlugin.Instance.Character.OnInitAction?.Invoke(__instance, true);
                         break;
-                    case "thepartygoer": // I'm not allowed to insert a random `EndlessFloorsPlugin.presentObject` onto an `Core.BasePlugin.Awake()`
+                    /*case "thepartygoer":
                         WeightedItemObject[] array = ITM_Present.potentialObjects.ToArray();
                         int weightAverage = array.Sum((WeightedItemObject x) => x.weight) / array.Length;
                         Dictionary<WeightedItemObject, int> ogWeights = new Dictionary<WeightedItemObject, int>();
@@ -57,39 +59,37 @@ namespace BBP_Playables.Core.Patches
                         });
                         WeightedSelection<ItemObject>[] items = array;
                         __instance.itm.items[0] = WeightedSelection<ItemObject>.RandomSelection(items);
-                        break;
+                        break;*/
                     case "thetroublemaker":
                         __instance.itm.items[0] = ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value;
                         if (__instance.itm.maxItem > 0) __instance.itm.items[1] = ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value;
                         break;
                     case "thebackpacker" or "magicalstudent":
-                        EndlessFloorsPlugin.currentSave.Counters["slots"] += 1;
+                        EndlessForeverPlugin.Instance.Counters["slots"] += 1;
                         if (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") == "magicalstudent")
                             __instance.itm.items[0] = PlayableCharsPlugin.assetMan.Get<ItemObject>("MagicalWandTimesCharacter");
                         break;
                     case "thetinkerneer":
-                        EndlessFloorsPlugin.currentSave.Counters["slots"] += 2;
+                        EndlessForeverPlugin.Instance.Counters["slots"] += 2;
                         break;
                 }
             }
-            __instance.itm.maxItem = EndlessFloorsPlugin.currentSave.itemSlots - 1;
-            PlayableCharsGame.prevSlots = EndlessFloorsPlugin.currentSave.Counters["slots"];
-            CoreGameManager.Instance.GetHud(__instance.playerNumber).UpdateInventorySize(EndlessFloorsPlugin.currentSave.Counters["slots"]);
+            if (EndlessForeverPlugin.Instance.Counters["slots"] > PlayableCharsPlugin.Instance.Character.maxSlots)
+                EndlessForeverPlugin.Instance.Counters["slots"] = (byte)PlayableCharsPlugin.Instance.Character.maxSlots;
+            __instance.itm.maxItem = EndlessForeverPlugin.Instance.Counters["slots"] - 1;
+            PlayableCharsGame.prevSlots = EndlessForeverPlugin.Instance.Counters["slots"];
+            CoreGameManager.Instance.GetHud(__instance.playerNumber).UpdateInventorySize(EndlessForeverPlugin.Instance.Counters["slots"]);
         }
-    }
 
-    [ConditionalPatchMod("mtm101.rulerp.baldiplus.endlessfloors"), HarmonyPatch("BaldiEndless.PreventSelectPatch, BaldiEndless", "Prefix")] // Couldn't get the assembly from an existing INF class but hey, that'd gonna work...
-    class ShutUpPatch
-    {
-        static bool Prefix()
+        [HarmonyPatch(typeof(StandardUpgrade), nameof(StandardUpgrade.ShouldAppear)), HarmonyPostfix]
+        static void MaxedOutMan(int currentLevel, StandardUpgrade __instance, ref bool __result)
         {
-            if (CoreGameManager.Instance == null || CoreGameManager.Instance.GetPlayer(0) == null) return true;
-            CoreGameManager.Instance.GetHud(0).SetItemSelect(CoreGameManager.Instance.GetPlayer(0).itm.selectedItem, CoreGameManager.Instance.GetPlayer(0).itm.items[CoreGameManager.Instance.GetPlayer(0).itm.selectedItem].nameKey);
-            return false;
+            if (__instance.id == "slots")
+                __result = currentLevel < PlayableCharsPlugin.Instance.Character.maxSlots;
         }
     }
 
-    [ConditionalPatchMod("mtm101.rulerp.baldiplus.endlessfloors"), HarmonyPatch(typeof(HudManager), nameof(HudManager.UpdateInventorySize))]
+    [ConditionalPatchMod("alexbw145.baldiplus.arcadeendlessforever"), HarmonyPatch(typeof(HudManager), nameof(HudManager.UpdateInventorySize))]
     class BackpackerBackpackBugfix // Happens on PIT stop item slot upgrades
     {
         static void Postfix()

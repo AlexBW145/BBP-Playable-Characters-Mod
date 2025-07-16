@@ -1,5 +1,4 @@
-﻿using BaldiEndless;
-using BBP_Playables.Core.Patches;
+﻿using BBP_Playables.Core.Patches;
 using BepInEx;
 using BepInEx.Bootstrap;
 using BepInEx.Logging;
@@ -33,7 +32,7 @@ namespace BBP_Playables.Core
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", "8.1.0.0")]
-    [BepInDependency("mtm101.rulerp.baldiplus.endlessfloors", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("alexbw145.baldiplus.arcadeendlessforever", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInProcess("BALDI.exe")]
     [BepInProcess("Baldi's Basics Plus Prerelease.exe")]
     public class PlayableCharsPlugin : BaseUnityPlugin
@@ -530,6 +529,7 @@ There will be improvements and additions once new updates come out, but some cha
                     .SetNameAndDescription("Itm_BackpackerBackpack", "Desc_BackpackerBackpack")
                     .SetShopPrice(int.MaxValue)
                     .SetGeneratorCost(int.MaxValue)
+                    .SetAsNotOverridable()
                     .SetSprites(assetMan.Get<Sprite>("Items/BackpackerBackpack_Small"), assetMan.Get<Sprite>("Items/BackpackerBackpack_Large"))
                     .SetMeta(ItemFlags.MultipleUse, ["CharacterItemImportant"])
                     .Build());
@@ -539,6 +539,7 @@ There will be improvements and additions once new updates come out, but some cha
                     .SetNameAndDescription("Itm_BackpackerBackpack", "Desc_BackpackerBackpack")
                     .SetShopPrice(int.MaxValue)
                     .SetGeneratorCost(int.MaxValue)
+                    .SetAsNotOverridable()
                     .SetSprites(assetMan.Get<Sprite>("Items/BackpackerBackpack_SmallOpen"), assetMan.Get<Sprite>("Items/BackpackerBackpack_Large"))
                     .SetMeta(ItemFlags.MultipleUse, ["CharacterItemImportant"])
                     .Build());
@@ -619,21 +620,22 @@ There will be improvements and additions once new updates come out, but some cha
             var _default = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
                 .SetNameAndDesc("The Default", "Desc_Default")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Default"))
+                .SetStats(maxslots: 9)
                 .Build();
             var predicted = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
                 .SetNameAndDesc("The Predicted Fanon", "Desc_Predicted")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Fanon"))
-                .SetStats(s: 3, w: 10f, r: 16)
+                .SetStats(s: 3, w: 10f, r: 16, maxslots: 5)
                 .Build();
             var predicted2 = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, Chainloader.PluginInfos.ContainsKey("pixelguy.pixelmodding.baldiplus.bbextracontent"))
                 .SetNameAndDesc("The Predicted Fanon [Times]", "Desc_PredictedBBT")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/FanonBBT"))
-                .SetStats(s: 3)
+                .SetStats(s: 3, maxslots: 5)
                 .Build();
             var glitched = new PlayableCharacterBuilder<CYLN_LOONComponent>(Info, unlockedCylnLoon)
                 .SetNameAndDesc("CYLN_LOON", "Desc_LOON")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Cylnloon"))
-                .SetStats(s: 2, w: 24f, r: 48f, sd: 25f, sr: 15, sm: 200f)
+                .SetStats(s: 2, w: 24f, r: 48f, sd: 25f, sr: 15, sm: 200f, maxslots: 3)
                 .SetFlags(PlayableFlags.None)
                 .SeparatePrefab()
                 .Build();
@@ -647,7 +649,7 @@ There will be improvements and additions once new updates come out, but some cha
             var bullyman = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("The Troublemaker", "Desc_Troublemaker") // SCRAPPED IDEA: Schemes of Naught\nIncreases the detention timer, allows the player to get past through Its a Bully with no items at all, and BSODA duration is increased.
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Troublemaker"))
-                .SetStats(s: 3, r: 28f, sm: 110f)
+                .SetStats(s: 3, r: 28f, sm: 110f, maxslots: 5)
                 .SetFlags(PlayableFlags.None)
                 .SetStartingItems(ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value, ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value)
                 .SeparatePrefab()
@@ -656,7 +658,7 @@ There will be improvements and additions once new updates come out, but some cha
             var thinker = new PlayableCharacterBuilder<ThinkerAbility>(Info, false)
                 .SetNameAndDesc("The Thinker", "Desc_Thinker")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Thinker"))
-                .SetStats(s: 3, w: 25f, r: 25f, sm: 0f)
+                .SetStats(s: 3, w: 25f, r: 25f, sm: 0f, maxslots: 6)
                 .SetFlags(PlayableFlags.None)
                 .Build();
             var backpacker = new PlayableCharacterBuilder<BackpackerBackpack>(Info, false)
@@ -671,14 +673,14 @@ There will be improvements and additions once new updates come out, but some cha
             var tails = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("The Tinkerneer", "Desc_Tinkerneer")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Tinkerneer"))
-                .SetStats(s: 6, w: 18f, r: 28f, sd: 18f, sr: 28f)
+                .SetStats(s: 6, w: 18f, r: 28f, sd: 18f, sr: 28f, maxslots: 8)
                 .SetFlags(PlayableFlags.None)
                 .SetStartingItems(assetMan.Get<ItemObject>("TinkerneerWrench"))
                 .Build();
             var thetestjr = new PlayableCharacterBuilder<TestSubjectMan>(Info, false)
                 .SetNameAndDesc("The Test Subject", "Desc_TestSubject")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/TestSubject"))
-                .SetStats(w: 40f, r: 30f, sm: 0f)
+                .SetStats(w: 40f, r: 30f, sm: 0f, maxslots: 9)
                 .SetFlags(PlayableFlags.None)
                 .SeparatePrefab()
                 .Build();
@@ -686,7 +688,7 @@ There will be improvements and additions once new updates come out, but some cha
             var shitass = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("The Speedrunner", "Desc_Speedrunner")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Speedrunner"))
-                .SetStats(s: 1, w: 34f, r: 52f, sd: 30f, sr: 10f, sm: 200f)
+                .SetStats(s: 1, w: 34f, r: 52f, sd: 30f, sr: 10f, sm: 200f, maxslots: 3)
                 .SetFlags(PlayableFlags.Abilitiless)
                 .Build();
             extraSave = new(_default);
@@ -914,7 +916,7 @@ There will be improvements and additions once new updates come out, but some cha
     {
         public const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
         public const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        public const string PLUGIN_VERSION = "0.1.2.2"; // UPDATE EVERY TIME!!
+        public const string PLUGIN_VERSION = "0.1.2.3"; // UPDATE EVERY TIME!!
     }
 
     /// <summary>
@@ -994,8 +996,22 @@ There will be improvements and additions once new updates come out, but some cha
             unlocked = unlockedfromStart;
         }
 
+        public PlayableCharacter(BepInEx.PluginInfo Info, string n, string d, Sprite container, PlayableFlags f, Action<PlayerManager, bool> action, bool unlockedfromStart = false)
+            : this (Info, n, d, container, f, unlockedfromStart)
+        {
+            OnInitAction = action;
+        }
+
         //public void SetTags(string[] tagss) => tags = tagss;
         //public void AddTags(string[] tagss) => tags = tags.AddRangeToArray(tagss);
+
+        // Arcade Mode stuff, be on the lookout for BBP new major update before I finish the entire mod!
+        internal Action<PlayerManager, bool> OnInitAction { get; private set; }
+        /// <summary>
+        /// Amount of max item slots that the character can reach with the Item Slot+ upgrade
+        /// </summary>
+        [Range(0, 9)] public int maxSlots;
+        //
     }
 
     [Flags]
@@ -1083,6 +1099,8 @@ There will be improvements and additions once new updates come out, but some cha
         private float staminaRise = 20f;
         private float staminaMax = 100f;
         private int slots = 5;
+        private Action<PlayerManager, bool> action;
+        private int maxSlots = 5;
 
         public PlayableCharacterBuilder(BepInEx.PluginInfo Info, bool unlocked = true)
         {
@@ -1092,13 +1110,14 @@ There will be improvements and additions once new updates come out, but some cha
 
         public PlayableCharacter Build()
         {
-            PlayableCharacter character = new PlayableCharacter(info, name, desc, portrait, flags, unlockedFromStart);
+            PlayableCharacter character = new PlayableCharacter(info, name, desc, portrait, flags, action, unlockedFromStart);
             character.walkSpeed = walkSpeed;
             character.runSpeed = runSpeed;
             character.staminaDrop = staminaDrop;
             character.staminaRise = staminaRise;
             character.staminaMax = staminaMax;
             character.slots = slots;
+            character.maxSlots = maxSlots;
             character.startingItems = startingItems;
             character.prefab = prefabSeparate ? GameObject.Instantiate(prefab, MTM101BaldiDevAPI.prefabTransform) : prefab;
             character.componentType = typeof(T);
@@ -1167,6 +1186,36 @@ There will be improvements and additions once new updates come out, but some cha
             staminaRise = sr;
             staminaMax = sm;
             slots = s;
+            maxSlots = s;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the stats for the playable character
+        /// </summary>
+        /// <param name="w">Walk speed</param>
+        /// <param name="r">Run speed</param>
+        /// <param name="sd">Amount of stamina depletion</param>
+        /// <param name="sr">Amount of stamina regeneration</param>
+        /// <param name="sm">Max amounts of stamina</param>
+        /// <param name="s">Number of item slots</param>
+        /// <param name="maxslots">Maxium amount of item slots that can only be reached with the Item Slot+ upgrade</param>
+        /// <returns></returns>
+        public PlayableCharacterBuilder<T> SetStats(int maxslots, float w = 16f, float r = 24f, float sd = 10f, float sr = 20f, float sm = 100f, int s = 5)
+        {
+            SetStats(w, r, sd, sr, sm, s);
+            maxSlots = maxslots < 0 ? s : maxslots;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the action that gets invoked during game initialization
+        /// </summary>
+        /// <param name="Action">The function that gets invoked during game initialization (<see cref="bool"/> will be set to true if Endless Floors mode is active)</param>
+        /// <returns></returns>
+        public PlayableCharacterBuilder<T> SetInitializationAction(Action<PlayerManager, bool> Action)
+        {
+            action = Action;
             return this;
         }
     }
