@@ -240,7 +240,7 @@ ClientBin/
 *.pfx
 *.publishsettings
 orleans.codegen.cs
-/PlayableCharacters Foxo Insanity
+/PlayableCharacters Foxo Insanity/alexbw145.baldiplus.playablecharacters.foxo
 /Ideas.txt
 
 # Including strong name files can present a security risk
