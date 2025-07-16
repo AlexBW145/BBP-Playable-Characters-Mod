@@ -63,14 +63,16 @@ namespace BBP_Playables.Extra.Patches
 
         static InsanityModifier baldiAura = new InsanityModifier(-15.55f); // -5.55f
         static InsanityModifier foxoAura = new InsanityModifier(-99f);
-        [HarmonyPatch(typeof(Baldi), nameof(Baldi.Initialize)), HarmonyPostfix]
+        [HarmonyPatch(typeof(Baldi), nameof(Baldi.Initialize))]
+        [ConditionalPatchMod("alexbw145.baldiplus.teacherapi"), HarmonyPatch("TeacherAPI.Teacher, TeacherAPI", "ActivateSpoopMode")]
+        [HarmonyPostfix]
         static void AuraOfInsane(Baldi __instance, ref bool ___tutorialMode)
         {
             if (___tutorialMode || __instance is WrathFoxo) return;
             var aura = __instance.gameObject.AddComponent<InsanityAura>();
             aura.radius = 90f;
-            aura.modifier = __instance.Character == FoxoPlayablePlugin.Foxo.Character ? foxoAura :  baldiAura;
             aura.lookOnly = true;
+            aura.modifier = __instance.Character == FoxoPlayablePlugin.Foxo.Character ? foxoAura :  baldiAura;
             /*foreach (var fox in GameObject.FindObjectsOfType<InsanityComponent>(false))
                 if ((__instance.transform.position - fox.transform.position).magnitude < 90f && !fox.modifiers.Contains(baldiAura))
                     fox.modifiers.Add(baldiAura);
@@ -85,7 +87,6 @@ namespace BBP_Playables.Extra.Patches
             var aura = __instance.Npc.gameObject.GetOrAddComponent<InsanityAura>();
             aura.radius = 90f;
             aura.modifier = reflexAura;
-            aura.lookOnly = true;
         }
         [HarmonyPatch(typeof(DrReflex), "RapidHammer"), HarmonyPostfix]
         static IEnumerator RemoveAuraDoctorFix(IEnumerator result, bool final, DrReflex __instance)

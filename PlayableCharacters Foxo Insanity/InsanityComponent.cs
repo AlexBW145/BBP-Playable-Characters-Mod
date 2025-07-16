@@ -10,6 +10,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 using UnityEngine.UIElements.Experimental;
 
 namespace BBP_Playables.Extra.Foxo
@@ -40,8 +41,11 @@ namespace BBP_Playables.Extra.Foxo
         void Update()
         {
             foreach (var fox in FindObjectsOfType<InsanityComponent>(false))
-                if (((!lookOnly && (transform.position - fox.transform.position).magnitude < radius) || (lookOnly && looker != null && looker.PlayerInSight(fox.PlayerManager))) && !fox.modifiers.Contains(modifier))
-                    fox.modifiers.Add(modifier);
+                if ((!lookOnly && (transform.position - fox.transform.position).magnitude < radius) || (lookOnly && looker?.PlayerInSight(fox.PlayerManager) == true))
+                {
+                    if (!fox.modifiers.Contains(modifier))
+                        fox.modifiers.Add(modifier);
+                }
                 else if (fox.modifiers.Contains(modifier))
                     fox.modifiers.Remove(modifier);
         }

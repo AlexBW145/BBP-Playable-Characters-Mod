@@ -18,6 +18,7 @@ namespace BBP_Playables.Extra.Foxo
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", MTM101BaldiDevAPI.VersionNumber)]
     [BepInDependency("alexbw145.baldiplus.playablecharacters", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("alexbw145.baldiplus.teacherapi", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInProcess("BALDI.exe")]
     [BepInProcess("Baldi's Basics Plus Prerelease.exe")]
     public class FoxoPlayablePlugin : BaseUnityPlugin
