@@ -1,6 +1,7 @@
 ﻿using BepInEx.Bootstrap;
 using HarmonyLib;
 using MTM101BaldAPI;
+using MTM101BaldAPI.PlusExtensions;
 using MTM101BaldAPI.Reflection;
 using MTM101BaldAPI.Registers;
 using MTM101BaldAPI.SaveSystem;
@@ -239,13 +240,22 @@ namespace BBP_Playables.Core.Patches
         [HarmonyPatch(typeof(PlayerManager), "Start"), HarmonyPrefix, HarmonyPriority(Priority.High)]
         static void PatchEmStats(PlayerManager __instance)
         {
+            if (__instance.GetMovementStatModifier() != null)
+            {
+                var statmodifier = __instance.GetMovementStatModifier();
+                statmodifier.ChangeBaseStat("walkSpeed", PlayableCharsPlugin.Instance.Character.walkSpeed);
+                statmodifier.ChangeBaseStat("runSpeed", PlayableCharsPlugin.Instance.Character.runSpeed);
+                statmodifier.ChangeBaseStat("staminaDrop", PlayableCharsPlugin.Instance.Character.staminaDrop);
+                statmodifier.ChangeBaseStat("staminaRise", PlayableCharsPlugin.Instance.Character.staminaRise);
+                statmodifier.ChangeBaseStat("staminaMax", PlayableCharsPlugin.Instance.Character.staminaMax);
+            }
             __instance.plm.walkSpeed = PlayableCharsPlugin.Instance.Character.walkSpeed;
             __instance.plm.runSpeed = PlayableCharsPlugin.Instance.Character.runSpeed;
             __instance.plm.staminaDrop = PlayableCharsPlugin.Instance.Character.staminaDrop;
             __instance.plm.staminaRise = PlayableCharsPlugin.Instance.Character.staminaRise;
             __instance.plm.staminaMax = PlayableCharsPlugin.Instance.Character.staminaMax;
             CoreGameManager.Instance.GetHud(__instance.playerNumber).transform.Find("Staminometer").gameObject.SetActive(PlayableCharsPlugin.Instance.Character.staminaMax > 0f);
-            __instance.plm.stamina = __instance.plm.staminaMax;
+            __instance.plm.stamina = PlayableCharsPlugin.Instance.Character.staminaMax;
             __instance.gameObject.AddComponent(PlayableCharsPlugin.Instance.Character.componentType);
             bool endless = false;
 #if !DEMO

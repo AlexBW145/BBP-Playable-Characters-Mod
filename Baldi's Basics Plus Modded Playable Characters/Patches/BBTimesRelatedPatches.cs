@@ -24,15 +24,15 @@ namespace BBP_Playables.Modded.Patches
     [ConditionalPatchMod("pixelguy.pixelmodding.baldiplus.bbextracontent"), HarmonyPatch(typeof(PlayerVisual), nameof(PlayerVisual.Initialize))]
     class PlayerVisualPatch
     {
-        public static Dictionary<PlayableCharacter, Sprite[]> playableEmotions = new Dictionary<PlayableCharacter, Sprite[]>();
-        static void Postfix(PlayerVisual __instance, ref Sprite[] ___emotions)
+        public static readonly Dictionary<PlayableCharacter, Sprite[]> playableEmotions = new Dictionary<PlayableCharacter, Sprite[]>();
+        private static void Postfix(PlayerVisual __instance, ref Sprite[] ___emotions)
         {
             if (!playableEmotions.ContainsKey(PlayableCharsPlugin.Instance.Character)) return;
             ___emotions = playableEmotions[PlayableCharsPlugin.Instance.Character];
             __instance.SetEmotion(0);
         }
         [HarmonyPatch(typeof(PlayableCharacterComponent), "Start"), HarmonyPostfix]
-        static void RandomizerSetVisual(ref PlayerManager ___pm)
+        private static void RandomizerSetVisual(ref PlayerManager ___pm)
         {
             if (!playableEmotions.ContainsKey(PlayableCharsPlugin.Instance.Character) || !PlayableCharsPlugin.IsRandom) return;
             var visual = PlayerVisual.GetPlayerVisual(___pm.playerNumber);

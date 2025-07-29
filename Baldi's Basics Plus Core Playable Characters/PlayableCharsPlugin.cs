@@ -75,6 +75,8 @@ Playable Characters Mod is a unfinished and this build is the <color=orange>full
 There will be improvements and additions once new updates come out, but some characters currently does not have such exclusivity.", false);
             LoadingEvents.RegisterOnAssetsLoaded(Info, BBCRDataLoad(), LoadingEventOrder.Start);
             LoadingEvents.RegisterOnAssetsLoaded(Info, PreLoad(), LoadingEventOrder.Pre);
+            if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.arcadeendlessforever"))
+                LoadingEvents.RegisterOnAssetsLoaded(Info, ArcadeAdds.EndlessLoad(), LoadingEventOrder.Post);
             ModdedSaveGame.AddSaveHandler(gameSave);
             AssetLoader.LocalizationFromMod(this);
 
@@ -399,7 +401,7 @@ There will be improvements and additions once new updates come out, but some cha
                 else if (chance <= 1)
                 {
                     float nearest = float.PositiveInfinity;
-                    foreach (var plr in pri.ec.Players)
+                    foreach (var plr in pri.ec.Players.Where(player => player != null))
                         if (Vector3.Distance(pri.transform.position, plr.transform.position) < nearest)
                             player = plr;
                     if (player != null)

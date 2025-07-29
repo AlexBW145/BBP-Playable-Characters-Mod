@@ -191,20 +191,20 @@ namespace BBP_Playables.Modded
                 .SetStartingItems(PlayableCharsPlugin.assetMan.Get<ItemObject>("MagicalWandTimesCharacter"))
                 .Build();
 
-                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Default").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Default"));
-                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Predicted Fanon").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Fanon"));
+                PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Default").value.AddPlayableVisual(PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Default"));
+                PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Predicted Fanon").value.AddPlayableVisual(PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Fanon"));
                 //PlayerVisualPatch.playableEmotions.Add(default, [Resources.FindObjectsOfTypeAll<Sprite>().ToList().First(x => x.name == "BBTimesAsset_player0_0"), Resources.FindObjectsOfTypeAll<Sprite>().ToList().First(x => x.name == "BBTimesAsset_player1_0")]);
-                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "CYLN_LOON").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/CYLN_LOON"));
-                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Partygoer").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Partygoer"));
-                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Troublemaker").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Troublemaker"));
-                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Thinker").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Thinker"));
-                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Backpacker").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Backpacker"));
-                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Tinkerneer").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Tinkerneer"));
-                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Test Subject").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/TestSubject"));
-                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Speedrunner").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Speedrunner"));
+                PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "CYLN_LOON").value.AddPlayableVisual(PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/CYLN_LOON"));
+                PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Partygoer").value.AddPlayableVisual(PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Partygoer"));
+                PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Troublemaker").value.AddPlayableVisual(PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Troublemaker"));
+                PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Thinker").value.AddPlayableVisual(PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Thinker"));
+                PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Backpacker").value.AddPlayableVisual(PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Backpacker"));
+                PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Tinkerneer").value.AddPlayableVisual(PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Tinkerneer"));
+                PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Test Subject").value.AddPlayableVisual(PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/TestSubject"));
+                PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Speedrunner").value.AddPlayableVisual(PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Speedrunner"));
                 if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
-                    PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Dweller").value, [PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Dweller")[0], PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Dweller")[0]]);
-                PlayerVisualPatch.playableEmotions.Add(PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "Magical Student").value, PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/MagicalStudent"));
+                    PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Dweller").value.AddPlayableVisual([PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Dweller")[0], PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Dweller")[0]]);
+                PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "Magical Student").value.AddPlayableVisual(PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/MagicalStudent"));
 
                 BBTInventions.DoStuff();
             }
@@ -224,6 +224,11 @@ namespace BBP_Playables.Modded
                     }
             });
         }
+    }
+
+    public static class ModExclusiveExtensions
+    {
+        public static void AddPlayableVisual(this PlayableCharacter character, Sprite[] emotions) => PlayerVisualPatch.playableEmotions.Add(character, emotions);
     }
 
     class PluginInfo

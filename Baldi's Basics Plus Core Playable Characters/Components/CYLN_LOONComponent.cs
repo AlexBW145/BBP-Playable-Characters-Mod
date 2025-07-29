@@ -11,13 +11,16 @@ namespace BBP_Playables.Core
     {
         public override void SpoopBegin(BaseGameManager manager) => StartCoroutine(CylnObjects(manager));
         public static List<GameObject> prefabs = new List<GameObject>();
+        internal bool LastChance;
+
+        private float CylnTime() => UnityEngine.Random.Range(60f, 90f);
 
         private IEnumerator CylnObjects(BaseGameManager manager)
         {
             float time;
             while (manager != null)
             {
-                time = UnityEngine.Random.Range(60f, 90f);
+                time = CylnTime();
                 while (time > 0f)
                 {
                     if (manager == null)
