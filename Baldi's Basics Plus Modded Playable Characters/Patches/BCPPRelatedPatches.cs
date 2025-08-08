@@ -21,10 +21,10 @@ namespace BBP_Playables.Modded.Patches
             if (__instance is BasementGameManager && CoreGameManager.Instance.SaveEnabled && MTM101BaldiDevAPI.SaveGamesEnabled
                 && __instance.levelObject.name == BasePlugin.Instance.lBasement.name 
                 && CoreGameManager.Instance.currentMode != Mode.Free && __instance.levelObject.finalLevel)
-                PlayableCharsPlugin.UnlockCharacter(Plugin.coreInfo, "The Dweller");
+                PlayableCharsPlugin.UnlockCharacter(Plugin.info, "The Dweller");
             if (__instance.levelObject.finalLevel && (PlrPlayableCharacterVars.GetLocalPlayable().GetPlayer().itm.items.Contains(PlayableCharsPlugin.assetMan.Get<ItemObject>("FirewallBlaster"))
                 || CoreGameManager.Instance.currentLockerItems.Contains(PlayableCharsPlugin.assetMan.Get<ItemObject>("FirewallBlaster"))))
-                PlayableCharsPlugin.UnlockCharacter(Plugin.coreInfo, "The Main Protagonist");
+                PlayableCharsPlugin.UnlockCharacter(Plugin.info, "The Main Protagonist");
         }
     }
 
@@ -40,7 +40,7 @@ namespace BBP_Playables.Modded.Patches
                     GameObject.Destroy(crisp.Value);
                 }*/
             if (!PlayableCharacterMetaStorage.Instance.Find(x => x.value.name == "The Dweller").value.unlocked && BCPPSave.Instance.basementCompleted)
-                PlayableCharsPlugin.UnlockCharacter(Plugin.coreInfo, "The Dweller");
+                PlayableCharsPlugin.UnlockCharacter(Plugin.info, "The Dweller");
         }
     }
 
