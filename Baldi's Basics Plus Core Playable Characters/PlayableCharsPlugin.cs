@@ -31,8 +31,10 @@ using UnityEngine.UI;
 namespace BBP_Playables.Core
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", "8.1.0.0")]
+    [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", "9.0.0.0")]
     [BepInDependency("alexbw145.baldiplus.arcadeendlessforever", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("mtm101.rulerp.baldiplus.levelstudioloader", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("mtm101.rulerp.baldiplus.levelstudio", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInProcess("BALDI.exe")]
     [BepInProcess("Baldi's Basics Plus Prerelease.exe")]
     public class PlayableCharsPlugin : BaseUnityPlugin
@@ -75,8 +77,7 @@ Playable Characters Mod is a unfinished and this build is the <color=orange>full
 There will be improvements and additions once new updates come out, but some characters currently does not have such exclusivity.", false);
             LoadingEvents.RegisterOnAssetsLoaded(Info, BBCRDataLoad(), LoadingEventOrder.Start);
             LoadingEvents.RegisterOnAssetsLoaded(Info, PreLoad(), LoadingEventOrder.Pre);
-            if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.arcadeendlessforever"))
-                LoadingEvents.RegisterOnAssetsLoaded(Info, ArcadeAdds.EndlessLoad(), LoadingEventOrder.Post);
+            LoadingEvents.RegisterOnAssetsLoaded(Info, ExtraLoad(), LoadingEventOrder.Post);
             ModdedSaveGame.AddSaveHandler(gameSave);
             AssetLoader.LocalizationFromMod(this);
 
@@ -172,9 +173,23 @@ There will be improvements and additions once new updates come out, but some cha
                 "charSelINF"
             ]);
 #endif*/
+}
+
+        private IEnumerator ExtraLoad()
+        {
+            yield return 1 + (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.arcadeendlessforever") ? 1 : 0) + (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudioloader") ? 2 : 0) + (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudio") ? 1 : 0);
+            yield return "Getting compats...";
+            var wrappedmeta = assetMan.Get<ItemObject>("PresentGift_Baldi").GetMeta();
+            wrappedmeta.itemObjects = wrappedmeta.itemObjects.AddToArray(assetMan.Get<ItemObject>("PresentUnwrapped"));
+            if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.arcadeendlessforever"))
+                yield return ArcadeAdds.EndlessLoad();
+            if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudioloader"))
+                yield return Modded.LevelEditor.LoaderAdds.LoaderLoad();
+            if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudio"))
+                yield return Modded.LevelEditor.EditorAdds.EditorLoad();
         }
 
-        IEnumerator BBCRDataLoad()
+        private IEnumerator BBCRDataLoad()
         {
             yield return 1;
             yield return "Trying to get BBCR Data";
@@ -192,12 +207,12 @@ There will be improvements and additions once new updates come out, but some cha
                     Log.LogInfo("The player sucks balls.");
             }
         }
-        IEnumerator PreLoad()
+        private IEnumerator PreLoad()
         {
             yield return 1;
             yield return "Setting up stuff";
             Resources.FindObjectsOfTypeAll<PlayerManager>().First().gameObject.AddComponent<PlrPlayableCharacterVars>();
-            assetMan.Add("PlayerPrefab", Resources.FindObjectsOfTypeAll<PlayerManager>().First());
+            assetMan.Add("PlayerPrefab", Resources.FindObjectsOfTypeAll<PlayerManager>().Last());
 
             var unlockedUI = Instantiate(Resources.FindObjectsOfTypeAll<Gum>().ToList().First().transform.Find("GumOverlay").gameObject, MTM101BaldiDevAPI.prefabTransform).GetComponent<Canvas>();
             unlockedUI.gameObject.name = "UnlockedPlayableUI";
@@ -290,8 +305,7 @@ There will be improvements and additions once new updates come out, but some cha
                     .SetMeta(ItemFlags.None, ["gift", "StackableItems_NotAllowStacking"])
                     .Build());
             var present = assetMan.Get<ItemObject>("PresentUnwrapped").item as ITM_PartygoerPresent;
-            present.ReflectionSetVariable("Unwrapped", true);
-            var presentmeta = assetMan.Get<ItemObject>("PresentUnwrapped").GetMeta();
+            present.Unwrapped = true;
             for (int npc = 1; npc <= 13; npc++)
             {
                 var goodpresent = new ItemBuilder(Info)
@@ -301,9 +315,9 @@ There will be improvements and additions once new updates come out, but some cha
                     .SetShopPrice(25)
                     .SetGeneratorCost(5)
                     .SetSprites(assetMan.Get<Sprite>("Items/Present_Small"), assetMan.Get<Sprite>("Items/Present_Large"))
-                    .SetMeta(presentmeta)
+                    .SetMeta(ItemFlags.None, ["gift", "StackableItems_NotAllowStacking"])
                     .Build();
-                goodpresent.item.GetComponent<ITM_PartygoerPresent>().ReflectionSetVariable("Gift", (Character)npc);
+                goodpresent.item.GetComponent<ITM_PartygoerPresent>().Gift = (Character)npc;
                 assetMan.Add<ItemObject>("PresentGift_" + ((Character)npc).ToStringExtended(), goodpresent);
             }
 
@@ -730,6 +744,7 @@ There will be improvements and additions once new updates come out, but some cha
                         break;
                 }
             });
+            HashSet<CustomLevelObject> doneforLevels = new HashSet<CustomLevelObject>();
             GeneratorManagement.Register(this, GenerationModType.Addend, (name, num, ld) =>
             {
                 ld.shopItems = ld.shopItems.AddToArray(new() { selection = assetMan.Get<ItemObject>("TinkerneerWrench"), weight = 80 });
@@ -737,7 +752,13 @@ There will be improvements and additions once new updates come out, but some cha
                 {
                     var presentt = assetMan.Get<ItemObject>("PresentUnwrapped");
                     foreach (var level in ld.GetCustomLevelObjects())
-                        level.forcedItems.AddRange([presentt, presentt]);
+                    {
+                        if (!doneforLevels.Contains(level)) // Endless Mode level objects reuses Hide and Seek Mode level objects
+                        {
+                            level.forcedItems.AddRange([presentt, presentt]);
+                            doneforLevels.Add(level);
+                        }
+                    }
                 }
             });
             if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.endlessfloors"))
@@ -818,13 +839,15 @@ There will be improvements and additions once new updates come out, but some cha
 
                     if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.playablecharacters.modded"))
                     {
-                        BepInEx.PluginInfo info = Chainloader.PluginInfos.GetValueSafe("alexbw145.baldiplus.playablecharacters.modded");
+                        //BepInEx.PluginInfo info = Chainloader.PluginInfos.GetValueSafe("alexbw145.baldiplus.playablecharacters.modded");
+                        // Y'see? I cannot use the plugin from the modded part of this mod because it doesn't contain a save manager action (and also the serialized save data is internal, not public)
+                        // so I wouldn't let anyone modify the save data contents.
                         if (Chainloader.PluginInfos.ContainsKey("pixelguy.pixelmodding.baldiplus.bbextracontent"))
-                            SetUnlockedCharacter(info, "Magical Student", filedata.magical);
+                            SetUnlockedCharacter(Info, "Magical Student", filedata.magical);
                         if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
                         {
-                            SetUnlockedCharacter(info, "The Main Protagonist", filedata.protagonist);
-                            SetUnlockedCharacter(info, "The Dweller", filedata.dweller);
+                            SetUnlockedCharacter(Info, "The Main Protagonist", filedata.protagonist);
+                            SetUnlockedCharacter(Info, "The Dweller", filedata.dweller);
                         }
                     }
                 }
@@ -918,7 +941,7 @@ There will be improvements and additions once new updates come out, but some cha
     {
         public const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
         public const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        public const string PLUGIN_VERSION = "0.1.2.3"; // UPDATE EVERY TIME!!
+        public const string PLUGIN_VERSION = "0.1.3.0"; // UPDATE EVERY TIME!!
     }
 
     /// <summary>
@@ -1122,6 +1145,8 @@ There will be improvements and additions once new updates come out, but some cha
             character.maxSlots = maxSlots;
             character.startingItems = startingItems;
             character.prefab = prefabSeparate ? GameObject.Instantiate(prefab, MTM101BaldiDevAPI.prefabTransform) : prefab;
+            if (prefabSeparate)
+                character.prefab.gameObject.name = character.prefab.gameObject.name.Replace("(Clone)", $"_{name.Replace(" ", "")}");
             character.componentType = typeof(T);
             PlayableCharacterMetaStorage.Instance.Add(new PlayableCharacterMetaData(info, character, tags));
             return character;

@@ -216,7 +216,7 @@ namespace BBP_Playables.Core.Patches
             /*if (CoreGameManager.Instance.GetPlayer(0) != null) // Was using this for reiniting the HUD on every next level, but whatever...
                 CoreGameManager.Instance.ReflectionInvoke("DestroyPlayers", []);*/
             // Nothing good to do, this will possibly have multiplayer issues.
-            __instance.playerPref = PlayableCharsPlugin.Instance.Character.prefab;
+            __instance.playerPref = PlayableCharsPlugin.Instance.Character.prefab; // If you are looking at this, I will move this to a transpiler if a Multiplayer mod exists. Most playables here uses the default prefab.
             for (int i = 0; i < __instance.setPlayers; i++)
                 if (__instance.GetPlayer(i) != null)
                 {
@@ -343,8 +343,8 @@ namespace BBP_Playables.Core.Patches
         [HarmonyPatch(typeof(Bully), nameof(Bully.Initialize)), HarmonyPostfix]
         static void ItemNoLongerBeStolen(ref List<Items> ___itemsToReject)
         {
-            foreach (var item in PlayableCharsPlugin.assetMan.GetAll<ItemObject>())
-                if (item.GetMeta().tags.Contains("CharacterItemImportant")) ___itemsToReject.Add(item.itemType);
+            foreach (var item in ItemMetaStorage.Instance.FindAllWithTags(false, "CharacterItemImportant").SelectMany(x => x.itemObjects))
+                if (!___itemsToReject.Contains(item.itemType)) ___itemsToReject.Add(item.itemType);
         }
 
         // Useless, but it'll stay because of the Hide and Seek save system...

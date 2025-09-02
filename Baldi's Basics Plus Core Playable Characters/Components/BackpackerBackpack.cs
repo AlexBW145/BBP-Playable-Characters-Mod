@@ -73,11 +73,16 @@ namespace BBP_Playables.Core
         {
             if (pm != null)
             {
+                if (pm.itm.maxItem == 0)
+                {
+                    modifier.multiplier = 1f;
+                    return;
+                }
                 modifier.multiplier = Mathf.Max(0.2f,
                     1.5f -
                     Mathf.Abs((items.Count(x => x.itemType != Items.None && x.itemType != EnumExtensions.GetFromExtendedName<Items>("BackpackerBackpack"))
                     + pm.itm.items.Count(x => x.itemType != Items.None && x.itemType != EnumExtensions.GetFromExtendedName<Items>("BackpackerBackpack")))
-                    / 16f));
+                    / (float)((pm.itm.maxItem - 1f) * 2f))); // There are 16 available slots...
             }
         }
 

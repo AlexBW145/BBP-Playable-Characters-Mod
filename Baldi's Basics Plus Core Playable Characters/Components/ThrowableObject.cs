@@ -136,7 +136,7 @@ namespace BBP_Playables.Core
             render.localPosition = new Vector3(0, PickupBobValue.bobVal, 0);
         }
 
-        public void EntityTriggerEnter(Collider other)
+        public void EntityTriggerEnter(Collider other, bool validCollision)
         {
             if (thrown && other.CompareTag("NPC"))
             {
@@ -161,11 +161,11 @@ namespace BBP_Playables.Core
             }
         }
 
-        public void EntityTriggerStay(Collider other)
+        public void EntityTriggerStay(Collider other, bool validCollision)
         {
         }
 
-        public void EntityTriggerExit(Collider other)
+        public void EntityTriggerExit(Collider other, bool validCollision)
         {
         }
 

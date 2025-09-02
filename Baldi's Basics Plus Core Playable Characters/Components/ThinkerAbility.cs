@@ -50,7 +50,7 @@ namespace BBP_Playables.Core
 
         void Update()
         {
-            if (pm.ec.Active)
+            if (pm.ec.Active && pm.plm.Entity.CurrentRoom != null)
             {
                 mathMachineVisible = false;
                 if (CoreGameManager.Instance.GetPoints(0) <= 0) return;

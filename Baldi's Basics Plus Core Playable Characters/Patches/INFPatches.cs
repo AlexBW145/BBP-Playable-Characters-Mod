@@ -14,6 +14,9 @@ using MTM101BaldAPI.PlusExtensions;
 using System.Collections;
 using MTM101BaldAPI.SaveSystem;
 using MTM101BaldAPI.Components;
+using System.Reflection.Emit;
+using TMPro;
+using System.Reflection;
 #if !DEMO
 namespace BBP_Playables.Core.Patches
 {
@@ -115,7 +118,15 @@ namespace BBP_Playables.Core.Patches
                 yield return new WaitForSeconds(0.2f);
             }
             yield return new WaitForSecondsNPCTimescale(baldi, 0.5f);
-            if (baldi.behaviorStateMachine.currentState is Baldi_Attack)
+            if (baldi.GetType().IsSubclassOf(typeof(Baldi)))
+            {
+                var types = baldi.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).ToList();
+                if (types.Exists(x => x.Name == "GetAngryState"))
+                    baldi.behaviorStateMachine.ChangeState((NpcState)types.Find(x => x.Name == "GetAngryState").Invoke(baldi, []));
+                else
+                    baldi.behaviorStateMachine.ChangeState(new Baldi_Chase(baldi, baldi));
+            }
+            else if (baldi.behaviorStateMachine.currentState is Baldi_Attack)
                 baldi.behaviorStateMachine.ChangeState(new Baldi_Chase(baldi, baldi));
         }
 
@@ -270,6 +281,37 @@ namespace BBP_Playables.Core.Patches
             statModifier.RemoveModifier(speedStatModifier);
             yield break;
         }
+
+        [HarmonyPatch(typeof(ThinkerAbility), nameof(ThinkerAbility.ThinkerDrain), MethodType.Enumerator), HarmonyTranspiler]
+        static IEnumerable<CodeInstruction> ThinkerIsDrainSlow(IEnumerable<CodeInstruction> instructions)
+        {
+            foreach (CodeInstruction instruction in instructions)
+            {
+                if (instruction.opcode == OpCodes.Ldc_R4 && instruction.OperandIs(15f))
+                    yield return Transpilers.EmitDelegate<Func<float>>(() => EndlessForeverPlugin.Instance.HasUpgrade("thinker_smartersave") ? 30f : 15f);
+                else
+                    yield return instruction;
+            }
+            yield break;
+        }
+
+        [HarmonyPatch(typeof(MathMachine), nameof(MathMachine.Completed), [typeof(int), typeof(bool)]), HarmonyPostfix]
+        static void SmarterNoCheat(int player, bool correct, ref TMP_Text ___answerText, ref int ___normalPoints)
+        {
+            if (correct && ___answerText.color != Color.green
+                && PlrPlayableCharacterVars.GetPlayable(player)?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thethinker" && EndlessForeverPlugin.Instance.HasUpgrade("thinker_smartersave"))
+            {
+                CoreGameManager.Instance.AddPoints(___normalPoints * 2, player, true);
+            }
+        }
+
+        [HarmonyPatch(typeof(ThinkerAbility), "Update"), HarmonyPostfix]
+        static void ThinkerLessTime(ref PlayerManager ___pm, ref bool ___mathMachineVisible, ref float ___timeLooking)
+        {
+            if (EndlessForeverPlugin.Instance.HasUpgrade("thinker_fasterthinking") && ___mathMachineVisible && ___pm.plm.Entity.CurrentRoom.category == RoomCategory.Class)
+                ___timeLooking += 0.5f * (___pm.PlayerTimeScale * Time.deltaTime);
+        }
+
     }
 
     [ConditionalPatchMod("alexbw145.baldiplus.arcadeendlessforever"), HarmonyPatch(typeof(HudManager), nameof(HudManager.UpdateInventorySize))]

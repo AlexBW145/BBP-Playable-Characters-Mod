@@ -20,7 +20,7 @@ using UnityEngine.TextCore;
 
 namespace BBP_Playables.Modded
 {
-    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
     [BepInDependency("alexbw145.baldiplus.playablecharacters", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("alexbw145.baldiplus.bcarnellchars", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("pixelguy.pixelmodding.baldiplus.bbextracontent", BepInDependency.DependencyFlags.SoftDependency)]
@@ -28,11 +28,15 @@ namespace BBP_Playables.Modded
     [BepInProcess("BALDI.exe")]
     public class Plugin : BaseUnityPlugin
     {
+        private const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters.modded";
+        private const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Modded)";
+        private const string PLUGIN_VERSION = "0.17"; // UPDATE EVERY TIME!!
+
         internal static BepInEx.PluginInfo info { get; private set; }
         internal static BepInEx.PluginInfo coreInfo { get; private set; }
         private void Awake()
         {
-            Harmony harmony = new Harmony(PluginInfo.PLUGIN_GUID);
+            Harmony harmony = new Harmony(PLUGIN_GUID);
             info = Info;
             coreInfo = PlayableCharsPlugin.Instance.Info;
             harmony.PatchAllConditionals();
@@ -150,13 +154,13 @@ namespace BBP_Playables.Modded
                 /*Material wholeWhiteMat = new Material(Shader.Find("GUI/Text Shader"));
                 wholeWhiteMat.name = "MapWhiteMat";
                 PlayableCharsPlugin.assetMan.Add<Material>("DwellerMapMat", wholeWhiteMat);*/
-                new PlayableCharacterBuilder<MainProtagonistHUDInit>(Info, false)
+                new PlayableCharacterBuilder<MainProtagonistHUDInit>(coreInfo, false)
                 .SetNameAndDesc("The Main Protagonist", "Desc_Protagonist")
                 .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Placeholder"))
                 .SetStats(s: 5, w: 18, r: 28, maxslots: 9) // Original Stats: 14, 18
                 .SetTags("BCPP")
                 .Build();
-                new PlayableCharacterBuilder<DwellerComponent>(Info, false)
+                new PlayableCharacterBuilder<DwellerComponent>(coreInfo, false)
                 .SetNameAndDesc("The Dweller", "Desc_Dweller")
                 .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Dweller"))
                 .SetStats(s: 6, w: 26, r: 26, sm: 0f) // Original Stats: 14, 18
@@ -184,7 +188,7 @@ namespace BBP_Playables.Modded
                     .SetSprites(PlayableCharsPlugin.assetMan.Get<Sprite>("Items/MagicalStudentWand_Small"), PlayableCharsPlugin.assetMan.Get<Sprite>("Items/MagicalStudentWand_Large"))
                     .SetMeta(ItemFlags.MultipleUse | ItemFlags.CreatesEntity | ItemFlags.Persists, ["CharacterItemImportant"])
                     .Build());
-                new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
+                new PlayableCharacterBuilder<PlayableCharacterComponent>(coreInfo, false)
                 .SetNameAndDesc("Magical Student", "Desc_Magical")
                 .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/MagicalStudent"))
                 .SetStats(s: 4, w: 16, r: 16, sm: 0f, maxslots: 5)
@@ -229,12 +233,5 @@ namespace BBP_Playables.Modded
     public static class ModExclusiveExtensions
     {
         public static void AddPlayableVisual(this PlayableCharacter character, Sprite[] emotions) => PlayerVisualPatch.playableEmotions.Add(character, emotions);
-    }
-
-    class PluginInfo
-    {
-        public const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters.modded";
-        public const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Modded)";
-        public const string PLUGIN_VERSION = "0.17"; // UPDATE EVERY TIME!!
     }
 }

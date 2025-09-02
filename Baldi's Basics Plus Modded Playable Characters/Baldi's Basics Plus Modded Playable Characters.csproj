@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <AssemblyName>BBPPlayables_Modded</AssemblyName>
     <Description>Adds playable characters to Baldi's Basics Plus, while being exclusive to other mods.</Description>
     <Version>1.0.0</Version>
@@ -47,7 +47,7 @@
   </ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Exec Command="echo F|xcopy /Y &quot;$(ProjectDir)bin\$(Configuration)\netstandard2.0\$(AssemblyName).dll&quot; &quot;D:\SteamLibrary\steamapps\common\Baldi's Basics Plus\BepInEx\plugins\$(SolutionName)\$(AssemblyName).dll&quot;" />
-		<Exec Command="echo F|xcopy /Y &quot;$(ProjectDir)bin\$(Configuration)\netstandard2.0\$(AssemblyName).pdb&quot; &quot;D:\SteamLibrary\steamapps\common\Baldi's Basics Plus\BepInEx\plugins\$(SolutionName)\$(AssemblyName).pdb&quot;" />
+		<Exec Command="echo F|xcopy /Y &quot;$(ProjectDir)bin\$(Configuration)\net472\$(AssemblyName).dll&quot; &quot;D:\SteamLibrary\steamapps\common\Baldi's Basics Plus\BepInEx\plugins\$(SolutionName)\$(AssemblyName).dll&quot;" />
+		<Exec Command="echo F|xcopy /Y &quot;$(ProjectDir)bin\$(Configuration)\net472\$(AssemblyName).pdb&quot; &quot;D:\SteamLibrary\steamapps\common\Baldi's Basics Plus\BepInEx\plugins\$(SolutionName)\$(AssemblyName).pdb&quot;" />
 	</Target>
 </Project>

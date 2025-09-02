@@ -1,9 +1,9 @@
 ﻿using BepInEx;
 using HarmonyLib;
-using MTM101BaldAPI.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -11,12 +11,12 @@ namespace BBP_Playables.Core
 {
     public class ITM_PartygoerPresent : Item
     {
-        [SerializeField] private bool Unwrapped;
-        [SerializeField] private Character Gift = Character.Null;
+        [SerializeField] internal bool Unwrapped;
+        [SerializeField] internal Character Gift = Character.Null;
         public Character Character => Gift;
-        public static Dictionary<BepInEx.PluginInfo, Func<ItemObject, bool>> modAction = new Dictionary<BepInEx.PluginInfo, Func<ItemObject, bool>>();
-        public static Dictionary<Character, SoundObject> RewardedSound = new Dictionary<Character, SoundObject>();
-        public static HashSet<Type> disallowedStates = new HashSet<Type>()
+        public static readonly Dictionary<BepInEx.PluginInfo, Func<ItemObject, bool>> modAction = new Dictionary<BepInEx.PluginInfo, Func<ItemObject, bool>>();
+        public static readonly Dictionary<Character, SoundObject> RewardedSound = new Dictionary<Character, SoundObject>();
+        public static readonly HashSet<Type> disallowedStates = new HashSet<Type>()
         {
             typeof(DrReflex_Angry),
             typeof(DrReflex_Hunting),
@@ -115,13 +115,15 @@ namespace BBP_Playables.Core
             return false;
         }
 
+        private static FieldInfo stillHasItem = AccessTools.DeclaredField(typeof(Pickup), "stillHasItem");
+
         private void SetPickup(Pickup pickup)
         {
             if (pickup.item.itemType != 0)
             {
-                pickup.ReflectionSetVariable("stillHasItem", false);
-                pickup.gameObject.SetActive(value: false);
-                if (pickup.icon != null) pickup.icon.spriteRenderer.enabled = false;
+                stillHasItem.SetValue(pickup, false);
+                pickup.AssignItem(CoreGameManager.Instance.NoneItem);
+                pickup.Hide(true);
             }
         }
     }

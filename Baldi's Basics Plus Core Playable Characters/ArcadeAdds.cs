@@ -19,7 +19,6 @@ public static class ArcadeAdds
     internal static Dictionary<string, Sprite> Upgrades => (Dictionary<string, Sprite>)PlayableCharsPlugin.assetMan["INFUpgrades"];
     internal static IEnumerator EndlessLoad()
     {
-        yield return 1;
         yield return "Creating Upgrades";
         AssetLoader.LocalizationFromFunction((lang) =>
         {
@@ -30,6 +29,9 @@ public static class ArcadeAdds
                 { "Upg_CYLNLOONLastChance", "Buggedout\nGives you another chance to continue the game after getting caught" },
                 { "Upg_CYLNLOONThrowableRespawn", "Throw--\nDecreases the random cooldown for throwable objects" },
                 { "Upg_CYLNLOONThrowableRespawn2", "Throw--\nThe random cooldown for throwable objects are now set to 30 as always" },
+
+                { "Upg_ThinkerQuickSolve", "Faster Thinking\nDecreases the time needed for automatically thinking the answer for the math machines." },
+                { "Upg_ThinkerSmarterSolve", "Smarter Cogs\nThinker's passive YTP drain will drain much slower\nwhile solving a math machine without cheating will give you extra YTPs." },
 
                 { "Upg_BackpackerHiker", "Hiker\nReduces the struggles of the Backpack's weight" },
                 { "Upg_BackpackerHiker1", "Hiker+\nReduces the struggles of the Backpack's weight" },
@@ -105,6 +107,26 @@ public static class ArcadeAdds
         var bullyjr = PlayableCharacterMetaStorage.Instance.Find(playable => playable.nameLocalizationKey == "The Troublemaker").value;
         // Thinker
         var thinker = PlayableCharacterMetaStorage.Instance.Find(playable => playable.nameLocalizationKey == "The Thinker").value;
+        new PlayableCharUpgrade("thinker_fasterthinking", 50, thinker)
+        {
+            behavior = UpgradePurchaseBehavior.FillUpgradeSlot,
+            levels = [new UpgradeLevel()
+            {
+                icon = "ThinkerFastThinking",
+                cost = 3000,
+                descLoca = "Upg_ThinkerQuickSolve"
+            }]
+        }.Register();
+        new PlayableCharUpgrade("thinker_smartersave", 50, thinker)
+        {
+            behavior = UpgradePurchaseBehavior.FillUpgradeSlot,
+            levels = [new UpgradeLevel()
+            {
+                icon = "ThinkerSmarterSolve",
+                cost = 3000,
+                descLoca = "Upg_ThinkerSmarterSolve"
+            }]
+        }.Register();
         // Backpacker
         var backpack = PlayableCharacterMetaStorage.Instance.Find(playable => playable.nameLocalizationKey == "The Backpacker").value;
         new PlayableCharUpgrade("backpacker_penaltyremoval", 50, backpack)

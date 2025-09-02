@@ -70,15 +70,30 @@ namespace BBP_Playables.Core.Patches
         }
     }
 
-    [HarmonyPatch(typeof(Activity), nameof(Activity.Completed), [typeof(int), typeof(bool), typeof(Activity)])]
-    class ThinkerDidNotThink
+    [HarmonyPatch(typeof(Activity))]
+    class ThinkerPatches
     {
-        static void Postfix(int player, bool correct, Activity activity, Activity __instance)
+        private static FieldInfo answerText = AccessTools.Field(typeof(MathMachine), "answerText");
+
+        [HarmonyPatch(nameof(Activity.Completed), [typeof(int), typeof(bool)]), HarmonyPostfix]
+        static void ThinkerDidNotThink(int player, bool correct, Activity __instance)
         {
             if (__instance.GetComponent<MathMachine>() != null && !correct && PlrPlayableCharacterVars.GetPlayable(player)?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thethinker"
                 && CoreGameManager.Instance.GetPoints(player) > 0)
                 CoreGameManager.Instance.AddPoints(CoreGameManager.Instance.GetPoints(player) < 50 ? -CoreGameManager.Instance.GetPoints(player) : -50, player, true);
+        }
 
+        [HarmonyPatch(nameof(Activity.SetBonusMode))]
+        [HarmonyPatch("ResetActivity")]
+        [HarmonyPostfix]
+        static void ResetTheColor(Activity __instance)
+        {
+            if (__instance.GetComponent<MathMachine>() != null)
+            {
+                TMP_Text text = answerText.GetValue(__instance.GetComponent<MathMachine>()) as TMP_Text;
+                if (text.color == Color.green)
+                    text.color = Color.white;
+            }
         }
     }
 
@@ -174,10 +189,19 @@ namespace BBP_Playables.Core.Patches
                     if (PlrPlayableCharacterVars.GetPlayable(i)?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Partygoer".ToLower().Replace(" ", ""))
                         return;
                 __instance.AssignItem(ItemMetaStorage.Instance.FindByEnum(Items.None).value);
-                __instance.gameObject.SetActive(value: false);
-                if (__instance.icon != null)
-                    __instance.icon.spriteRenderer.enabled = false;
+                __instance.Hide(true);
             }
+        }
+        [HarmonyPatch(typeof(LevelGenerator), nameof(LevelGenerator.StartGenerate)), HarmonyPostfix]
+        static void NewWayTho(LevelGenerator __instance)
+        {
+            __instance.ld.forcedItems.DoIf(x => x.item == PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentUnwrapped"), present =>
+            {
+                for (int i = 0; i < CoreGameManager.Instance.setPlayers; i++)
+                    if (PlrPlayableCharacterVars.GetPlayable(i)?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Partygoer".ToLower().Replace(" ", ""))
+                        return;
+                __instance.ld.forcedItems.Remove(present);
+            });
         }
         [HarmonyPatch(typeof(HudManager), nameof(HudManager.SetItemSelect)), HarmonyPostfix]
         static void WhoIsItFor(int value, string key, HudManager __instance, ref RawImage[] ___itemBackgrounds, ref TMP_Text ___itemTitle)
