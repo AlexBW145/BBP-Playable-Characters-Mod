@@ -13,6 +13,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements.UIR;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BBP_Playables.Core.Patches
 {
@@ -73,12 +74,14 @@ namespace BBP_Playables.Core.Patches
     [HarmonyPatch(typeof(Activity))]
     class ThinkerPatches
     {
-        private static FieldInfo answerText = AccessTools.Field(typeof(MathMachine), "answerText");
+        private static FieldInfo 
+            answerText = AccessTools.DeclaredField(typeof(MathMachine), "answerText"),
+            countedText = AccessTools.DeclaredField(typeof(BalloonBuster), "countTmp");
 
         [HarmonyPatch(nameof(Activity.Completed), [typeof(int), typeof(bool)]), HarmonyPostfix]
         static void ThinkerDidNotThink(int player, bool correct, Activity __instance)
         {
-            if (__instance.GetComponent<MathMachine>() != null && !correct && PlrPlayableCharacterVars.GetPlayable(player)?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thethinker"
+            if (!correct && PlrPlayableCharacterVars.GetPlayable(player)?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thethinker"
                 && CoreGameManager.Instance.GetPoints(player) > 0)
                 CoreGameManager.Instance.AddPoints(CoreGameManager.Instance.GetPoints(player) < 50 ? -CoreGameManager.Instance.GetPoints(player) : -50, player, true);
         }
@@ -88,12 +91,13 @@ namespace BBP_Playables.Core.Patches
         [HarmonyPostfix]
         static void ResetTheColor(Activity __instance)
         {
+            TMP_Text text = null;
             if (__instance.GetComponent<MathMachine>() != null)
-            {
-                TMP_Text text = answerText.GetValue(__instance.GetComponent<MathMachine>()) as TMP_Text;
-                if (text.color == Color.green)
-                    text.color = Color.white;
-            }
+                text = answerText.GetValue(__instance.GetComponent<MathMachine>()) as TMP_Text;
+            else if (__instance.GetComponent<BalloonBuster>() != null)
+                text = countedText.GetValue(__instance.GetComponent<BalloonBuster>()) as TMP_Text;
+            if (text != null && text.color == Color.green)
+                text.color = Color.white;
         }
     }
 

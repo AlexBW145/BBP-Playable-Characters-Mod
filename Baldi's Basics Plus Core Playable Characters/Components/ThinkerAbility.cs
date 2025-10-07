@@ -1,9 +1,11 @@
-﻿using MTM101BaldAPI;
+﻿using HarmonyLib;
+using MTM101BaldAPI;
 using MTM101BaldAPI.Reflection;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -48,6 +50,13 @@ namespace BBP_Playables.Core
         }
         public override void SpoopBegin(BaseGameManager manager) => StartCoroutine(ThinkerDrain());
 
+        private static FieldInfo 
+            ___answerText = AccessTools.DeclaredField(typeof(MathMachine), "answerText"),
+            ___answer = AccessTools.DeclaredField(typeof(MathMachine), "answer"),
+            ___countTmp = AccessTools.DeclaredField(typeof(BalloonBuster), "countTmp"),
+            ___solution = AccessTools.DeclaredField(typeof(BalloonBuster), "solution"),
+            ___startingTotal = AccessTools.DeclaredField(typeof(BalloonBuster), "startingTotal");
+
         void Update()
         {
             if (pm.ec.Active && pm.plm.Entity.CurrentRoom != null)
@@ -61,27 +70,48 @@ namespace BBP_Playables.Core
                 for (int i = 0; i < hitCount; i++)
                 {
                     _hitTransforms.Add(hits[i].transform);
-                    if (hits[i].collider.gameObject.GetComponentInParent<MathMachine>() != null)
+                    if (hits[i].collider.gameObject.GetComponentInParent<Activity>() != null)
                         mathMachineVisible = true;
                 }
 
                 if (mathMachineVisible && pm.plm.Entity.CurrentRoom.category == RoomCategory.Class)
                 {
                     timeLooking += pm.PlayerTimeScale * Time.deltaTime;
-                    if (timeLooking > 1f && _hitTransforms.Exists(x => x.gameObject.GetComponentInParent<MathMachine>() != null))
+                    if (timeLooking > 1f && _hitTransforms.Exists(x => x.gameObject.GetComponentInParent<Activity>() != null))
                     {
-                        TMP_Text answer = (TMP_Text)_hitTransforms.Find(x => x.gameObject.GetComponentInParent<MathMachine>() != null).gameObject.GetComponentInParent<MathMachine>().ReflectionGetVariable("answerText");
-                        if (answer.text == "?") {
-                            int correct = (int)_hitTransforms.Find(x => x.gameObject.GetComponentInParent<MathMachine>() != null).gameObject.GetComponentInParent<MathMachine>().ReflectionGetVariable("answer");
-                            answer.text = correct.ToString();
-                            answer.color = Color.green;
-                            // 10+ answers from Times are fucky...
-                            answer.autoSizeTextContainer = false;
-                            answer.autoSizeTextContainer = true;
-                            _hitTransforms.Find(x => x.gameObject.GetComponentInParent<MathMachine>() != null).gameObject.GetComponentInParent<MathMachine>().gameObject.GetComponent<AudioManager>().PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "CashBell"));
+                        Activity machine = _hitTransforms.Find(x => x.gameObject.GetComponentInParent<Activity>() != null).gameObject.GetComponentInParent<Activity>();
+                        if (machine is MathMachine)
+                        {
+                            MathMachine mathMachine = machine as MathMachine;
+                            TMP_Text answer = (TMP_Text)___answerText.GetValue(mathMachine);
+                            if (answer.text == "?")
+                            {
+                                int correct = (int)___answer.GetValue(mathMachine);
+                                answer.text = correct.ToString();
+                                answer.color = Color.green;
+                                // 10+ answers from Times are fucky...
+                                answer.autoSizeTextContainer = false;
+                                answer.autoSizeTextContainer = true;
+                                mathMachine.gameObject.GetComponent<AudioManager>().PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "CashBell"));
+                            }
+                            else
+                                timeLooking = 0f;
                         }
-                        else
-                            timeLooking = 0f;
+                        else if (machine is BalloonBuster)
+                        {
+                            BalloonBuster busterMachine = machine as BalloonBuster;
+                            TMP_Text answer = (TMP_Text)___countTmp.GetValue(busterMachine);
+                            int correct = (int)___solution.GetValue(busterMachine);
+                            if (answer.text == "")
+                            {
+                                int alltotal = (int)___startingTotal.GetValue(busterMachine);
+                                answer.text = (alltotal - correct).ToString();
+                                answer.color = Color.green;
+                                busterMachine.gameObject.GetComponent<AudioManager>().PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "CashBell"));
+                            }
+                            else
+                                timeLooking = 0f;
+                        }
                     }
                 }
                 else if (timeLooking > 0f)

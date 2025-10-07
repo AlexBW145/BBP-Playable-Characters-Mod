@@ -24,7 +24,7 @@ namespace BBP_Playables.Core
         void Update()
         {
             if (!doingyour) return;
-            var npccount = pm.ec.Npcs.Where(n => n is not Student).ToList(); // They are not one of them...
+            var npccount = pm.ec.Npcs.Where(n => n.Character != Character.Null).ToList(); // They are not one of them...
             foreach (NPC npc in npccount)
             {
                 if (npc == null || npc.looker == null) continue;

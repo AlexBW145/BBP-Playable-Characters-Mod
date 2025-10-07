@@ -51,7 +51,7 @@ internal static class EditorAdds
                 new ItemTool("playablecharacters_unwrappedpresent", PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentUnwrapped").itemSpriteSmall),
                 new ItemTool("playablecharacters_tinkerneerwrench", PlayableCharsPlugin.assetMan.Get<ItemObject>("TinkerneerWrench").itemSpriteSmall)
             ]);
-            if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
+            if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.playablecharacters.modded") && Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
                 EditorInterfaceModes.AddToolToCategory(mode, "items", new ItemTool("playablecharacters_firewallblaster", PlayableCharsPlugin.assetMan.Get<ItemObject>("FirewallBlaster").itemSpriteSmall));
             EditorInterfaceModes.AddToolToCategory(mode, "structures", new RestrictedDoorTool("playablecharacters_restricterdoor", PlayableCharsPlugin.assetMan.Get<Sprite>("EditorUI/RestrictedSuperdoor")));
         });
