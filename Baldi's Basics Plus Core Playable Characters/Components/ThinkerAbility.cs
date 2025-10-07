@@ -50,7 +50,7 @@ namespace BBP_Playables.Core
         }
         public override void SpoopBegin(BaseGameManager manager) => StartCoroutine(ThinkerDrain());
 
-        private static FieldInfo 
+        private static FieldInfo
             ___answerText = AccessTools.DeclaredField(typeof(MathMachine), "answerText"),
             ___answer = AccessTools.DeclaredField(typeof(MathMachine), "answer"),
             ___countTmp = AccessTools.DeclaredField(typeof(BalloonBuster), "countTmp"),

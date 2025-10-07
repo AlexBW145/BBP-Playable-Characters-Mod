@@ -76,7 +76,9 @@ namespace BBP_Playables.Core.Patches
     {
         private static FieldInfo 
             answerText = AccessTools.DeclaredField(typeof(MathMachine), "answerText"),
-            countedText = AccessTools.DeclaredField(typeof(BalloonBuster), "countTmp");
+            countedText = AccessTools.DeclaredField(typeof(BalloonBuster), "countTmp"),
+            ___audioManager = AccessTools.DeclaredField(typeof(MatchActivityBalloon), "audioManager"),
+            ___spriteRenderer = AccessTools.DeclaredField(typeof(MatchActivityBalloon), "spriteRenderer");
 
         [HarmonyPatch(nameof(Activity.Completed), [typeof(int), typeof(bool)]), HarmonyPostfix]
         static void ThinkerDidNotThink(int player, bool correct, Activity __instance)
@@ -98,6 +100,28 @@ namespace BBP_Playables.Core.Patches
                 text = countedText.GetValue(__instance.GetComponent<BalloonBuster>()) as TMP_Text;
             if (text != null && text.color == Color.green)
                 text.color = Color.white;
+        }
+
+        [HarmonyPatch(typeof(MatchActivityBalloon), nameof(MatchActivityBalloon.RevealConfirm)), HarmonyPostfix]
+        static void IRemember(MatchActivityBalloon __instance, ref MatchActivity ___activity)
+        {
+            var me = PlrPlayableCharacterVars.GetLocalPlayable();
+            if (me == null) return;
+            if (__instance.MatchingBalloon.LastChance 
+                && me.GetPlayer().plm.Entity.CurrentRoom == ___activity.room && me.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thethinker")
+            {
+                var thatBloon = __instance.MatchingBalloon;
+                var sprRend = (SpriteRenderer)___spriteRenderer.GetValue(thatBloon);
+                if (sprRend.color != Color.green)
+                    sprRend.color = Color.green;
+                ((AudioManager)___audioManager.GetValue(thatBloon)).PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "CashBell"));
+            }
+        }
+        [HarmonyPatch(typeof(MatchActivityBalloon), nameof(MatchActivityBalloon.Matched)), HarmonyPostfix]
+        static void ResetTheColorBloon(ref SpriteRenderer ___spriteRenderer)
+        {
+            if (___spriteRenderer.color == Color.green)
+                ___spriteRenderer.color = Color.white;
         }
     }
 
