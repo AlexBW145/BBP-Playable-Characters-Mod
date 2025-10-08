@@ -113,8 +113,10 @@ namespace BBP_Playables.Core.Patches
                 var thatBloon = __instance.MatchingBalloon;
                 var sprRend = (SpriteRenderer)___spriteRenderer.GetValue(thatBloon);
                 if (sprRend.color != Color.green)
+                {
                     sprRend.color = Color.green;
-                ((AudioManager)___audioManager.GetValue(thatBloon)).PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "CashBell"));
+                    ((AudioManager)___audioManager.GetValue(thatBloon)).PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "CashBell"));
+                }
             }
         }
         [HarmonyPatch(typeof(MatchActivityBalloon), nameof(MatchActivityBalloon.Matched)), HarmonyPostfix]

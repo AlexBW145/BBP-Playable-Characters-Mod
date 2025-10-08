@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using HarmonyLib;
+using MTM101BaldAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace BBP_Playables.Core
         [SerializeField] internal bool Unwrapped;
         [SerializeField] internal Character Gift = Character.Null;
         public Character Character => Gift;
-        public static readonly Dictionary<BepInEx.PluginInfo, Func<ItemObject, bool>> modAction = new Dictionary<BepInEx.PluginInfo, Func<ItemObject, bool>>();
+        [Obsolete("Use ITM_PartygoerPresent.isPresentAcceptable instead!", true)] public static readonly Dictionary<BepInEx.PluginInfo, Func<ItemObject, bool>> modAction = new Dictionary<BepInEx.PluginInfo, Func<ItemObject, bool>>();
         public static readonly Dictionary<Character, SoundObject> RewardedSound = new Dictionary<Character, SoundObject>();
         public static readonly HashSet<Type> disallowedStates = new HashSet<Type>()
         {
@@ -35,6 +36,17 @@ namespace BBP_Playables.Core
             typeof(Beans_Watch),
             typeof(Playtime_Playing)
         };
+        public static readonly Dictionary<List<Items>, Character> isPresentAcceptable = new Dictionary<List<Items>, Character>()
+        {
+            { [Items.Apple, Items.Wd40, Items.InvisibilityElixir], Character.Baldi },
+            { [Items.PrincipalWhistle, Items.DetentionKey], Character.Principal },
+            { [Items.Scissors], Character.Playtime },
+            { [Items.Boots], Character.Sweep },
+            { [Items.Nametag], Character.Pomp },
+            { [Items.ZestyBar], Character.Bully },
+            { [Items.Bsoda, Items.DietBsoda], Character.Beans },
+            { [Items.ReachExtender, Items.Tape], Character.DrReflex }
+        };
 
         public override bool Use(PlayerManager pm)
         {
@@ -44,59 +56,17 @@ namespace BBP_Playables.Core
                 if (item != null && item.transform.GetComponentInParent<StorageLocker>() == null
                     && item.price == 0 && item.free)
                 {
-                    if (new Items[] { Items.Apple, Items.Wd40, 
-                        Items.PrincipalWhistle, Items.DetentionKey, 
-                        Items.Scissors, 
-                        Items.AlarmClock, Items.Teleporter, 
-                        Items.Boots, 
-                        Items.Nametag, 
-                        Items.ZestyBar, 
-                        Items.Bsoda, Items.DietBsoda, 
-                        Items.GrapplingHook, Items.Tape }.Contains(item.item.itemType))
-                        SetPickup(item); // I'm not inserting that function to all of them.
-                    switch (item.item.itemType)
+                    if (isPresentAcceptable.Keys.SelectMany(x => x).Contains(item.item.itemType))
                     {
-                        default:
-                            foreach (var action in modAction)
-                                if (action.Value.Invoke(item.item))
-                                {
-                                    SetPickup(item);
-                                    return false;
-                                }
-                            break;
-                        case Items.Apple or Items.Wd40: // Baldi
-                            pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + Character.Baldi.ToString()), pm.itm.selectedItem);
-                            return false;
-                        case Items.PrincipalWhistle or Items.DetentionKey: // Principal of the Thing
-                            pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + Character.Principal.ToString()), pm.itm.selectedItem);
-                            return false;
-                        case Items.Scissors: // Playtime
-                            pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + Character.Playtime.ToString()), pm.itm.selectedItem);
-                            return false;
-                        /*case Items.AlarmClock or Items.Teleporter: // Arts and Crafters
-                            pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + Character.Crafters.ToString()), pm.itm.selectedItem);
-                            return false;*/
-                        case Items.Boots: // Gotta Sweep
-                            pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + Character.Sweep.ToString()), pm.itm.selectedItem);
-                            return false;
-                        case Items.Nametag: // Mrs. Pomp
-                            pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + Character.Pomp.ToString()), pm.itm.selectedItem);
-                            return false;
-                        case Items.ZestyBar: // It's a Bully
-                            pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + Character.Bully.ToString()), pm.itm.selectedItem);
-                            return false;
-                        case Items.Bsoda or Items.DietBsoda: // Beans
-                            pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + Character.Beans.ToString()), pm.itm.selectedItem);
-                            return false;
-                        case Items.GrapplingHook or Items.Tape: // Dr. Reflex
-                            pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + Character.DrReflex.ToString()), pm.itm.selectedItem);
-                            return false;
-                            /*case Items.BusPass: // Johnny
-                                pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_Johnny"), pm.itm.selectedItem);
+                        foreach (var action in isPresentAcceptable)
+                        {
+                            if (action.Key.Contains(item.item.itemType))
+                            {
+                                pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + action.Value.ToStringExtended()), pm.itm.selectedItem);
+                                SetPickup(item);
                                 return false;
-                            case Items.Quarter:
-                                pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + Character.Null.ToString()), pm.itm.selectedItem);
-                                return false;*/
+                            }
+                        }
                     }
                 }
             }
