@@ -51,7 +51,7 @@ namespace BBP_Playables.Modded.BCPP
             entity.UpdateInternalMovement(transform.forward * 80f * ec.EnvironmentTimeScale);
         }
 
-        public void EntityTriggerEnter(Collider other)
+        public void EntityTriggerEnter(Collider other, bool isValid)
         {
             if (other.CompareTag("NPC") && other.GetComponent<NPC>())
             {
@@ -79,11 +79,11 @@ namespace BBP_Playables.Modded.BCPP
             yield break;
         }
 
-        public void EntityTriggerExit(Collider other)
+        public void EntityTriggerExit(Collider other, bool isValid)
         {
         }
 
-        public void EntityTriggerStay(Collider other)
+        public void EntityTriggerStay(Collider other, bool isValid)
         {
         }
         void OnTriggerExit(Collider other)

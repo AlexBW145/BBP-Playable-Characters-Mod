@@ -87,7 +87,7 @@ namespace BBP_Playables.Modded.BBTimes
 
         }
 
-        public void EntityTriggerEnter(Collider other)
+        public void EntityTriggerEnter(Collider other, bool isValid)
         {
             if (!spriteRenderer.enabled)
                 return;
@@ -99,7 +99,7 @@ namespace BBP_Playables.Modded.BBTimes
             if (flag)
             {
                 NPC component = other.GetComponent<NPC>();
-                if (component != null)
+                if (component != null && ec.offices.Count > 0)
                 {
                     int index = UnityEngine.Random.Range(0, ec.offices.Count);
                     component.Navigator.Entity.Teleport(ec.offices[index].RandomEntitySafeCellNoGarbage().CenterWorldPosition);
@@ -109,11 +109,11 @@ namespace BBP_Playables.Modded.BBTimes
             }
         }
 
-        public void EntityTriggerStay(Collider other)
+        public void EntityTriggerStay(Collider other, bool isValid)
         {
         }
 
-        public void EntityTriggerExit(Collider other)
+        public void EntityTriggerExit(Collider other, bool isValid)
         {
         }
 

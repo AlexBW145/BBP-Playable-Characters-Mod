@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using BBP_Playables.Core;
 using BBTimes.CustomComponents.NpcSpecificComponents;
@@ -7,7 +8,6 @@ using BBTimes.CustomContent.NPCs;
 using BBTimes.ModPatches;
 using HarmonyLib;
 using MTM101BaldAPI;
-using MTM101BaldAPI.Reflection;
 using UnityEngine;
 
 namespace BBP_Playables.Modded.Patches
@@ -24,6 +24,7 @@ namespace BBP_Playables.Modded.Patches
     [ConditionalPatchMod("pixelguy.pixelmodding.baldiplus.bbextracontent"), HarmonyPatch(typeof(PlayerVisual), nameof(PlayerVisual.Initialize))]
     class PlayerVisualPatch
     {
+        private static FieldInfo _emotions = AccessTools.DeclaredField(typeof(PlayerVisual), "emotions");
         public static readonly Dictionary<PlayableCharacter, Sprite[]> playableEmotions = new Dictionary<PlayableCharacter, Sprite[]>();
         private static void Postfix(PlayerVisual __instance, ref Sprite[] ___emotions)
         {
@@ -36,7 +37,7 @@ namespace BBP_Playables.Modded.Patches
         {
             if (!playableEmotions.ContainsKey(PlayableCharsPlugin.Instance.Character) || !PlayableCharsPlugin.IsRandom) return;
             var visual = PlayerVisual.GetPlayerVisual(___pm.playerNumber);
-            visual.ReflectionSetVariable("emotions", playableEmotions[PlayableCharsPlugin.Instance.Character]);
+            _emotions.SetValue(visual, playableEmotions[PlayableCharsPlugin.Instance.Character]);
             visual.SetEmotion(0);
         }
     }

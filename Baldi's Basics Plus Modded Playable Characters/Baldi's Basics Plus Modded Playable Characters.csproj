@@ -33,7 +33,7 @@
       <HintPath>..\BBTimes.dll</HintPath>
     </Reference>
     <Reference Include="BCarnellChars">
-      <HintPath>..\BCarnellChars.dll</HintPath>
+      <HintPath>..\..\BCarnellPlusPack\BCarnellChars\bin\Debug\netstandard2.0\BCarnellChars.dll</HintPath>
     </Reference>
     <Reference Include="MTM101BaldAPI">
       <HintPath>D:\SteamLibrary\steamapps\common\Baldi's Basics Plus\BepInEx\plugins\MTM101BaldAPI.dll</HintPath>
