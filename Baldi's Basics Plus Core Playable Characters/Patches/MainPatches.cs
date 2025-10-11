@@ -2,7 +2,6 @@
 using HarmonyLib;
 using MTM101BaldAPI;
 using MTM101BaldAPI.PlusExtensions;
-using MTM101BaldAPI.Reflection;
 using MTM101BaldAPI.Registers;
 using MTM101BaldAPI.SaveSystem;
 using MTM101BaldAPI.UI;
@@ -131,18 +130,19 @@ namespace BBP_Playables.Core.Patches
     class CertainUnlocks
     {
         internal static bool Testy = false;
-        static void Prefix(BaseGameManager __instance)
+        private static FieldInfo allBackupItems = AccessTools.DeclaredField(typeof(CoreGameManager), "backupItems");
+        static void Prefix(BaseGameManager __instance, ref float ___time)
         {
             if (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") == "thebackpacker" && CoreGameManager.Instance.GetPlayer(0).gameObject.GetComponent<BackpackerBackpack>() != null)
                 PlayableCharsGame.backpackerBackup = CoreGameManager.Instance.GetPlayer(0).gameObject.GetComponent<BackpackerBackpack>().items;
             if (CoreGameManager.Instance.currentMode == Mode.Free || __instance.levelObject == null) return;
             if (Testy && __instance is MainGameManager)
                 PlayableCharsPlugin.UnlockCharacter(PlayableCharsPlugin.Instance.Info, "The Test Subject");
-            if (CoreGameManager.Instance.GetPlayer(0).itm.items.ToList().FindAll(x => x.itemType == Items.ZestyBar).Count + CoreGameManager.Instance.currentLockerItems.ToList().FindAll(x => x.itemType == Items.ZestyBar).Count >= 3
+            if ((CoreGameManager.Instance.GetPlayer(0).itm.items.ToList().FindAll(x => x.itemType == Items.ZestyBar).Count + CoreGameManager.Instance.currentLockerItems.ToList().FindAll(x => x.itemType == Items.ZestyBar).Count) >= 3
                 && __instance.levelObject.finalLevel)
                 PlayableCharsPlugin.UnlockCharacter(PlayableCharsPlugin.Instance.Info, "The Troublemaker");
-            List<ItemObject[]> backup = (List<ItemObject[]>)CoreGameManager.Instance.ReflectionGetVariable("backupItems");
-            float time = (49f + __instance.NotebookTotal + (Mathf.Max(__instance.Ec.levelSize.x, __instance.Ec.levelSize.z) - Mathf.Min(__instance.Ec.levelSize.x, __instance.Ec.levelSize.z)));
+            List<ItemObject[]> backup = (List<ItemObject[]>)allBackupItems.GetValue(CoreGameManager.Instance);
+            float time = 49f + __instance.NotebookTotal + (Mathf.Max(__instance.Ec.levelSize.x, __instance.Ec.levelSize.z) - Mathf.Min(__instance.Ec.levelSize.x, __instance.Ec.levelSize.z));
 #if DEBUG
             string text = Mathf.Floor(time % 60f).ToString();
             if (Mathf.Floor(time % 60f) < 10f)
@@ -152,7 +152,7 @@ namespace BBP_Playables.Core.Patches
 
             PlayableCharsPlugin.Log.LogInfo("Required time: " + Mathf.Floor(time / 60f) + ":" + text);
 #endif
-            if (CoreGameManager.Instance.sceneObject.name == "MainLevel_1" && (float)__instance.ReflectionGetVariable("time") < time && CoreGameManager.Instance.Lives == 2
+            if (CoreGameManager.Instance.sceneObject.name == "MainLevel_1" && (float)___time < time && CoreGameManager.Instance.Lives == 2
                 && PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") == "thedefault" && PlayableCharsPlugin.Instance.Character.info == PlayableCharsPlugin.Instance.Info
                 && backup[0].ToList().TrueForAll(x => x == ItemMetaStorage.Instance.FindByEnum(Items.None).value)
                 && __instance.FoundNotebooks == __instance.NotebookTotal)

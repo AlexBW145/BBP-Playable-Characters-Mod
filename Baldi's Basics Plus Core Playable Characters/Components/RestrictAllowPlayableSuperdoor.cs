@@ -1,11 +1,6 @@
 ﻿using BBP_Playables.Core;
-using MTM101BaldAPI.Registers;
-using PlusLevelStudio.Ingame;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace BBP_Playables.Modded.LevelEditor;

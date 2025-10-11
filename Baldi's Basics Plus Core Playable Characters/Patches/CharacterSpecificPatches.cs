@@ -12,8 +12,6 @@ using System.Xml.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.UIElements.UIR;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace BBP_Playables.Core.Patches
 {
@@ -119,7 +117,9 @@ namespace BBP_Playables.Core.Patches
                 }
             }
         }
-        [HarmonyPatch(typeof(MatchActivityBalloon), nameof(MatchActivityBalloon.Matched)), HarmonyPostfix]
+        [HarmonyPatch(typeof(MatchActivityBalloon), nameof(MatchActivityBalloon.Matched))]
+        [HarmonyPatch(typeof(MatchActivityBalloon), nameof(MatchActivityBalloon.Unreveal))]
+        [HarmonyPostfix]
         static void ResetTheColorBloon(ref SpriteRenderer ___spriteRenderer)
         {
             if (___spriteRenderer.color == Color.green)

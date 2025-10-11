@@ -30,7 +30,7 @@ using UnityEngine.UI;
 
 namespace BBP_Playables.Core
 {
-    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
     [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", "9.0.0.0")]
     [BepInDependency("alexbw145.baldiplus.arcadeendlessforever", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("mtm101.rulerp.baldiplus.levelstudioloader", BepInDependency.DependencyFlags.SoftDependency)]
@@ -39,6 +39,10 @@ namespace BBP_Playables.Core
     [BepInProcess("Baldi's Basics Plus Prerelease.exe")]
     public class PlayableCharsPlugin : BaseUnityPlugin
     {
+        private const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
+        private const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
+        private const string PLUGIN_VERSION = "0.1.3.1"; // UPDATE EVERY TIME!!
+
         public static PlayableCharsPlugin Instance { get; private set; }
         public static PlayableCharacterMetaStorage playablesMetaStorage { get; private set; } = new PlayableCharacterMetaStorage();
         internal static bool gameStarted = false;
@@ -69,7 +73,7 @@ namespace BBP_Playables.Core
         private void Awake()
         {
             Log = this.Logger;
-            Harmony harmony = new Harmony(PluginInfo.PLUGIN_GUID);
+            Harmony harmony = new Harmony(PLUGIN_GUID);
             Instance = this;
             harmony.PatchAllConditionals();
             MTM101BaldiDevAPI.AddWarningScreen(@"<color=orange>THIS MOD IS UNFINISHED!</color>
@@ -787,7 +791,7 @@ There will be improvements and additions once new updates come out, but some cha
                     filedata = new PlayableCharsSave();
                     if (File.Exists(Path.Combine(path, "unlockedChars.dat"))) // Issue occured with Magical Student, addin' dis!
                         filedata = JsonUtility.FromJson<PlayableCharsSave>(RijndaelEncryption.Decrypt(File.ReadAllText(Path.Combine(path, "unlockedChars.dat")), "PLAYABLECHARS_" + PlayerFileManager.Instance.fileName));
-                    filedata.modversion = new Version(PluginInfo.PLUGIN_VERSION);
+                    filedata.modversion = new Version(PLUGIN_VERSION);
                     filedata.cyln = glitched.unlocked ? true : unlockedCylnLoon;
                     filedata.partygoer = partyman.unlocked;
                     filedata.troublemaker = bullyman.unlocked;
@@ -935,13 +939,6 @@ There will be improvements and additions once new updates come out, but some cha
         /// <param name="me">The player themself</param>
         /// <returns>The component that contains playable variables</returns>
         public static PlrPlayableCharacterVars GetPlayable(this PlayerManager me) => PlrPlayableCharacterVars.PlayerPlayables[me.playerNumber];
-    }
-
-    class PluginInfo
-    {
-        public const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
-        public const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        public const string PLUGIN_VERSION = "0.1.3.0"; // UPDATE EVERY TIME!!
     }
 
     /// <summary>

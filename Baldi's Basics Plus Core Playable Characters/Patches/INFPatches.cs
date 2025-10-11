@@ -1,7 +1,6 @@
 ﻿using BepInEx.Bootstrap;
 using HarmonyLib;
 using MTM101BaldAPI;
-using MTM101BaldAPI.Reflection;
 using UnityEngine.UI;
 using UnityEngine;
 using EndlessFloorsForever;
@@ -75,6 +74,7 @@ namespace BBP_Playables.Core.Patches
             }
         }
 
+        private static MethodInfo Teleport = AccessTools.DeclaredMethod(typeof(ITM_Teleporter), "Teleport");
         private static IEnumerator ChanceCaughtSequence(PlayerManager player, Baldi baldi)
         {
             float time = 0f;
@@ -114,7 +114,7 @@ namespace BBP_Playables.Core.Patches
             {
                 var teleporter = UnityEngine.Object.Instantiate(telportman, null, false);
                 teleporter.Use(player);
-                teleporter.ReflectionInvoke("Teleport", []);
+                Teleport.Invoke(teleporter, []);
                 yield return new WaitForSeconds(0.2f);
             }
             yield return new WaitForSecondsNPCTimescale(baldi, 0.5f);

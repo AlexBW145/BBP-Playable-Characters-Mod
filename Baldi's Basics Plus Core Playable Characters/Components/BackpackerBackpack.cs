@@ -1,10 +1,11 @@
-﻿using MTM101BaldAPI;
+﻿using HarmonyLib;
+using MTM101BaldAPI;
 using MTM101BaldAPI.Components;
 using MTM101BaldAPI.PlusExtensions;
-using MTM101BaldAPI.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -40,12 +41,13 @@ namespace BBP_Playables.Core
                 pm.GetComponent<PlayerMovementStatModifier>().AddModifier("runSpeed", modifier);
             }
         }
+        private static FieldInfo restoreItmsOnSpawn = AccessTools.DeclaredField(typeof(CoreGameManager), "restoreItemsOnSpawn");
         public override void Initialize()
         {
             base.Initialize();
             pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("BackpackClosed"), pm.itm.maxItem);
             pm.itm.LockSlot(pm.itm.maxItem, true);
-            if ((bool)CoreGameManager.Instance.ReflectionGetVariable("restoreItemsOnSpawn") || PlayableCharsPlugin.gameStarted)
+            if ((bool)restoreItmsOnSpawn.GetValue(CoreGameManager.Instance) || PlayableCharsPlugin.gameStarted)
                 gameObject.GetComponent<BackpackerBackpack>().items = PlayableCharsGame.backpackerBackup;
         }
 

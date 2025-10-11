@@ -1,12 +1,9 @@
-﻿using MTM101BaldAPI;
-using MTM101BaldAPI.Reflection;
-using System;
+﻿using HarmonyLib;
+using MTM101BaldAPI;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Reflection;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace BBP_Playables.Core
 {
@@ -31,6 +28,8 @@ namespace BBP_Playables.Core
         {
         }
 
+        private static FieldInfo setLayer = AccessTools.DeclaredField(typeof(Entity), "defaultLayer"); 
+
         public void Clicked(int player)
         {
             if (!ready || held ||
@@ -39,7 +38,7 @@ namespace BBP_Playables.Core
             held = true;
             heldSelf = true;
             render.localPosition = Vector3.zero;
-            entity.ReflectionSetVariable("defaultLayer", LayerMask.NameToLayer("Overlay"));
+            setLayer.SetValue(entity, LayerMask.NameToLayer("Overlay"));
             entity.UpdateLayer();
             this.player = CoreGameManager.Instance.GetPlayer(player);
         }
@@ -110,7 +109,7 @@ namespace BBP_Playables.Core
                         gameObject.SetActive(true);
                         entity.Initialize(ec, transform.position);
                     }*/
-                    entity.ReflectionSetVariable("defaultLayer", LayerMask.NameToLayer("CollidableEntities"));
+                    setLayer.SetValue(entity, LayerMask.NameToLayer("CollidableEntities"));
                     entity.UpdateLayer();
                 }
                 clickBuffer = false;

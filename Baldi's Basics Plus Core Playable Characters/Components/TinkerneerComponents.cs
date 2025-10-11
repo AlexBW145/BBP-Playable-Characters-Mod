@@ -1,14 +1,12 @@
-﻿using MTM101BaldAPI;
-using MTM101BaldAPI.Reflection;
+﻿using HarmonyLib;
+using MTM101BaldAPI;
 using MTM101BaldAPI.Registers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
+using System.Reflection;
 using UnityEngine;
-using UnityEngine.Networking.Types;
 #if !DEMO
 namespace BBP_Playables.Core
 {
@@ -150,6 +148,7 @@ namespace BBP_Playables.Core
 
     public class MathMachineRegen : TinkerneerObject
     {
+        private static FieldInfo disableSubtitles = AccessTools.DeclaredField(typeof(AudioManager), "disableSubtitles");
         private EnvironmentController ec;
         public SpriteRenderer render;
         private AudioManager audMan;
@@ -176,7 +175,7 @@ namespace BBP_Playables.Core
             audMan.pitchModifier = 1.5f;
             audMan.volumeModifier = 4f;
             audMan.positional = true;
-            audMan.ReflectionSetVariable("disableSubtitles", true);
+            disableSubtitles.SetValue(audMan, true);
 
             StartCoroutine(Sensor());
         }
