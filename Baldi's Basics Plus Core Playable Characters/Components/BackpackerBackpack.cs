@@ -28,14 +28,12 @@ namespace BBP_Playables.Core
     public class BackpackerBackpack : PlayableCharacterComponent
     {
         private ValueModifier modifier = new ValueModifier(1f);
+        private Items backpackEnum;
         protected override void Start()
         {
             base.Start();
             if (pm != null)
             {
-                for (int i = 0; i < items.Length; i++)
-                    if (items[i] == null)
-                        items[i] = pm.itm.nothing;
                 items[pm.itm.maxItem] = PlayableCharsPlugin.assetMan.Get<ItemObject>("BackpackOpen");
                 pm.GetComponent<PlayerMovementStatModifier>().AddModifier("walkSpeed", modifier);
                 pm.GetComponent<PlayerMovementStatModifier>().AddModifier("runSpeed", modifier);
@@ -45,6 +43,10 @@ namespace BBP_Playables.Core
         public override void Initialize()
         {
             base.Initialize();
+            backpackEnum = EnumExtensions.GetFromExtendedName<Items>("BackpackerBackpack");
+            for (int i = 0; i < items.Length; i++)
+                if (items[i] == null)
+                    items[i] = pm.itm.nothing;
             pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("BackpackClosed"), pm.itm.maxItem);
             pm.itm.LockSlot(pm.itm.maxItem, true);
             if ((bool)restoreItmsOnSpawn.GetValue(CoreGameManager.Instance) || PlayableCharsPlugin.gameStarted)
@@ -82,8 +84,8 @@ namespace BBP_Playables.Core
                 }
                 modifier.multiplier = Mathf.Max(0.2f,
                     1.5f -
-                    Mathf.Abs((items.Count(x => x.itemType != Items.None && x.itemType != EnumExtensions.GetFromExtendedName<Items>("BackpackerBackpack"))
-                    + pm.itm.items.Count(x => x.itemType != Items.None && x.itemType != EnumExtensions.GetFromExtendedName<Items>("BackpackerBackpack")))
+                    Mathf.Abs((items.Count(x => x.itemType != Items.None && x.itemType != backpackEnum)
+                    + pm.itm.items.Count(x => x.itemType != Items.None && x.itemType != backpackEnum))
                     / (float)((pm.itm.maxItem - 1f) * 2f))); // There are 16 available slots...
             }
         }

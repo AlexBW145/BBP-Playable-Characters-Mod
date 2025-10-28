@@ -5,14 +5,12 @@ using MTM101BaldAPI.PlusExtensions;
 using MTM101BaldAPI.Registers;
 using MTM101BaldAPI.SaveSystem;
 using MTM101BaldAPI.UI;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.TextCore;
 using UnityEngine.UI;
 
 namespace BBP_Playables.Core.Patches
@@ -206,8 +204,28 @@ namespace BBP_Playables.Core.Patches
     [HarmonyPatch]
     class PlayerPatches
     {
+        [HarmonyPatch(typeof(CoreGameManager), nameof(CoreGameManager.SpawnPlayers)), HarmonyTranspiler]
+        static IEnumerable<CodeInstruction> ReplacePrefabs(IEnumerable<CodeInstruction> instructions)
+        {
+            var instructionsList = instructions.ToList();
+            for (int i = 0; i < instructionsList.Count; i++)
+            {
+                if (i < instructionsList.Count - 2 && instructionsList[i + 1].opcode == OpCodes.Ldfld && instructionsList[i + 1].OperandIs(AccessTools.Field(typeof(CoreGameManager), nameof(CoreGameManager.playerPref))))
+                    continue;
+                else if (instructionsList[i].opcode == OpCodes.Ldfld && instructionsList[i].OperandIs(AccessTools.Field(typeof(CoreGameManager), nameof(CoreGameManager.playerPref))))
+                {
+                    yield return new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(PlayableCharsPlugin), nameof(PlayableCharsPlugin.Instance)));
+                    yield return new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(PlayableCharsPlugin), nameof(PlayableCharsPlugin.Character)));
+                    yield return new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(PlayableCharacter), nameof(PlayableCharacter.prefab)));
+                }
+                else
+                    yield return instructionsList[i];
+            }
+            yield break;
+        }
+
         [HarmonyPatch(typeof(CoreGameManager), nameof(CoreGameManager.SpawnPlayers)), HarmonyPrefix, HarmonyPriority(Priority.High)]
-        static void ReplacePrefabs(CoreGameManager __instance, ref HudManager ___hudPref, ref HudManager[] ___huds)
+        static void InitPlayables(CoreGameManager __instance, ref HudManager ___hudPref, ref HudManager[] ___huds)
         {
             CustomLevelGenerationParameters lvl = BaseGameManager.Instance.levelObject as CustomLevelGenerationParameters;
             if (PlayableCharsPlugin.Instance.Character.componentType == typeof(PlayableRandomizer)
@@ -216,7 +234,7 @@ namespace BBP_Playables.Core.Patches
             /*if (CoreGameManager.Instance.GetPlayer(0) != null) // Was using this for reiniting the HUD on every next level, but whatever...
                 CoreGameManager.Instance.ReflectionInvoke("DestroyPlayers", []);*/
             // Nothing good to do, this will possibly have multiplayer issues.
-            __instance.playerPref = PlayableCharsPlugin.Instance.Character.prefab; // If you are looking at this, I will move this to a transpiler if a Multiplayer mod exists. Most playables here uses the default prefab.
+            //__instance.playerPref = PlayableCharsPlugin.Instance.Character.prefab; // If you are looking at this, I will move this to a transpiler if a Multiplayer mod exists. Most playables here uses the default prefab.
             for (int i = 0; i < __instance.setPlayers; i++)
                 if (__instance.GetPlayer(i) != null)
                 {

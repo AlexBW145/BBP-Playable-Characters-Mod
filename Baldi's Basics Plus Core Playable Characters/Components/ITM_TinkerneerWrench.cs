@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.EventSystems;
 #if !DEMO
 namespace BBP_Playables.Core
 {

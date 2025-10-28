@@ -13,10 +13,6 @@ using System.IO;
 using System.Collections.Generic;
 using PlusStudioLevelFormat;
 using UnityEngine.UI;
-using MonoMod.Utils;
-using UnityEngine.Analytics;
-using System.Text;
-using System.ComponentModel;
 using BepInEx.Bootstrap;
 using PlusStudioLevelLoader;
 

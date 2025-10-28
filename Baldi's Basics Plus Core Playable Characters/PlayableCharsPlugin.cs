@@ -3,7 +3,6 @@ using BepInEx;
 using BepInEx.Bootstrap;
 using BepInEx.Logging;
 using HarmonyLib;
-using MidiPlayerTK;
 using MTM101BaldAPI;
 using MTM101BaldAPI.AssetTools;
 using MTM101BaldAPI.Components;
@@ -17,15 +16,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
 using TMPro;
 using UnityCipher;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.TextCore;
-using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
 namespace BBP_Playables.Core
@@ -306,10 +300,13 @@ There will be improvements and additions once new updates come out, but some cha
                     .SetShopPrice(25)
                     .SetGeneratorCost(5)
                     .SetSprites(assetMan.Get<Sprite>("Items/WrappingBundle_Small"), assetMan.Get<Sprite>("Items/WrappingBundle_Large"))
-                    .SetMeta(ItemFlags.None, ["gift", "StackableItems_NotAllowStacking"])
+                    .SetMeta(ItemFlags.Unobtainable, ["gift", "StackableItems_NotAllowStacking"])
                     .Build());
             var present = assetMan.Get<ItemObject>("PresentUnwrapped").item as ITM_PartygoerPresent;
             present.Unwrapped = true;
+            var presentmeta = new ItemMetaData(Info, []);
+            presentmeta.flags = ItemFlags.Unobtainable;
+            presentmeta.tags.AddRange(["gift", "StackableItems_NotAllowStacking", "recchars_gifter_blacklist"]);
             for (int npc = 1; npc <= 13; npc++)
             {
                 var goodpresent = new ItemBuilder(Info)
@@ -319,7 +316,7 @@ There will be improvements and additions once new updates come out, but some cha
                     .SetShopPrice(25)
                     .SetGeneratorCost(5)
                     .SetSprites(assetMan.Get<Sprite>("Items/Present_Small"), assetMan.Get<Sprite>("Items/Present_Large"))
-                    .SetMeta(ItemFlags.None, ["gift", "StackableItems_NotAllowStacking"])
+                    .SetMeta(presentmeta)
                     .Build();
                 goodpresent.item.GetComponent<ITM_PartygoerPresent>().Gift = (Character)npc;
                 assetMan.Add<ItemObject>("PresentGift_" + ((Character)npc).ToStringExtended(), goodpresent);
@@ -551,7 +548,7 @@ There will be improvements and additions once new updates come out, but some cha
                     .SetGeneratorCost(int.MaxValue)
                     .SetAsNotOverridable()
                     .SetSprites(assetMan.Get<Sprite>("Items/BackpackerBackpack_Small"), assetMan.Get<Sprite>("Items/BackpackerBackpack_Large"))
-                    .SetMeta(ItemFlags.MultipleUse, ["CharacterItemImportant"])
+                    .SetMeta(ItemFlags.MultipleUse | ItemFlags.Unobtainable, ["CharacterItemImportant", "recchars_gifter_blacklist"])
                     .Build());
             assetMan.Add<ItemObject>("BackpackOpen", new ItemBuilder(Info)
                     .SetItemComponent<ITM_BackpackerBackpack>()
@@ -561,7 +558,7 @@ There will be improvements and additions once new updates come out, but some cha
                     .SetGeneratorCost(int.MaxValue)
                     .SetAsNotOverridable()
                     .SetSprites(assetMan.Get<Sprite>("Items/BackpackerBackpack_SmallOpen"), assetMan.Get<Sprite>("Items/BackpackerBackpack_Large"))
-                    .SetMeta(ItemFlags.MultipleUse, ["CharacterItemImportant"])
+                    .SetMeta(ItemFlags.MultipleUse | ItemFlags.Unobtainable, ["CharacterItemImportant", "recchars_gifter_blacklist"])
                     .Build());
             assetMan.Add<ItemObject>("TinkerneerWrench", new ItemBuilder(Info)
                     .SetItemComponent<ITM_TinkerneerWrench>()
@@ -672,9 +669,9 @@ There will be improvements and additions once new updates come out, but some cha
                 .SetStats(s: 3, r: 28f, sm: 110f, maxslots: 5)
                 .SetFlags(PlayableFlags.None)
                 .SetStartingItems(ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value, ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value)
-                .SeparatePrefab()
+                //.SeparatePrefab()
                 .Build();
-            bullyman.prefab.gameObject.GetComponent<CapsuleCollider>().radius = 2.85f;
+            //bullyman.prefab.gameObject.GetComponent<CapsuleCollider>().radius = 2.85f;
             var thinker = new PlayableCharacterBuilder<ThinkerAbility>(Info, false)
                 .SetNameAndDesc("The Thinker", "Desc_Thinker")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Thinker"))
@@ -684,12 +681,12 @@ There will be improvements and additions once new updates come out, but some cha
             var backpacker = new PlayableCharacterBuilder<BackpackerBackpack>(Info, false)
                 .SetNameAndDesc("The Backpacker", "Desc_Backpacker")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Backpacker"))
-                .SetStats(s: 9, w: 19f, r: 31f, sd: 5f, sr: 15f, sm: 50f)
+                .SetStats(s: 5, w: 19f, r: 31f, sd: 5f, sr: 15f, sm: 50f)
                 .SetFlags(PlayableFlags.ContainsStartingItem)
                 // there are 16 slots in total...
-                .SeparatePrefab()
+                //.SeparatePrefab()
                 .Build();
-            backpacker.prefab.gameObject.GetComponent<CapsuleCollider>().radius = 2.5f;
+            //backpacker.prefab.gameObject.GetComponent<CapsuleCollider>().radius = 2.5f;
             var tails = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
                 .SetNameAndDesc("The Tinkerneer", "Desc_Tinkerneer")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Tinkerneer"))
@@ -1183,6 +1180,8 @@ There will be improvements and additions once new updates come out, but some cha
         public PlayableCharacterBuilder<T> SetFlags(PlayableFlags f)
         {
             flags = f;
+            if (startingItems.Length > 0)
+                flags |= PlayableFlags.ContainsStartingItem;
             return this;
         }
 
@@ -1319,8 +1318,9 @@ There will be improvements and additions once new updates come out, but some cha
             Character = PlayableCharsPlugin.Instance.extraSave.Item1;
             prevSlots = 5;
             backpackerBackup = new ItemObject[9];
+            var nothing = ItemMetaStorage.Instance.FindByEnum(Items.None).value;
             for (int i = 0; i < backpackerBackup.Length; i++)
-                backpackerBackup[i] = ItemMetaStorage.Instance.FindByEnum(Items.None).value;
+                backpackerBackup[i] = nothing;
         }
 
         public override void Save(BinaryWriter writer)

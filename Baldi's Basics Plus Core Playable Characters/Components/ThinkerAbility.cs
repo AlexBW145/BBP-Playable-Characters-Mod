@@ -1,16 +1,11 @@
 ﻿using HarmonyLib;
-using MTM101BaldAPI;
-using MTM101BaldAPI.Reflection;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.UI;
 #if !DEMO
 namespace BBP_Playables.Core
 {

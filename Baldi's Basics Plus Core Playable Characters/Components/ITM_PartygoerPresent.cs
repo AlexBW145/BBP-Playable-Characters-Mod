@@ -1,11 +1,9 @@
-﻿using BepInEx;
-using HarmonyLib;
+﻿using HarmonyLib;
 using MTM101BaldAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
 
 namespace BBP_Playables.Core

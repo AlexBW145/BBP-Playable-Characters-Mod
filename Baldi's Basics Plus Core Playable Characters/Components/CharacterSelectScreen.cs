@@ -1,10 +1,7 @@
-﻿using BBP_Playables.Core.Patches;
-using BepInEx.Bootstrap;
+﻿using BepInEx.Bootstrap;
 using MTM101BaldAPI.Registers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
