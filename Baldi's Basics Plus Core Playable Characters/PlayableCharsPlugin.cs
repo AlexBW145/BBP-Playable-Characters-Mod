@@ -26,6 +26,7 @@ namespace BBP_Playables.Core
 {
     [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
     [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", "9.0.0.0")]
+    [BepInDependency("mtm101.rulerp.baldiplus.criminalpackroot", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("alexbw145.baldiplus.arcadeendlessforever", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("mtm101.rulerp.baldiplus.levelstudioloader", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("mtm101.rulerp.baldiplus.levelstudio", BepInDependency.DependencyFlags.SoftDependency)]
@@ -35,7 +36,7 @@ namespace BBP_Playables.Core
     {
         private const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
         private const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        private const string PLUGIN_VERSION = "0.1.3.2"; // UPDATE EVERY TIME!!
+        private const string PLUGIN_VERSION = "0.1.3.3"; // UPDATE EVERY TIME!!
 
         public static PlayableCharsPlugin Instance { get; private set; }
         public static PlayableCharacterMetaStorage playablesMetaStorage { get; private set; } = new PlayableCharacterMetaStorage();

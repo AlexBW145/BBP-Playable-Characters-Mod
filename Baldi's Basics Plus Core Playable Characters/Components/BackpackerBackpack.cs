@@ -34,6 +34,7 @@ namespace BBP_Playables.Core
             base.Start();
             if (pm != null)
             {
+                pm.itm.LockSlot(pm.itm.maxItem, true); // Is it locking??
                 items[pm.itm.maxItem] = PlayableCharsPlugin.assetMan.Get<ItemObject>("BackpackOpen");
                 pm.GetComponent<PlayerMovementStatModifier>().AddModifier("walkSpeed", modifier);
                 pm.GetComponent<PlayerMovementStatModifier>().AddModifier("runSpeed", modifier);
