@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using BBP_Playables.Core;
 using BBTimes.CustomComponents.NpcSpecificComponents;
 using BBTimes.CustomContent.NPCs;

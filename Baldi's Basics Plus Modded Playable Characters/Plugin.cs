@@ -15,8 +15,6 @@ using System.Linq;
 using UnityEngine;
 using MTM101BaldAPI.SaveSystem;
 using BBP_Playables.Modded.Patches;
-using MTM101BaldAPI.Reflection;
-using UnityEngine.TextCore;
 
 namespace BBP_Playables.Modded
 {

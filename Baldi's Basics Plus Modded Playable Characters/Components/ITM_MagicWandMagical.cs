@@ -4,9 +4,6 @@ using System.Linq;
 using BBP_Playables.Core;
 using MTM101BaldAPI.Components;
 using MTM101BaldAPI.PlusExtensions;
-using BBTimes.CustomContent.NPCs;
-using BBTimes.CustomComponents.NpcSpecificComponents;
-using BBTimes.CustomContent.CustomItems;
 
 namespace BBP_Playables.Modded.BBTimes
 {

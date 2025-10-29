@@ -2,11 +2,10 @@
 using BBTimes.CustomContent.CustomItems;
 using MTM101BaldAPI.Registers;
 using MTM101BaldAPI;
-using System;
 using UnityEngine;
-using System.Collections;
-using MTM101BaldAPI.Reflection;
 using System.Linq;
+using System.Reflection;
+using HarmonyLib;
 
 namespace BBP_Playables.Modded.BBTimes;
 
@@ -132,6 +131,8 @@ public class BasketBallThrower : TinkerneerObject
         ec.CellFromPosition(transform.position).HardCover(CellCoverage.Down);
     }
 
+    private static FieldInfo _maxHitsBeforeDying = AccessTools.DeclaredField(typeof(ITM_Basketball), "maxHitsBeforeDying");
+    private static FieldInfo _lifeTime = AccessTools.DeclaredField(typeof(ITM_Basketball), "lifeTime");
     void Update()
     {
         cooldownToShoot -= Time.deltaTime * ec.EnvironmentTimeScale;
@@ -140,8 +141,8 @@ public class BasketBallThrower : TinkerneerObject
             cooldownToShoot += UnityEngine.Random.Range(8f, 10f);
             ITM_Basketball iTM_Basketball = Instantiate(basketBallPre);
             iTM_Basketball.Setup(ec, transform.forward, transform.position + transform.forward * 7f + Vector3.up * 5f, ec.mainHall, 0.6f);
-            iTM_Basketball.ReflectionSetVariable("maxHitsBeforeDying", 1);
-            iTM_Basketball.ReflectionSetVariable("lifeTime", 8f);
+            _maxHitsBeforeDying.SetValue(iTM_Basketball, 1);
+            _lifeTime.SetValue(iTM_Basketball, 8f);
             for (int i = 0; i < CoreGameManager.Instance.setPlayers; i++)
                 iTM_Basketball.GetComponent<Entity>().IgnoreEntity(CoreGameManager.Instance.GetPlayer(i).plm.Entity, true);
             audMan.PlaySingle(audBoom);

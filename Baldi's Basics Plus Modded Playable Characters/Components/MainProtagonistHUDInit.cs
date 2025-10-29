@@ -1,9 +1,7 @@
 ﻿using BBP_Playables.Core;
 using BepInEx.Bootstrap;
-using MTM101BaldAPI.Reflection;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using HarmonyLib;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +9,12 @@ namespace BBP_Playables.Modded.BCPP
 {
     public class MainProtagonistHUDInit : PlayableCharacterComponent
     {
+        private static FieldInfo _itemCoverLeftSprite = AccessTools.DeclaredField(typeof(ItemSlotsManager), "itemCoverLeftSprite");
+        private static FieldInfo _itemCoverCenterSprite = AccessTools.DeclaredField(typeof(ItemSlotsManager), "itemCoverCenterSprite");
+        private static FieldInfo _itemCoverRightSprite = AccessTools.DeclaredField(typeof(ItemSlotsManager), "itemCoverLeftSprite");
+        private static FieldInfo _itemBackgrounds = AccessTools.DeclaredField(typeof(HudManager), "itemBackgrounds");
+        private static FieldInfo _staminaNeedle = AccessTools.DeclaredField(typeof(HudManager), "staminaNeedle");
+        private static FieldInfo _notebookAnimator = AccessTools.DeclaredField(typeof(HudManager), "notebookAnimator");
         public override void Initialize()
         {
             base.Initialize();
@@ -19,16 +23,17 @@ namespace BBP_Playables.Modded.BCPP
                 || !Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
                 return;
             ItemSlotsManager inventory = CoreGameManager.Instance.GetHud(pm.playerNumber).inventory;
-            inventory.ReflectionSetVariable("itemCoverLeftSprite", PlayableCharsPlugin.assetMan.Get<Sprite>("HUD/ItemSlotsBCMAC_left"));
-            inventory.ReflectionSetVariable("itemCoverCenterSprite", PlayableCharsPlugin.assetMan.Get<Sprite>("HUD/ItemSlotsBCMAC_center"));
-            inventory.ReflectionSetVariable("itemCoverRightSprite", PlayableCharsPlugin.assetMan.Get<Sprite>("HUD/ItemSlotsBCMAC_right"));
+            _itemCoverLeftSprite.SetValue(inventory, PlayableCharsPlugin.assetMan.Get<Sprite>("HUD/ItemSlotsBCMAC_left"));
+            _itemCoverCenterSprite.SetValue(inventory, PlayableCharsPlugin.assetMan.Get<Sprite>("HUD/ItemSlotsBCMAC_center"));
+            _itemCoverRightSprite.SetValue(inventory, PlayableCharsPlugin.assetMan.Get<Sprite>("HUD/ItemSlotsBCMAC_right"));
             inventory.SetSize(pm.itm.items.Length);
-            foreach (RawImage slot in (RawImage[])CoreGameManager.Instance.GetHud(pm.playerNumber).ReflectionGetVariable("itemBackgrounds"))
+            var slotTex = PlayableCharsPlugin.assetMan.Get<Sprite>("HUD/ItemSlotBar_BCMAC").texture;
+            foreach (RawImage slot in (RawImage[])_itemBackgrounds.GetValue(CoreGameManager.Instance.GetHud(pm.playerNumber)))
             {
-                slot.texture = PlayableCharsPlugin.assetMan.Get<Sprite>("HUD/ItemSlotBar_BCMAC").texture;
+                slot.texture = slotTex;
                 slot.SetNativeSize();
             }
-            RectTransform stamino = (RectTransform)CoreGameManager.Instance.GetHud(pm.playerNumber).ReflectionGetVariable("staminaNeedle");
+            RectTransform stamino = (RectTransform)_staminaNeedle.GetValue(CoreGameManager.Instance.GetHud(pm.playerNumber));
             stamino = stamino.parent as RectTransform;
             stamino.anchorMin = Vector2.up;
             stamino.anchorMax = Vector2.up;
@@ -39,7 +44,7 @@ namespace BBP_Playables.Modded.BCPP
             stamino.GetComponentsInChildren<Image>()[0].rectTransform.offsetMax = new Vector2(160f, 35f);
             stamino.GetComponentsInChildren<Image>()[1].sprite = PlayableCharsPlugin.assetMan.Get<Sprite>("HUD/StaminaPointBCMAC");
             stamino.GetComponentsInChildren<Image>()[2].sprite = PlayableCharsPlugin.assetMan.Get<Sprite>("HUD/StaminaBarBCMAC");
-            var noteboAnim = (Animator)CoreGameManager.Instance.GetHud(pm.playerNumber).ReflectionGetVariable("notebookAnimator");
+            var noteboAnim = (Animator)_notebookAnimator.GetValue(CoreGameManager.Instance.GetHud(pm.playerNumber));
             RectTransform notebooks = noteboAnim.transform as RectTransform;
             notebooks.anchorMin = Vector2.zero;
             notebooks.anchorMax = Vector2.zero;
