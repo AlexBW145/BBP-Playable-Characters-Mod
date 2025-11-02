@@ -212,6 +212,7 @@ namespace BBP_Playables.Core.Patches
                     case "thetinkerneer":
                         if (!ModdedFileManager.Instance.saveData.saveAvailable)
                             EndlessForeverPlugin.Instance.Counters["slots"] += 2;
+                        __instance.itm.LockSlot(0, true);
                         break;
                     case "thespeedrunner":
                         ((SpeedrunnerSpeedyUpgrade)EndlessForeverPlugin.Upgrades["speedrunner_speedy"]).SetValue();

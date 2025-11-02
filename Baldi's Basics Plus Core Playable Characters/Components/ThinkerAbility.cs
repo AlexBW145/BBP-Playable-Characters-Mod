@@ -41,7 +41,7 @@ namespace BBP_Playables.Core
         {
             base.Initialize();
             if (CoreGameManager.Instance.GetPoints(pm.playerNumber) <= 0)
-                CoreGameManager.Instance.AddPoints(Mathf.Abs(CoreGameManager.Instance.GetPoints(pm.playerNumber)) + 50, 0, false);
+                CoreGameManager.Instance.AddPoints(Mathf.Abs(CoreGameManager.Instance.GetPoints(pm.playerNumber)) + 50, 0, false, false);
         }
         public override void SpoopBegin(BaseGameManager manager) => StartCoroutine(ThinkerDrain());
 
@@ -139,7 +139,7 @@ namespace BBP_Playables.Core
                     }
                     if (!BaseGameManager.Instance.Ec.Active)
                         yield break;
-                    if (CoreGameManager.Instance.GetPoints(pm.playerNumber) > 0) CoreGameManager.Instance.AddPoints(CoreGameManager.Instance.GetPoints(pm.playerNumber) < 10 ? -CoreGameManager.Instance.GetPoints(pm.playerNumber) : -10, 0, true);
+                    if (CoreGameManager.Instance.GetPoints(pm.playerNumber) > 0) CoreGameManager.Instance.AddPoints(CoreGameManager.Instance.GetPoints(pm.playerNumber) < 10 ? -CoreGameManager.Instance.GetPoints(pm.playerNumber) : -10, 0, true, true);
                     yield return null;
                 }
                 if (CoreGameManager.Instance.GetPoints(pm.playerNumber) <= 0 && !blinded)

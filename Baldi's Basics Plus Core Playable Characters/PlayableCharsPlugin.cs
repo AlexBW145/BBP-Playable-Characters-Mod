@@ -197,7 +197,7 @@ There will be improvements and additions once new updates come out, but some cha
             {
                 Log.LogInfo("BBCR save file found!");
                 Log.LogInfo(path);
-                var bbcrdata = JsonUtility.FromJson<BBCRSaveRef>(RijndaelEncryption.Decrypt(File.ReadAllText(path), "!UnassignedFile"));
+                var bbcrdata = JsonUtility.FromJson<PlayerFileData>(RijndaelEncryption.Decrypt(File.ReadAllText(path), "!UnassignedFile"));
                 if (bbcrdata.glitchWon) {
                     Log.LogInfo("NULL is defeated! Unlocking new playable character!");
                     unlockedCylnLoon = true;
@@ -598,12 +598,13 @@ There will be improvements and additions once new updates come out, but some cha
             testInvention.GetComponent<TestInvention>().render.sprite = assetMan.Get<Sprite>("Inventions/TapeQuarterPlayerOpen");
             //testInvention.GetComponent<TestInvention>().render.material = Resources.FindObjectsOfTypeAll<Material>().ToList().Find(x => x.name == "Lit_SpriteStandard_Billboard");
             testInvention.GetComponent<TestInvention>().render.transform.localPosition = Vector3.down * 0.5f;
+            testInvention.GetComponent<TestInvention>().insertTape = Resources.FindObjectsOfTypeAll<SoundObject>().Last(x => x.name == "TapeInsert");
             GameObject fakestudentInvent = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             fakestudentInvent.GetComponent<SphereCollider>().isTrigger = true;
             fakestudentInvent.GetComponent<SphereCollider>().radius = 2f;
             Instantiate(Resources.FindObjectsOfTypeAll<GameObject>().ToList().Find(x => x.name == "TapePlayer").transform.GetComponentInChildren<SpriteRenderer>(), fakestudentInvent.transform, worldPositionStays: false);
             fakestudentInvent.CreateTinkerneeringObject<FakeStudentInvention>("Studentcrow", "Can fake Baldi likely from a far hallway,\nbut not that sturdy enough to make Baldi recognize it as a \"fake\".", [ItemMetaStorage.Instance.FindByEnum(Items.NanaPeel).value, ItemMetaStorage.Instance.FindByEnum(Items.NanaPeel).value, ItemMetaStorage.Instance.FindByEnum(Items.Scissors).value], false);
-            fakestudentInvent.gameObject.tag = "Player";
+            fakestudentInvent.gameObject.layer = 0;
             SpriteRenderer rend = fakestudentInvent.GetComponentInChildren<SpriteRenderer>();
             rend.sprite = assetMan.Get<Sprite>("Inventions/StudentcrowFake");
             rend.transform.localPosition = Vector3.down * 1f;
@@ -612,14 +613,14 @@ There will be improvements and additions once new updates come out, but some cha
             realstudentInvent.GetComponent<SphereCollider>().radius = 2f;
             Instantiate(Resources.FindObjectsOfTypeAll<GameObject>().ToList().Find(x => x.name == "TapePlayer").transform.GetComponentInChildren<SpriteRenderer>(), realstudentInvent.transform, worldPositionStays: false);
             realstudentInvent.CreateTinkerneeringObject<RealStudentInvention>("False Student", "More better than the Studentcrow,\ncan fake Baldi from any directions!", [ItemMetaStorage.Instance.FindByEnum(Items.NanaPeel).value, ItemMetaStorage.Instance.FindByEnum(Items.NanaPeel).value, ItemMetaStorage.Instance.FindByEnum(Items.Scissors).value, ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value]);
-            realstudentInvent.gameObject.tag = "Player";
+            realstudentInvent.gameObject.layer = 0;
             rend = realstudentInvent.GetComponentInChildren<SpriteRenderer>();
             rend.sprite = assetMan.Get<Sprite>("Inventions/StudentcrowReal");
             rend.transform.localPosition = Vector3.down * 1f;
-            GameObject realstudentApple = Instantiate(realstudentInvent, null, false);
+            GameObject realstudentApple = Instantiate(realstudentInvent, MTM101BaldiDevAPI.prefabTransform, false);
             Destroy(realstudentApple.GetComponent<RealStudentInvention>());
             realstudentApple.CreateTinkerneeringObject<RealStudentInvention>("A False Student Containing An Apple", "More better than the Studentcrow,\ncan give Baldi an apple after it got attacked!", [ItemMetaStorage.Instance.FindByEnum(Items.NanaPeel).value, ItemMetaStorage.Instance.FindByEnum(Items.Scissors).value, ItemMetaStorage.Instance.FindByEnum(Items.ZestyBar).value, ItemMetaStorage.Instance.FindByEnum(Items.Apple).value]);
-            realstudentApple.gameObject.tag = "Player";
+            realstudentApple.gameObject.layer = 0;
             GameObject bonusqGen = GameObject.CreatePrimitive(PrimitiveType.Cube);
             bonusqGen.transform.localScale = Vector3.one * 3f;
             bonusqGen.GetComponent<Collider>().isTrigger = true;
@@ -1422,7 +1423,7 @@ There will be improvements and additions once new updates come out, but some cha
 }
 
 [Serializable]
-internal class BBCRSaveRef
+internal class PlayerFileData
 {
     public int saveVersion;
     public AchievementData achievementData;

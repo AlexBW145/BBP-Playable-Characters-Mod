@@ -7,9 +7,9 @@ namespace BBP_Playables.Core
 {
     public class TestSubjectMan : PlayableCharacterComponent
     {
-        private HashSet<GameObject> spottedNPC = new HashSet<GameObject>();
+        private readonly HashSet<GameObject> spottedNPC = new HashSet<GameObject>();
         internal TimeScaleModifier subjectScale = new TimeScaleModifier();
-        bool doingyour = false;
+        private bool doingyour = false;
         private PlayerMovementStatModifier stats;
         public override void Initialize()
         {

@@ -299,7 +299,7 @@ namespace BBP_Playables.Core.Patches
                     if (!endless)
                         PlayableCharsPlugin.Instance.Character.OnInitAction?.Invoke(__instance, false);
                     break;
-                case "magicalstudent":
+                case "thetinkerneer" or "magicalstudent":
                     __instance.itm.LockSlot(0, true);
                     break;
             }

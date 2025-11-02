@@ -41,7 +41,6 @@ class JustCriminallyPatch
                         itemCount++;
                         if (meta.tags.Contains("crmp_contraband"))
                             backpackContrabanded = true;
-
                     }
                 }
                 if (backpackContrabanded)

@@ -9,23 +9,13 @@ namespace BBP_Playables.Core
     // BBCR Code wtf
     public class ThrowableObject : MonoBehaviour, IClickable<int>, IEntityTrigger
     {
-        public bool ClickableHidden()
-        {
-            return PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") != "CYLN_LOON".ToLower().Replace(" ", "") || !ready || held;
-        }
+        public bool ClickableHidden() => PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") != "CYLN_LOON".ToLower().Replace(" ", "") || !ready || held;
 
-        public bool ClickableRequiresNormalHeight()
-        {
-            return true;
-        }
+        public bool ClickableRequiresNormalHeight() => true;
 
-        public void ClickableSighted(int player)
-        {
-        }
+        public void ClickableSighted(int player) { }
 
-        public void ClickableUnsighted(int player)
-        {
-        }
+        public void ClickableUnsighted(int player) { }
 
         private static FieldInfo setLayer = AccessTools.DeclaredField(typeof(Entity), "defaultLayer"); 
 
@@ -159,13 +149,9 @@ namespace BBP_Playables.Core
             }
         }
 
-        public void EntityTriggerStay(Collider other, bool validCollision)
-        {
-        }
+        public void EntityTriggerStay(Collider other, bool validCollision) { }
 
-        public void EntityTriggerExit(Collider other, bool validCollision)
-        {
-        }
+        public void EntityTriggerExit(Collider other, bool validCollision) { }
 
         IEnumerator waitUntilMovemod(Entity enit)
         {

@@ -19,12 +19,9 @@ public class RestrictAllowPlayableSuperdoor : Door
     [SerializeField]
     internal Sprite mapLockedSprite;
 
-    [SerializeField] internal SpriteRenderer[] renders;
-    [SerializeField] internal SpriteRenderer[] playables;
+    [SerializeField] internal SpriteRenderer[] renders, playables;
 
-    protected MapTile aMapTile;
-
-    protected MapTile bMapTile;
+    protected MapTile aMapTile, bMapTile;
 
     [SerializeField]
     private float collisionHeight = 6f;

@@ -17,8 +17,11 @@ namespace BBP_Playables.Core
         private EnvironmentController ec;
         public SpriteRenderer render;
         private bool playing;
+        [SerializeField] internal SoundObject insertTape;
+        private PlayerManager whoInvented;
         public override void Create(ItemManager itm)
         {
+            whoInvented = itm.pm;
             audMan = gameObject.AddComponent<AudioManager>();
             audMan.audioDevice = gameObject.AddComponent<AudioSource>();
             audMan.audioDevice.playOnAwake = false;
@@ -26,7 +29,7 @@ namespace BBP_Playables.Core
             audMan.audioDevice.spatialBlend = 1f;
             audMan.audioDevice.rolloffMode = AudioRolloffMode.Linear;
             ec = itm.pm.ec;
-            dijkstraMap = new DijkstraMap(ec, PathType.Const, int.MaxValue, base.transform);
+            dijkstraMap = new DijkstraMap(ec, PathType.Const, int.MaxValue, transform);
             InsertItem(itm.pm, ec);
         }
 
@@ -46,6 +49,8 @@ namespace BBP_Playables.Core
 
         public bool ItemFits(Items item)
         {
+            if (item == Items.Tape && !playing)
+                audMan.PlaySingle(insertTape);
             return (item == Items.Quarter || item == Items.Tape) && !playing;
         }
 
@@ -56,7 +61,7 @@ namespace BBP_Playables.Core
 
             foreach (NPC npc in ec.Npcs)
             {
-                if (npc.Navigator.enabled)
+                if (npc != null && npc.Character != Character.Null && npc.Navigator.enabled)
                 {
                     NavigationState_WanderFleeOverride navigationState_WanderFleeOverride = new NavigationState_WanderFleeOverride(npc, 31, dijkstraMap);
                     fleeStates.Add(navigationState_WanderFleeOverride);
@@ -74,36 +79,43 @@ namespace BBP_Playables.Core
             fleeStates.Clear();
             playing = false;
             render.sprite = PlayableCharsPlugin.assetMan.Get<Sprite>("Inventions/TapeQuarterPlayerOpen");
-            if (PlayableCharsPlugin.Instance.Character.name.ToLower().Replace(" ", "") != "thetinkerneer")
+            if (whoInvented.GetPlayable().GetCurrentPlayable().name.ToLower().Replace(" ", "") != "thetinkerneer")
                 Destroy(gameObject);
         }
     }
 
     public class FakeStudentInvention : TinkerneerObject
     {
-        private Baldi baldman;
+        private readonly int layerMask = LayerMask.GetMask("Default", "Block Raycast", "Windows");
         private bool recognizedAsFake = false;
+        private EnvironmentController ec;
+
         public override void Create(ItemManager itm)
         {
-            baldman = BaseGameManager.Instance.Ec.GetBaldi();
+            ec = itm.pm.ec;
         }
 
         void Update()
         {
-            if (baldman == null) return;
-            baldman.looker.Raycast(transform, Mathf.Min((baldman.transform.position - transform.position).magnitude + baldman.Navigator.Velocity.magnitude, baldman.looker.distance, baldman.ec.MaxRaycast), LayerMask.GetMask("Default", "Block Raycast", "Windows"), out var sighted);
-            if (sighted && !recognizedAsFake)
-                if (!baldman.looker.PlayerInSight())
-                    baldman.Hear(null, transform.position, 114, false);
-                else if (baldman.looker.PlayerInSight() || Vector3.Distance(transform.position, baldman.transform.position) < Mathf.Min(baldman.looker.distance, baldman.ec.MaxRaycast)) {
-                    recognizedAsFake = true;
-                    baldman.ClearSoundLocations();
-                }
+            foreach (var baldman in ec.Npcs.Select(x => x.GetComponent<Baldi>()))
+            {
+                if (baldman == null) continue;
+                baldman.looker.Raycast(transform, Mathf.Min((baldman.transform.position - transform.position).magnitude + baldman.Navigator.Velocity.magnitude, baldman.looker.distance, ec.MaxRaycast), layerMask, out var sighted);
+                if (sighted && !recognizedAsFake)
+                    if (!baldman.looker.PlayerInSight())
+                        baldman.Hear(null, transform.position, 114, false);
+                    else if (baldman.looker.PlayerInSight() || Vector3.Distance(transform.position, baldman.transform.position) < Mathf.Min(baldman.looker.distance, ec.MaxRaycast))
+                    {
+                        recognizedAsFake = true;
+                        baldman.ClearSoundLocations();
+                    }
+            }
         }
         void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("NPC") && (other.GetComponent<NPC>().Character == Character.Baldi || other.gameObject.GetComponent<Baldi>()))
+            if (other.CompareTag("NPC") && other.gameObject.GetComponent<Baldi>() != null)
             {
+                var baldman = other.gameObject.GetComponent<Baldi>();
                 WeightedSelection<SoundObject>[] losesnds = baldman.loseSounds;
                 baldman.AudMan.PlaySingle(WeightedSelection<SoundObject>.RandomSelection(losesnds));
                 Destroy(gameObject);
@@ -114,30 +126,36 @@ namespace BBP_Playables.Core
     public class RealStudentInvention : TinkerneerObject
     {
         private bool Apple = false;
-        private Baldi baldman;
+        private EnvironmentController ec;
+        private readonly int layerMask = LayerMask.GetMask("Default", "Block Raycast", "Windows");
 
         public override void Create(ItemManager itm)
         {
+            ec = itm.pm.ec;
             Apple = requiredItems.Contains(ItemMetaStorage.Instance.FindByEnum(Items.Apple).value);
-            baldman = BaseGameManager.Instance.Ec.GetBaldi();
         }
 
         void Update()
         {
-            if (baldman == null) return;
-            baldman.looker.Raycast(transform, Mathf.Min((baldman.transform.position - transform.position).magnitude + baldman.Navigator.Velocity.magnitude, baldman.looker.distance, baldman.ec.MaxRaycast), LayerMask.GetMask("Default", "Block Raycast", "Windows"), out var sighted);
-            if (sighted && !baldman.looker.PlayerInSight()) {
-                baldman.ClearSoundLocations();
-                baldman.Hear(null, transform.position, 127, false);
+            foreach (var baldman in ec.Npcs.Select(x => x.GetComponent<Baldi>()))
+            {
+                if (baldman == null) continue;
+                baldman.looker.Raycast(transform, Mathf.Min((baldman.transform.position - transform.position).magnitude + baldman.Navigator.Velocity.magnitude, baldman.looker.distance, ec.MaxRaycast), layerMask, out var sighted);
+                if (sighted && !baldman.looker.PlayerInSight())
+                {
+                    baldman.ClearSoundLocations();
+                    baldman.Hear(null, transform.position, 127, false);
+                }
             }
         }
 
         void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("NPC") && (other.GetComponent<NPC>().Character == Character.Baldi || other.gameObject.GetComponent<Baldi>()))
+            if (other.CompareTag("NPC") && other.GetComponent<Baldi>() != null)
             {
+                var baldman = other.gameObject.GetComponent<Baldi>();
                 if (Apple)
-                    other.gameObject.GetComponent<Baldi>().TakeApple();
+                    baldman.TakeApple();
                 WeightedSelection<SoundObject>[] losesnds = baldman.loseSounds;
                 baldman.AudMan.PlaySingle(WeightedSelection<SoundObject>.RandomSelection(losesnds));
                 Destroy(gameObject);
