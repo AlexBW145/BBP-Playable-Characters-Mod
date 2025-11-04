@@ -46,8 +46,8 @@ namespace BBP_Playables.Core
         [Obsolete("Use PlayableCharacterMetaStorage.Instance.All() instead.", true)] public static List<PlayableCharacter> characters => playablesMetaStorage.All().ToValues().ToList();
         public static bool IsRandom => Instance?.extraSave?.Item1.componentType == typeof(PlayableRandomizer);
         internal bool unlockedCylnLoon { get; private set; } = false;
-        private static SoundObject NewCharacterUnlocked => (SoundObject)assetMan["Music/NewPlayerUnlocked"];
-        private static PlayableUnlockedUI PlayableUnlockedUI => (PlayableUnlockedUI)assetMan["UnlockedCharacterUI"];
+        private static SoundObject NewCharacterUnlocked => assetMan.Get<SoundObject>("Music/NewPlayerUnlocked");
+        private static PlayableUnlockedUI PlayableUnlockedUI => assetMan.Get<PlayableUnlockedUI>("UnlockedCharacterUI");
         public PlayableCharacter Character => PlayableCharsGame.Character;
         internal PlayableCharsGame gameSave = new PlayableCharsGame();
         internal Tuple<PlayableCharacter> extraSave;
@@ -551,6 +551,7 @@ There will be improvements and additions once new updates come out, but some cha
                     .SetSprites(assetMan.Get<Sprite>("Items/BackpackerBackpack_Small"), assetMan.Get<Sprite>("Items/BackpackerBackpack_Large"))
                     .SetMeta(ItemFlags.MultipleUse | ItemFlags.Unobtainable, ["CharacterItemImportant", "recchars_gifter_blacklist"])
                     .Build());
+            var backpackMeta = assetMan.Get<ItemObject>("BackpackClosed").GetMeta();
             assetMan.Add<ItemObject>("BackpackOpen", new ItemBuilder(Info)
                     .SetItemComponent<ITM_BackpackerBackpack>()
                     .SetEnum("BackpackerBackpack")
@@ -559,7 +560,7 @@ There will be improvements and additions once new updates come out, but some cha
                     .SetGeneratorCost(int.MaxValue)
                     .SetAsNotOverridable()
                     .SetSprites(assetMan.Get<Sprite>("Items/BackpackerBackpack_SmallOpen"), assetMan.Get<Sprite>("Items/BackpackerBackpack_Large"))
-                    .SetMeta(ItemFlags.MultipleUse | ItemFlags.Unobtainable, ["CharacterItemImportant", "recchars_gifter_blacklist"])
+                    .SetMeta(backpackMeta)
                     .Build());
             assetMan.Add<ItemObject>("TinkerneerWrench", new ItemBuilder(Info)
                     .SetItemComponent<ITM_TinkerneerWrench>()
@@ -568,7 +569,7 @@ There will be improvements and additions once new updates come out, but some cha
                     .SetShopPrice(3000)
                     .SetGeneratorCost(75)
                     .SetSprites(assetMan.Get<Sprite>("Items/TinkerneerWrench_Small"), assetMan.Get<Sprite>("Items/TinkerneerWrench_Large"))
-                    .SetMeta(ItemFlags.MultipleUse | ItemFlags.Persists, [])
+                    .SetMeta(ItemFlags.MultipleUse | ItemFlags.Persists, ["CharacterItemImportant"])
                     .Build());
             var wrench = assetMan.Get<ItemObject>("TinkerneerWrench").item as ITM_TinkerneerWrench;
             wrench.hudPre = Instantiate(Resources.FindObjectsOfTypeAll<Gum>().ToList().First().transform.Find("GumOverlay").gameObject, wrench.transform).GetComponent<Canvas>();
@@ -740,14 +741,21 @@ There will be improvements and additions once new updates come out, but some cha
                 switch (scene.nameKey)
                 {
                     default:
-                        scene.GetCustomLevelObjects()?.Do(lvl => lvl.SetCustomModValue(Info, "randomizeralways", false));
+                        scene.GetCustomLevelObjects()?.Do(lvl =>
+                        {
+                            lvl.SetCustomModValue(Info, "randomizeralways", false);
+                            lvl.MarkAsModifiedByMod(Info);
+                        });
                         break;
                     case "Level_EndlessLooped":
-                        scene.GetCustomLevelObjects()?.Do(lvl => lvl.SetCustomModValue(Info, "randomizeralways", true));
+                        scene.GetCustomLevelObjects()?.Do(lvl =>
+                        {
+                            lvl.SetCustomModValue(Info, "randomizeralways", true);
+                            lvl.MarkAsModifiedByMod(Info);
+                        });
                         break;
                 }
             });
-            HashSet<CustomLevelObject> doneforLevels = new HashSet<CustomLevelObject>();
             GeneratorManagement.Register(this, GenerationModType.Addend, (name, num, ld) =>
             {
                 ld.shopItems = ld.shopItems.AddToArray(new() { selection = assetMan.Get<ItemObject>("TinkerneerWrench"), weight = 80 });
@@ -756,10 +764,10 @@ There will be improvements and additions once new updates come out, but some cha
                     var presentt = assetMan.Get<ItemObject>("PresentUnwrapped");
                     foreach (var level in ld.GetCustomLevelObjects())
                     {
-                        if (!doneforLevels.Contains(level)) // Endless Mode level objects reuses Hide and Seek Mode level objects
+                        if (!level.IsModifiedByMod(Info)) // Endless Mode level objects reuses Hide and Seek Mode level objects
                         {
                             level.forcedItems.AddRange([presentt, presentt]);
-                            doneforLevels.Add(level);
+                            level.MarkAsModifiedByMod(Info);
                         }
                     }
                 }
@@ -913,7 +921,7 @@ There will be improvements and additions once new updates come out, but some cha
         /// <param name="name"></param> <param name="desc"></param> <param name="acceptables">The items required to invent and place a tinkereer component.</param>
         /// <param name="tinkerneerCharExclusive">Is this component exclusively craftable from The Tinkerneer character?</param>
         /// <param name="rmcategory">What category can this room be placed in. (Leave as <see cref="RoomCategory.Null"/> to make this component craftable anywhere.)</param>
-        public static void CreateTinkerneeringObject<T>(this GameObject gobj, BepInEx.PluginInfo info,  string name, string desc, ItemObject[] acceptables, bool tinkerneerCharExclusive = true, RoomCategory rmcategory = RoomCategory.Null) where T : TinkerneerObject
+        public static void CreateTinkerneeringObject<T>(this GameObject gobj, BepInEx.PluginInfo info, string name, string desc, ItemObject[] acceptables, bool tinkerneerCharExclusive = true, RoomCategory rmcategory = RoomCategory.Null) where T : TinkerneerObject
         {
             TinkerneerObject thing = gobj.AddComponent<T>();
             thing.gameObject.name = name;

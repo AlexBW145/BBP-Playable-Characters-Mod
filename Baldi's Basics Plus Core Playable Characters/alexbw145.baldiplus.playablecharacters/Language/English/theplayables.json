@@ -1,5 +1,7 @@
 {"items":[
 
+{"key":"Hud_UnlockedPlayableCharacter", "value":"YOU HAVE UNLOCKED\nA NEW PLAYABLE"},
+
 {"key":"The Default","value":"The Default"},
 {"key":"Desc_Default","value":"The actual student that you are playing.\n* Is a cylnder\n* But it's probably not a cylinder in-game"},
 {"key":"The Predicted Fanon","value":"The Predicted Fanon"},

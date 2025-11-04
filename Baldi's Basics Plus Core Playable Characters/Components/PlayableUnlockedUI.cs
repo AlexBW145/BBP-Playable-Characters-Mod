@@ -16,6 +16,7 @@ namespace BBP_Playables.Core
 
         internal void DoThang()
         {
+            textMan.text = LocalizationManager.Instance.GetLocalizedText("Hud_UnlockedPlayableCharacter");
             animatorMan.animations.Add("SwingIn", new CustomAnimation<Sprite>(tvsprites.Reverse().ToArray(), 1f));
             animatorMan.animations.Add("SwingOut", new CustomAnimation<Sprite>(tvsprites, 1f));
             animatorMan.animations.Add("SwingIdle", new CustomAnimation<Sprite>([tvsprites.First()], 1f));

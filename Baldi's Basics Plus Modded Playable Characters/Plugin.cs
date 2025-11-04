@@ -184,7 +184,7 @@ namespace BBP_Playables.Modded
                     .SetShopPrice(int.MaxValue)
                     .SetGeneratorCost(int.MaxValue)
                     .SetSprites(PlayableCharsPlugin.assetMan.Get<Sprite>("Items/MagicalStudentWand_Small"), PlayableCharsPlugin.assetMan.Get<Sprite>("Items/MagicalStudentWand_Large"))
-                    .SetMeta(ItemFlags.MultipleUse | ItemFlags.CreatesEntity | ItemFlags.Persists, ["CharacterItemImportant", "recchars_gifter_blacklist"])
+                    .SetMeta(ItemFlags.MultipleUse | ItemFlags.CreatesEntity | ItemFlags.Persists | ItemFlags.Unobtainable, ["CharacterItemImportant", "recchars_gifter_blacklist"])
                     .Build());
                 new PlayableCharacterBuilder<PlayableCharacterComponent>(coreInfo, false)
                 .SetNameAndDesc("Magical Student", "Desc_Magical")

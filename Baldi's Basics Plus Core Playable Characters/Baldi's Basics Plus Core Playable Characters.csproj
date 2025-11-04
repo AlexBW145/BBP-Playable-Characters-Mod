@@ -62,5 +62,6 @@
 		<Exec Command="echo F|xcopy /Y &quot;$(ProjectDir)bin\$(Configuration)\net472\$(AssemblyName).dll&quot; &quot;D:\SteamLibrary\steamapps\common\Baldi's Basics Plus\BepInEx\plugins\$(SolutionName)\$(AssemblyName).dll&quot;" />
 		<Exec Command="echo F|xcopy /Y &quot;$(ProjectDir)bin\$(Configuration)\net472\$(AssemblyName).pdb&quot; &quot;D:\SteamLibrary\steamapps\common\Baldi's Basics Plus\BepInEx\plugins\$(SolutionName)\$(AssemblyName).pdb&quot;" />
 		<Exec Command="echo F|xcopy /Y &quot;$(ProjectDir)bin\$(Configuration)\net472\$(AssemblyName).xml&quot; &quot;D:\SteamLibrary\steamapps\common\Baldi's Basics Plus\BepInEx\plugins\$(SolutionName)\$(AssemblyName).xml&quot;" />
+		<Exec Command="  xcopy /S /Q /Y /F &quot;$(ProjectDir)alexbw145.baldiplus.playablecharacters\&quot; &quot;D:\SteamLibrary\steamapps\common\Baldi's Basics Plus\BALDI_Data\StreamingAssets\Modded\alexbw145.baldiplus.playablecharacters\&quot;" />
 	</Target>
 </Project>
