@@ -41,7 +41,7 @@ namespace BBP_Playables.Core
         {
             base.Initialize();
             if (CoreGameManager.Instance.GetPoints(pm.playerNumber) <= 0)
-                CoreGameManager.Instance.AddPoints(Mathf.Abs(CoreGameManager.Instance.GetPoints(pm.playerNumber)) + 50, 0, false, false);
+                CoreGameManager.Instance.AddPoints(Mathf.Abs(CoreGameManager.Instance.GetPoints(pm.playerNumber)) + 50, 0, false, true);
         }
         public override void SpoopBegin(BaseGameManager manager) => StartCoroutine(ThinkerDrain());
 
