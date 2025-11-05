@@ -14,7 +14,7 @@ namespace BBP_Playables.Core
         private int curChar = 0;
         private bool selected = false, inputDown = false;
         public bool Loading => selected;
-        public TextMeshProUGUI nametext, desctext;
+        [SerializeField] internal TextMeshProUGUI nametext, desctext;
         public Image portrait;
         private List<PlayableCharacter> characters = new List<PlayableCharacter>();
         private AnalogInputData analogData;
@@ -81,8 +81,8 @@ namespace BBP_Playables.Core
     public class CharacterSelector : MonoBehaviour
     {
         private int curChar = 0;
-        public Image portrait;
-        public TextMeshProUGUI text;
+        internal Image portrait;
+        internal TextMeshProUGUI text;
         private List<PlayableCharacter> characters = new List<PlayableCharacter>();
         public static CharacterSelector Instance { get; private set; }
 

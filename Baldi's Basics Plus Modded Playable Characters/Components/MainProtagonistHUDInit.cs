@@ -9,12 +9,13 @@ namespace BBP_Playables.Modded.BCPP
 {
     public class MainProtagonistHUDInit : PlayableCharacterComponent
     {
-        private static FieldInfo _itemCoverLeftSprite = AccessTools.DeclaredField(typeof(ItemSlotsManager), "itemCoverLeftSprite");
-        private static FieldInfo _itemCoverCenterSprite = AccessTools.DeclaredField(typeof(ItemSlotsManager), "itemCoverCenterSprite");
-        private static FieldInfo _itemCoverRightSprite = AccessTools.DeclaredField(typeof(ItemSlotsManager), "itemCoverLeftSprite");
-        private static FieldInfo _itemBackgrounds = AccessTools.DeclaredField(typeof(HudManager), "itemBackgrounds");
-        private static FieldInfo _staminaNeedle = AccessTools.DeclaredField(typeof(HudManager), "staminaNeedle");
-        private static FieldInfo _notebookAnimator = AccessTools.DeclaredField(typeof(HudManager), "notebookAnimator");
+        private static FieldInfo 
+            _itemCoverLeftSprite = AccessTools.DeclaredField(typeof(ItemSlotsManager), "itemCoverLeftSprite"),
+            _itemCoverCenterSprite = AccessTools.DeclaredField(typeof(ItemSlotsManager), "itemCoverCenterSprite"),
+            _itemCoverRightSprite = AccessTools.DeclaredField(typeof(ItemSlotsManager), "itemCoverLeftSprite"),
+            _itemBackgrounds = AccessTools.DeclaredField(typeof(HudManager), "itemBackgrounds"),
+            _staminaNeedle = AccessTools.DeclaredField(typeof(HudManager), "staminaNeedle"),
+            _notebookAnimator = AccessTools.DeclaredField(typeof(HudManager), "notebookAnimator");
         public override void Initialize()
         {
             base.Initialize();

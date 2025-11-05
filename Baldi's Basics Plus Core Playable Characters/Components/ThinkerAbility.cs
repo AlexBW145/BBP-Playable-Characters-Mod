@@ -25,7 +25,7 @@ namespace BBP_Playables.Core
         private Ray ray;
         private RaycastHit[] hits = new RaycastHit[32];
         private int hitCount;
-        public List<Transform> _hitTransforms = new List<Transform>();
+        private readonly List<Transform> _hitTransforms = new List<Transform>();
         private bool mathMachineVisible = false;
         private float timeLooking = 0f;
         private AudioManager musicMan;

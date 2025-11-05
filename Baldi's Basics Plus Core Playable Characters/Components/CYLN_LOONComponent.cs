@@ -8,7 +8,7 @@ namespace BBP_Playables.Core
     public class CYLN_LOONComponent : PlayableCharacterComponent
     {
         public override void SpoopBegin(BaseGameManager manager) => StartCoroutine(CylnObjects(manager));
-        public static List<GameObject> prefabs = new List<GameObject>();
+        public static readonly List<GameObject> prefabs = new List<GameObject>();
         internal bool LastChance;
 
         private float CylnTime() => UnityEngine.Random.Range(60f, 90f);

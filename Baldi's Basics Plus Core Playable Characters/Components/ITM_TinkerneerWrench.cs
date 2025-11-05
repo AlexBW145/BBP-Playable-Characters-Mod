@@ -8,9 +8,9 @@ namespace BBP_Playables.Core
 {
     public class ITM_TinkerneerWrench : Item
     {
-        public static SoundObject[] tinkerneeringSnds;
-        public static Dictionary<string, TinkerneerObject> TinkerneerObjectsPre = new Dictionary<string, TinkerneerObject>();
-        public Canvas hudPre;
+        [SerializeField] internal SoundObject[] tinkerneeringSnds;
+        public static readonly Dictionary<string, TinkerneerObject> TinkerneerObjectsPre = new Dictionary<string, TinkerneerObject>();
+        [SerializeField] internal Canvas hudPre;
         private List<TinkerneerObject> availableTinkers = new List<TinkerneerObject>();
         private Vector3 cellPos;
         public override bool Use(PlayerManager pm)

@@ -139,7 +139,7 @@ namespace BBP_Playables.Modded
                 Destroy(shooter.transform.Find("RendereBase").Find("Particles").gameObject);
                 shooter.transform.Find("RendereBase").GetComponentInChildren<SpriteRenderer>().sprite = PlayableCharsPlugin.assetMan.Get<Sprite>("FirewallBlaster_Pellets");
                 shooter.GetComponent<ITM_FirewallBlaster>().shootSnd = PlayableCharsPlugin.assetMan.Get<SoundObject>("Items/BlasterShoot");
-                ITM_FirewallBlaster.effectSnd = PlayableCharsPlugin.assetMan.Get<SoundObject>("Items/BlasterEffected");
+                shooter.GetComponent<ITM_FirewallBlaster>().effectSnd = PlayableCharsPlugin.assetMan.Get<SoundObject>("Items/BlasterEffected");
                 PlayableCharsPlugin.assetMan.Add<ItemObject>("FirewallBlaster", new ItemBuilder(Info)
                     .SetItemComponent(shooter.GetComponent<ITM_FirewallBlaster>())
                     .SetEnum("FirewallBlaster")

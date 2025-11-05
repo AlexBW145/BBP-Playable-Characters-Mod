@@ -10,8 +10,8 @@ namespace BBP_Playables.Modded.BBTimes
     public class ITM_MagicWandMagical : Item, IEntityTrigger
     {
         private EnvironmentController ec;
-        public Entity entity;
-        public SpriteRenderer spriteRenderer;
+        [SerializeField] internal Entity entity;
+        [SerializeField] internal SpriteRenderer spriteRenderer;
         private static float cooldown = 0f;
         private float existCooldown;
         public override bool Use(PlayerManager pm)

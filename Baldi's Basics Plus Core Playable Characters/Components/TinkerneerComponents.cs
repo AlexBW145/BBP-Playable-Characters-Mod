@@ -15,7 +15,7 @@ namespace BBP_Playables.Core
         private DijkstraMap dijkstraMap;
         private List<NavigationState_WanderFleeOverride> fleeStates = new List<NavigationState_WanderFleeOverride>();
         private EnvironmentController ec;
-        public SpriteRenderer render;
+        [SerializeField] internal SpriteRenderer render;
         private bool playing;
         [SerializeField] internal SoundObject insertTape;
         private PlayerManager whoInvented;

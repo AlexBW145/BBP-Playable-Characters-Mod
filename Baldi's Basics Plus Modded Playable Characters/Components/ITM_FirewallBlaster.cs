@@ -8,11 +8,10 @@ namespace BBP_Playables.Modded.BCPP
     public class ITM_FirewallBlaster : Item, IEntityTrigger
     {
         private static bool shooting = false;
-        public SoundObject shootSnd;
-        public static SoundObject effectSnd;
-        public Entity entity;
-        public EnvironmentController ec;
-        private MovementModifier moveMod = new MovementModifier(default(Vector3), 0.5f);
+        [SerializeField] internal SoundObject shootSnd, effectSnd;
+        [SerializeField] internal Entity entity;
+        internal EnvironmentController ec;
+        private MovementModifier moveMod = new MovementModifier(default, 0.5f);
 
         public override bool Use(PlayerManager pm)
         {

@@ -7,33 +7,20 @@ namespace BBP_Playables.Modded.LevelEditor;
 
 public class RestrictAllowPlayableSuperdoor : Door
 {
-    [SerializeField]
-    internal MeshRenderer door;
-
-    [SerializeField]
-    internal BoxCollider collider;
-
-    [SerializeField]
-    internal Sprite mapUnlockedSprite;
-
-    [SerializeField]
-    internal Sprite mapLockedSprite;
-
+    [SerializeField] internal MeshRenderer door;
+    [SerializeField] internal BoxCollider collider;
+    [SerializeField] internal Sprite mapUnlockedSprite, mapLockedSprite;
     [SerializeField] internal SpriteRenderer[] renders, playables;
 
     protected MapTile aMapTile, bMapTile;
 
-    [SerializeField]
-    private float collisionHeight = 6f;
-
+    [SerializeField] private float collisionHeight = 6f;
     public float originalHeight;
-
     private float targetHeight;
 
     [SerializeField] internal List<PlayableCharacter> whiteblacklist = new List<PlayableCharacter>();
 
     private bool blockingAudio;
-
     [SerializeField] internal bool DisallowMode = false;
 
     private void Awake()

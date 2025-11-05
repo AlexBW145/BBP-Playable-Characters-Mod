@@ -582,7 +582,7 @@ There will be improvements and additions once new updates come out, but some cha
             text.alignment = TextAlignmentOptions.Center;
             text.gameObject.SetActive(true);
             text.transform.localScale = Vector3.one;
-            ITM_TinkerneerWrench.tinkerneeringSnds = [
+            wrench.tinkerneeringSnds = [
                 assetMan.Get<SoundObject>("Items/Tinkerneering1"),
                 assetMan.Get<SoundObject>("Items/Tinkerneering2"),
                 assetMan.Get<SoundObject>("Items/Tinkerneering3")
@@ -1060,9 +1060,9 @@ There will be improvements and additions once new updates come out, but some cha
         /// </summary>
         ContainsStartingItem = 2,
         /// <summary>
-        /// This character is part of the school faculty (NOT YET IMPLEMENTED)
+        /// This character invokes something else after entering the game with them such as Random's randomizer
         /// </summary>
-        Guiltiless = 4,
+        Special = 4,
         /// <summary>
         /// This character does not contain one or more abilities
         /// </summary>
