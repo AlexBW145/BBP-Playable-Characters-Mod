@@ -99,7 +99,7 @@ internal static class BBTInventions
         shooterbase.transform.localPosition = Vector3.zero;
         shooterbase.GetComponent<Renderer>().SetMaterial(Resources.FindObjectsOfTypeAll<Material>().ToList().Last(x => x.name == "BlackUnlit"));
         GameObject.Destroy(shooterbase.GetComponent<Collider>());
-        basketballshooter.CreateTinkerneeringObject<BasketBallThrower>(Plugin.info, "Basketball Shooter", "An iffy version of the school's basketball shooter, it does not hit you, but can push back others at a slow pace.", [ItemMetaStorage.Instance.FindByEnum(EnumExtensions.GetFromExtendedName<Items>("Basketball")).value, ItemMetaStorage.Instance.FindByEnum(Items.Bsoda).value, ItemMetaStorage.Instance.FindByEnum(EnumExtensions.GetFromExtendedName<Items>("Coal")).value], true, RoomCategory.Hall);
+        basketballshooter.CreateTinkerneeringObject<BasketBallThrower>(Plugin.info, "Basketball Shooter", "An iffy version of the school's basketball shooter, it does not hit you, but can push back others at a slow pace.", [ItemMetaStorage.Instance.FindByEnum(EnumExtensions.GetFromExtendedName<Items>("Basketball")).value, ItemMetaStorage.Instance.FindByEnum(Items.Bsoda).value, ItemMetaStorage.Instance.FindByEnum(EnumExtensions.GetFromExtendedName<Items>("FidgetSpinner")).value], true, RoomCategory.Hall);
         basketballshooter.GetComponent<BasketBallThrower>().audMan = basketballshooter.AddComponent<PropagatedAudioManager>();
         basketballshooter.GetComponent<BasketBallThrower>().audMan.audioDevice = basketballshooter.AddComponent<AudioSource>();
         basketballshooter.GetComponent<BasketBallThrower>().audBoom = Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.soundClip.name == "shootBoom");
