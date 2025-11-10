@@ -25,7 +25,7 @@ using UnityEngine.UI;
 namespace BBP_Playables.Core
 {
     [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
-    [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", "9.0.0.0")]
+    [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", "10.0.0")]
     [BepInDependency("mtm101.rulerp.baldiplus.criminalpackroot", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("alexbw145.baldiplus.arcadeendlessforever", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("mtm101.rulerp.baldiplus.levelstudioloader", BepInDependency.DependencyFlags.SoftDependency)]
