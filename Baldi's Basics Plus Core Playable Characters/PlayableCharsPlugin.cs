@@ -5,7 +5,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using MTM101BaldAPI;
 using MTM101BaldAPI.AssetTools;
-using MTM101BaldAPI.Components;
+using MTM101BaldAPI.Components.Animation;
 using MTM101BaldAPI.ObjectCreation;
 using MTM101BaldAPI.Reflection;
 using MTM101BaldAPI.Registers;
@@ -258,14 +258,16 @@ There will be improvements and additions once new updates come out, but some cha
             unlockedComponent.textMan = unlockedText;
             unlockedComponent.animatorMan = unlockedUI.gameObject.AddComponent<CustomImageAnimator>();
             unlockedComponent.animatorMan.image = unlockedTV.GetComponent<Image>();
-            unlockedComponent.animatorMan.useUnscaledTime = true;
+            unlockedComponent.animatorMan.timeScale = TimeScaleType.Null;
             Sprite[] tvsprites = Resources.FindObjectsOfTypeAll<Sprite>().ToList().FindAll(spr => spr.name.StartsWith("ScreenSwingSheet_")).ToArray();
             for (int i = 0; i < tvsprites.Length; i++)
             {
                 if (tvsprites[i].name != $"ScreenSwingSheet_{i}")
                     tvsprites[i] = Resources.FindObjectsOfTypeAll<Sprite>().Last(spr => spr.name == $"ScreenSwingSheet_{i}");
             }
-            unlockedComponent.tvsprites = tvsprites;
+            unlockedComponent.animatorMan.AddAnimation("SwingIn", new SpriteAnimation(tvsprites.Reverse().ToArray(), 1f));
+            unlockedComponent.animatorMan.AddAnimation("SwingOut", new SpriteAnimation(tvsprites, 1f));
+            unlockedComponent.animatorMan.AddAnimation("SwingIdle", new SpriteAnimation([tvsprites.First()], 1f));
             assetMan.Add("UnlockedCharacterUI", unlockedComponent);
 
             yield return "Creating specific character stuff";
@@ -307,7 +309,9 @@ There will be improvements and additions once new updates come out, but some cha
             present.Unwrapped = true;
             var presentmeta = new ItemMetaData(Info, []);
             presentmeta.flags = ItemFlags.Unobtainable;
-            presentmeta.tags.AddRange(["gift", "StackableItems_NotAllowStacking", "recchars_gifter_blacklist"]);
+            presentmeta.tags.Add("gift"); // Lacks `AddRange` (Why you Microsoft!!)
+            presentmeta.tags.Add("StackableItems_NotAllowStacking");
+            presentmeta.tags.Add("recchars_gifter_blacklist");
             for (int npc = 1; npc <= 13; npc++)
             {
                 var goodpresent = new ItemBuilder(Info)
@@ -331,9 +335,9 @@ There will be improvements and additions once new updates come out, but some cha
                 int chance = UnityEngine.Random.Range(1, 8);
                 if (chance >= 7) // Sudden Bomb
                 {
-                    var animator = bald.gameObject.GetOrAddComponent<CustomSpriteAnimator>();
-                    animator.spriteRenderer = bald.spriteRenderer[0];
-                    animator.animations.Add("burn", new CustomAnimation<Sprite>([Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_39"), Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_40"), Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_41")], 0.2f));
+                    var animator = bald.gameObject.GetOrAddComponent<CustomSpriteRendererAnimator>();
+                    animator.renderer = bald.spriteRenderer[0];
+                    animator.AddAnimation("burn", new SpriteAnimation([Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_39"), Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_40"), Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_41")], 0.2f));
                     bald.AudMan.QueueAudio(Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "Fuse"), true);
                     bald.AudMan.SetLoop(true);
                     IEnumerator BombMan()
@@ -436,9 +440,9 @@ There will be improvements and additions once new updates come out, but some cha
                 if (UnityEngine.Random.Range(1, 8) >= 6) // Sudden Bomb
                 {
                     var Audman = bul.GetComponent<AudioManager>();
-                    var animator = npc.gameObject.GetOrAddComponent<CustomSpriteAnimator>();
-                    animator.spriteRenderer = npc.spriteRenderer[0];
-                    animator.animations.Add("burn", new CustomAnimation<Sprite>([Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_39"), Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_40"), Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_41")], 0.2f));
+                    var animator = npc.gameObject.GetOrAddComponent<CustomSpriteRendererAnimator>();
+                    animator.renderer = npc.spriteRenderer[0];
+                    animator.AddAnimation("burn", new SpriteAnimation([Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_39"), Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_40"), Resources.FindObjectsOfTypeAll<Sprite>().Last(x => x.name == "BaldiPicnic_Sheet_41")], 0.2f));
                     Audman.QueueAudio(Resources.FindObjectsOfTypeAll<SoundObject>().Last(snd => snd.name == "Fuse"), true);
                     Audman.SetLoop(true);
                     IEnumerator BombMan()
@@ -635,7 +639,7 @@ There will be improvements and additions once new updates come out, but some cha
             new PlayableCharacterBuilder<PlayableRandomizer>(Info)
                 .SetNameAndDesc("Random Playable", "Desc_RandomPlayable")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Random"))
-                .SetFlags(PlayableFlags.None)
+                .SetFlags(PlayableFlags.Special)
                 .Build();
             var _default = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info)
                 .SetNameAndDesc("The Default", "Desc_Default")
@@ -1263,9 +1267,10 @@ There will be improvements and additions once new updates come out, but some cha
 
         public PlayableCharacter value { get; private set; }
 
-        public List<string> tags { get; private set; } = new List<string>();
+        public List<string> _tags { get; private set; } = new List<string>();
 
         public BepInEx.PluginInfo info { get; private set; }
+        public HashSet<string> tags => _tags.ToHashSet();
 
         public PlayableCharacterMetaData(BepInEx.PluginInfo info, PlayableCharacter character)
         {
@@ -1278,7 +1283,7 @@ There will be improvements and additions once new updates come out, but some cha
         public PlayableCharacterMetaData(BepInEx.PluginInfo info, PlayableCharacter character, string[] tags)
             : this(info, character)
         {
-            this.tags.AddRange(tags);
+            _tags.AddRange(tags);
         }
     }
     // Also also took this from the API

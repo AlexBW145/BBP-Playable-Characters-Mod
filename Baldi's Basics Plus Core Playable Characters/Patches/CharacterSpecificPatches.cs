@@ -74,13 +74,14 @@ namespace BBP_Playables.Core.Patches
             countedText = AccessTools.DeclaredField(typeof(BalloonBuster), "countTmp"),
             ___audioManager = AccessTools.DeclaredField(typeof(MatchActivityBalloon), "audioManager"),
             ___spriteRenderer = AccessTools.DeclaredField(typeof(MatchActivityBalloon), "spriteRenderer");
+        private static SoundObject cheatedSnd = Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "CashBell");
 
         [HarmonyPatch(nameof(Activity.Completed), [typeof(int), typeof(bool)]), HarmonyPostfix]
         static void ThinkerDidNotThink(int player, bool correct, Activity __instance)
         {
             if (!correct && PlrPlayableCharacterVars.GetPlayable(player)?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thethinker"
                 && CoreGameManager.Instance.GetPoints(player) > 0)
-                CoreGameManager.Instance.AddPoints(CoreGameManager.Instance.GetPoints(player) < 50 ? -CoreGameManager.Instance.GetPoints(player) : -50, player, true);
+                CoreGameManager.Instance.AddPoints(CoreGameManager.Instance.GetPoints(player) < 50 ? -CoreGameManager.Instance.GetPoints(player) : -50, player, true, CoreGameManager.Instance.GetPointsThisLevel(player) >= 50, false);
         }
 
         [HarmonyPatch(nameof(Activity.SetBonusMode))]
@@ -110,7 +111,7 @@ namespace BBP_Playables.Core.Patches
                 if (sprRend.color != Color.green)
                 {
                     sprRend.color = Color.green;
-                    ((AudioManager)___audioManager.GetValue(thatBloon)).PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "CashBell"));
+                    ((AudioManager)___audioManager.GetValue(thatBloon)).PlaySingle(cheatedSnd);
                 }
             }
         }

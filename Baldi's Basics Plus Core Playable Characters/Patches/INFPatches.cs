@@ -1,7 +1,6 @@
 ﻿using BepInEx.Bootstrap;
 using HarmonyLib;
 using MTM101BaldAPI;
-using UnityEngine.UI;
 using UnityEngine;
 using EndlessFloorsForever;
 using MTM101BaldAPI.Registers;
@@ -283,7 +282,7 @@ namespace BBP_Playables.Core.Patches
             yield break;
         }
 
-        [HarmonyPatch(typeof(ThinkerAbility), nameof(ThinkerAbility.ThinkerDrain), MethodType.Enumerator), HarmonyTranspiler]
+        [HarmonyPatch(typeof(ThinkerAbility), "ThinkerDrain", MethodType.Enumerator), HarmonyTranspiler]
         static IEnumerable<CodeInstruction> ThinkerIsDrainSlow(IEnumerable<CodeInstruction> instructions)
         {
             foreach (CodeInstruction instruction in instructions)

@@ -283,10 +283,11 @@ namespace BBP_Playables.Core.Patches
             if (!endless)
             {
                 if (!PlayableCharsPlugin.gameStarted)
-                    __instance.itm.maxItem = PlayableCharsPlugin.Instance.Character.slots - 1;
+                    __instance.itm.defaultInventorySize = PlayableCharsPlugin.Instance.Character.slots;
                 else
-                    __instance.itm.maxItem = PlayableCharsGame.prevSlots - 1;
-                PlayableCharsGame.prevSlots = __instance.itm.maxItem + 1;
+                    __instance.itm.defaultInventorySize = PlayableCharsGame.prevSlots;
+                __instance.itm.UpdateTargetInventorySize();
+                PlayableCharsGame.prevSlots = __instance.itm.defaultInventorySize;
                 if (!PlayableCharsPlugin.gameStarted)
                     for (int i = 0; i < PlayableCharsPlugin.Instance.Character.startingItems.Length; i++)
                         __instance.itm.SetItem(PlayableCharsPlugin.Instance.Character.startingItems[i], i);
