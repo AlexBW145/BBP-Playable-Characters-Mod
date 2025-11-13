@@ -12,7 +12,7 @@ namespace BBP_Playables.Modded.BCPP
         private static FieldInfo 
             _itemCoverLeftSprite = AccessTools.DeclaredField(typeof(ItemSlotsManager), "itemCoverLeftSprite"),
             _itemCoverCenterSprite = AccessTools.DeclaredField(typeof(ItemSlotsManager), "itemCoverCenterSprite"),
-            _itemCoverRightSprite = AccessTools.DeclaredField(typeof(ItemSlotsManager), "itemCoverLeftSprite"),
+            _itemCoverRightSprite = AccessTools.DeclaredField(typeof(ItemSlotsManager), "itemCoverRightSprite"),
             _itemBackgrounds = AccessTools.DeclaredField(typeof(HudManager), "itemBackgrounds"),
             _staminaNeedle = AccessTools.DeclaredField(typeof(HudManager), "staminaNeedle"),
             _notebookAnimator = AccessTools.DeclaredField(typeof(HudManager), "notebookAnimator");
@@ -34,11 +34,11 @@ namespace BBP_Playables.Modded.BCPP
                 slot.texture = slotTex;
                 slot.SetNativeSize();
             }
+            inventory.transform.Find("Covers").GetComponent<RectTransform>().anchoredPosition += (Vector2.up + Vector2.right) * -1f;
+            inventory.transform.parent.Find("Item Text").GetComponent<RectTransform>().anchoredPosition += Vector2.down * 2f;
             RectTransform stamino = (RectTransform)_staminaNeedle.GetValue(CoreGameManager.Instance.GetHud(pm.playerNumber));
             stamino = stamino.parent as RectTransform;
-            stamino.anchorMin = Vector2.up;
-            stamino.anchorMax = Vector2.up;
-            stamino.pivot = Vector2.up;
+            stamino.anchorMin = stamino.anchorMax = stamino.pivot = Vector2.up;
             stamino.anchoredPosition = new Vector2(-5f, -55f);
             stamino.GetComponentsInChildren<Image>()[0].sprite = PlayableCharsPlugin.assetMan.Get<Sprite>("HUD/StaminaGradientBCMAC");
             stamino.GetComponentsInChildren<Image>()[0].rectTransform.anchoredPosition = new Vector2(10.7f, 13f);
@@ -47,19 +47,12 @@ namespace BBP_Playables.Modded.BCPP
             stamino.GetComponentsInChildren<Image>()[2].sprite = PlayableCharsPlugin.assetMan.Get<Sprite>("HUD/StaminaBarBCMAC");
             var noteboAnim = (Animator)_notebookAnimator.GetValue(CoreGameManager.Instance.GetHud(pm.playerNumber));
             RectTransform notebooks = noteboAnim.transform as RectTransform;
-            notebooks.anchorMin = Vector2.zero;
-            notebooks.anchorMax = Vector2.zero;
-            notebooks.pivot = Vector2.zero;
-            notebooks.anchoredPosition = Vector2.zero;
+            notebooks.anchorMin = notebooks.anchorMax = notebooks.pivot = notebooks.anchoredPosition = Vector2.zero;
             RectTransform nbText = notebooks.parent.Find("Notebook Text") as RectTransform;
-            nbText.anchorMin = Vector2.zero;
-            nbText.anchorMax = Vector2.zero;
-            nbText.pivot = Vector2.zero;
+            nbText.anchorMin = nbText.anchorMax = nbText.pivot = Vector2.zero;
             nbText.anchoredPosition = new Vector2(50, 16);
             RectTransform tv = notebooks.parent.Find("BaldiTV") as RectTransform;
-            tv.anchorMin = new Vector2(0.5f, 1);
-            tv.anchorMax = new Vector2(0.5f, 1);
-            tv.pivot = new Vector2(0.5f, 1);
+            tv.anchorMin = tv.anchorMax = tv.pivot = new Vector2(0.5f, 1);
             var skew = tv.Find("TMPSkewParent");
             skew.localPosition = new(4.32f, skew.localPosition.y, skew.localPosition.z);
             tv.anchoredPosition = Vector2.zero;
