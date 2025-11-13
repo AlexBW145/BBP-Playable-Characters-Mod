@@ -4,6 +4,7 @@ using HarmonyLib;
 using MTM101BaldAPI;
 using MTM101BaldAPI.AssetTools;
 using MTM101BaldAPI.Components;
+using MTM101BaldAPI.Components.Animation;
 using MTM101BaldAPI.ObjectCreation;
 using MTM101BaldAPI.Reflection;
 using MTM101BaldAPI.Registers;
@@ -15,7 +16,7 @@ using UnityEngine.Audio;
 
 namespace BBP_Playables.Extra.Foxo
 {
-    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
     [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", MTM101BaldiDevAPI.VersionNumber)]
     [BepInDependency("alexbw145.baldiplus.playablecharacters", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("alexbw145.baldiplus.teacherapi", BepInDependency.DependencyFlags.SoftDependency)]
@@ -23,12 +24,16 @@ namespace BBP_Playables.Extra.Foxo
     [BepInProcess("Baldi's Basics Plus Prerelease.exe")]
     public class FoxoPlayablePlugin : BaseUnityPlugin
     {
+        private const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters.foxo";
+        private const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Extra - Foxo)";
+        private const string PLUGIN_VERSION = "1.1.0";
+
         internal static AssetManager assetMan = new AssetManager();
         public static PlayableCharacter FoxoPlayable { get; private set; }
         public static WrathFoxo Foxo { get; private set; }
         private void Awake()
         {
-            Harmony harmony = new Harmony(PluginInfo.PLUGIN_GUID);
+            Harmony harmony = new Harmony(PLUGIN_GUID);
             harmony.PatchAllConditionals();
 
             LoadingEvents.RegisterOnAssetsLoaded(Info, PreLoad(), LoadingEventOrder.Pre);
@@ -37,7 +42,7 @@ namespace BBP_Playables.Extra.Foxo
             AssetLoader.LocalizationFromMod(this);
         }
 
-        IEnumerator PreLoad() // IMPORTANT!!
+        private IEnumerator PreLoad() // IMPORTANT!!
         {
             yield return 1;
             yield return "Adding insanity character";
@@ -72,14 +77,16 @@ namespace BBP_Playables.Extra.Foxo
             Foxo.ReflectionSetVariable("slapCurve", NPCMetaStorage.Instance.Get(Character.Baldi).prefabs["Baldi_Main3"].ReflectionGetVariable("slapCurve"));
             assetMan.Add("HallucinoFoxo", Foxo);
             var sprites = AssetLoader.SpritesFromSpritesheet(3, 1, 30f, Vector2.one / 2, AssetLoader.TextureFromMod(this, "Texture2D", "hallucinofoxo.png"));
-            var animator = Foxo.gameObject.AddComponent<CustomSpriteAnimator>();
-            animator.spriteRenderer = Foxo.spriteRenderer[0];
-            Foxo.ReflectionSetVariable("animator", animator);
+            var animator = Foxo.gameObject.AddComponent<CustomSpriteRendererAnimator>();
+            animator.renderer = Foxo.spriteRenderer[0];
+            animator.AddAnimation("slap", new SpriteAnimation(sprites.Reverse().ToArray(), 0.3f));
+            animator.AddAnimation("idle", new SpriteAnimation([sprites.First()], 1f));
+            Foxo.animator = animator;
             Foxo.spriteRenderer[0].sprite = sprites.First();
             assetMan.Add("HallucinoFoxoSprites", sprites);
         }
         // Pre-defined stuff for foods and drinks
-        void PostLoad()
+        private void PostLoad()
         {
             foreach (var food in ItemMetaStorage.Instance.FindAllWithTags(false, "food"))
             {
@@ -118,12 +125,5 @@ namespace BBP_Playables.Extra.Foxo
                 }
             }
         }
-    }
-
-    public static class PluginInfo
-    {
-        public const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters.foxo";
-        public const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Extra - Foxo)";
-        public const string PLUGIN_VERSION = "1.0.0";
     }
 }

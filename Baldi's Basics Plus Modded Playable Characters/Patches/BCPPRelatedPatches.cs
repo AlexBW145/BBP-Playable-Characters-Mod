@@ -65,4 +65,11 @@ class DwellerAbility
             //__instance.icon.spriteRenderer.material = PlayableCharsPlugin.assetMan.Get<Material>("DwellerMapMat");
         }
     }
+
+    [HarmonyPatch(typeof(Map), "MapDiscoveryRange", MethodType.Getter), HarmonyPostfix]
+    static void Ranger(ref int __result, EnvironmentController ___ec)
+    {
+        if (___ec != null && CoreGameManager.Instance.GetPlayer(0) != null && PlrPlayableCharacterVars.GetLocalPlayable()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thedweller")
+            __result += 4;
+    }
 }

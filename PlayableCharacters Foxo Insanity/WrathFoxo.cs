@@ -1,6 +1,7 @@
 ﻿using BBP_Playables.Core;
 using HarmonyLib;
 using MTM101BaldAPI.Components;
+using MTM101BaldAPI.Components.Animation;
 using MTM101BaldAPI.Reflection;
 using System;
 using System.Collections;
@@ -23,13 +24,9 @@ namespace BBP_Playables.Extra.Foxo
         private float baldiAngerRate = 1f;
         [SerializeField]
         private float baldiAngerAmount = 0.1f;
-        [SerializeField] private CustomSpriteAnimator animator;
+        [SerializeField] internal CustomSpriteRendererAnimator animator;
         public override void Initialize()
         {
-            animator.spriteRenderer = spriteRenderer[0];
-            var sprites = FoxoPlayablePlugin.assetMan.Get<Sprite[]>("HallucinoFoxoSprites");
-            animator.animations.Add("slap", new CustomAnimation<Sprite>(sprites.Reverse().ToArray(), 0.3f));
-            animator.animations.Add("idle", new CustomAnimation<Sprite>([sprites.First()], 1f));
             Navigator.Initialize(ec); // ResetSprite() fucked up custom teachers again.
             Navigator.Entity.SetHeight(6.5f);
             Navigator.Entity.SetResistAddend(true);
@@ -65,7 +62,7 @@ namespace BBP_Playables.Extra.Foxo
                 fox.modifiers.Remove(modifier);
             base.Despawn();
         }
-        protected override void VirtualOnTriggerEnter(Collider other) => VirtualOnTriggerStay(other);
+        /*protected override void VirtualOnTriggerEnter(Collider other) => VirtualOnTriggerStay(other);
         protected override void VirtualOnTriggerExit(Collider other) => VirtualOnTriggerStay(other);
         protected override void VirtualOnTriggerStay(Collider other)
         {
@@ -73,7 +70,7 @@ namespace BBP_Playables.Extra.Foxo
             var entity = other.GetComponent<Entity>();
             if (entity != null && !entity.Equals(typeof(PlayerEntity)))
                 if (!navigator.Entity.IsIgnoring(entity)) navigator.Entity.IgnoreEntity(entity, true);
-        }
+        }*/
 
         public override void CaughtPlayer(PlayerManager player)
         {
@@ -214,7 +211,7 @@ namespace BBP_Playables.Extra.Foxo
             }
         }
 
-        public override void OnStateTriggerStay(Collider other)
+        public override void OnStateTriggerStay(Collider other, bool isValid)
         {
             if (!other.CompareTag("Player") && other.GetComponent<PlrPlayableCharacterVars>()?.GetCurrentPlayable() != FoxoPlayablePlugin.FoxoPlayable)
                 return;

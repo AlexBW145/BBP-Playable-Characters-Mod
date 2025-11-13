@@ -2,7 +2,6 @@
 using BBP_Playables.Extra.Foxo;
 using HarmonyLib;
 using MTM101BaldAPI;
-using MTM101BaldAPI.Reflection;
 using MTM101BaldAPI.Registers;
 using System;
 using System.Collections;
@@ -11,22 +10,21 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.UI;
+using static UnityEngine.GraphicsBuffer;
 
 namespace BBP_Playables.Extra.Patches
 {
     [HarmonyPatch(typeof(MainMenu), "Start")]
     class FoxoRestartFixes
     {
+        private static FieldInfo _speed = AccessTools.Field(typeof(MusicManager), "speed");
         static void Postfix()
         {
             Resources.FindObjectsOfTypeAll<AudioMixer>().ToList().Find(x => x.name == "Master").SetFloat("EchoWetMix", 0f);
             MusicManager.Instance.MidiPlayer.CoreAudioSource.pitch = 1f;
-            MusicManager.Instance.MidiPlayer.MPTK_Speed = (float)MusicManager.Instance.ReflectionGetVariable("speed");
+            MusicManager.Instance.MidiPlayer.MPTK_Speed = (float)_speed.GetValue(MusicManager.Instance);
         }
     }
 
@@ -60,6 +58,13 @@ namespace BBP_Playables.Extra.Patches
         {
             targetSighted = false;
             return target.GetComponent<WrathFoxo>() == null;
+        }
+
+        [HarmonyPatch(typeof(Entity), nameof(Entity.CollisionValid)), HarmonyPostfix]
+        static void CannotTouch(Entity otherEntity, ref bool __result)
+        {
+            if (__result == true && otherEntity.GetComponent<WrathFoxo>() != null)
+                __result = false;
         }
 
         static InsanityModifier lightsoutAura = new InsanityModifier(-50f);
@@ -209,15 +214,13 @@ namespace BBP_Playables.Extra.Patches
         }
 
         [HarmonyPatch(typeof(ItemManager), nameof(ItemManager.UseItem)), HarmonyTranspiler]
-        static IEnumerable<CodeInstruction> Satisfood(IEnumerable<CodeInstruction> instructions)
-        {
-            return new CodeMatcher(instructions).Start()
+        static IEnumerable<CodeInstruction> Satisfood(IEnumerable<CodeInstruction> instructions) => new CodeMatcher(instructions).Start()
                 .MatchForward(false,
                 new CodeMatch(OpCodes.Ldarg_0),
                 new CodeMatch(OpCodes.Ldarg_0),
                 new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(ItemManager), nameof(ItemManager.selectedItem))),
                 new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(ItemManager), nameof(ItemManager.RemoveItem)))
-            )
+                )
                 .Insert(new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ItemManager), nameof(ItemManager.pm))),
                 Transpilers.EmitDelegate<Action<PlayerManager>>((__instance) =>
@@ -229,13 +232,12 @@ namespace BBP_Playables.Extra.Patches
                         if (sane != null)
                         {
                             float consum = meta.tags.Contains("drink") ? -2f : 10f; // Sodas can be devastating...
-                            if (meta.tags.Exists(x => x.StartsWith("playablechars_sanityconsumable_")))
-                                consum = float.Parse(meta.tags.Find(x => x.StartsWith("playablechars_sanityconsumable_")).Remove(0, "playablechars_sanityconsumable_".Length), CultureInfo.InvariantCulture.NumberFormat);
+                            if (meta.tags.ToList().Exists(x => x.StartsWith("playablechars_sanityconsumable_")))
+                                consum = float.Parse(meta.tags.ToList().Find(x => x.StartsWith("playablechars_sanityconsumable_")).Remove(0, "playablechars_sanityconsumable_".Length), CultureInfo.InvariantCulture.NumberFormat);
                             sane.Anxiety += consum;
                         }
                     }
                 }))
                 .InstructionEnumeration();
-        }
     }
 }

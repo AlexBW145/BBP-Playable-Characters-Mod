@@ -130,7 +130,7 @@ namespace BBP_Playables.Modded
             yield return "Adding other new characters";
             if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
             {
-                GameObject shooter = Instantiate(ItemMetaStorage.Instance.FindByEnum(Items.Bsoda).value.item.gameObject);
+                GameObject shooter = Instantiate(ItemMetaStorage.Instance.FindByEnum(Items.Bsoda).value.item.gameObject, MTM101BaldiDevAPI.prefabTransform);
                 shooter.name = "ITM_FirewallShooter";
                 Destroy(shooter.GetComponent<ITM_BSODA>());
                 shooter.AddComponent<ITM_FirewallBlaster>().entity = shooter.GetComponent<Entity>();
@@ -168,7 +168,7 @@ namespace BBP_Playables.Modded
             if (Chainloader.PluginInfos.ContainsKey("pixelguy.pixelmodding.baldiplus.bbextracontent"))
             {
                 //PlayableCharacterMetaStorage.Instance.Find(x => x.value.name == "The Partygoer").value.startingItems = [ItemMetaStorage.Instance.FindByEnum(EnumExtensions.GetFromExtendedName<Items>("Present")).value];
-                GameObject magic = Instantiate(ItemMetaStorage.Instance.FindByEnum(Items.Bsoda).value.item.gameObject);
+                GameObject magic = Instantiate(ItemMetaStorage.Instance.FindByEnum(Items.Bsoda).value.item.gameObject, MTM101BaldiDevAPI.prefabTransform);
                 magic.name = "MagicObjectPlayer";
                 Destroy(magic.GetComponent<ITM_BSODA>());
                 magic.AddComponent<ITM_MagicWandMagical>().entity = magic.GetComponent<Entity>();
