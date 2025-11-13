@@ -799,9 +799,10 @@ There will be improvements and additions once new updates come out, but some cha
                 }
                 if (isSave)
                 {
-                    filedata = new PlayableCharsSave();
                     if (File.Exists(Path.Combine(path, "unlockedChars.dat"))) // Issue occured with Magical Student, addin' dis!
                         filedata = JsonUtility.FromJson<PlayableCharsSave>(RijndaelEncryption.Decrypt(File.ReadAllText(Path.Combine(path, "unlockedChars.dat")), "PLAYABLECHARS_" + PlayerFileManager.Instance.fileName));
+                    else
+                        filedata = new PlayableCharsSave();
                     filedata.modversion = new Version(PLUGIN_VERSION);
                     filedata.cyln = glitched.unlocked ? true : unlockedCylnLoon;
                     filedata.partygoer = partyman.unlocked;
