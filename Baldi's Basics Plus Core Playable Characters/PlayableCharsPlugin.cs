@@ -255,7 +255,7 @@ There will be improvements and additions once new updates come out, but some cha
         }
         private IEnumerator PreLoad()
         {
-            yield return 1;
+            yield return 5;
             yield return "Setting up stuff";
             Resources.FindObjectsOfTypeAll<PlayerManager>().First().gameObject.AddComponent<PlrPlayableCharacterVars>();
             assetMan.Add("PlayerPrefab", Resources.FindObjectsOfTypeAll<PlayerManager>().Last());
