@@ -15,7 +15,7 @@ using MTM101BaldAPI.Components;
 using System.Reflection.Emit;
 using TMPro;
 using System.Reflection;
-#if !DEMO
+#if false
 namespace BBP_Playables.Core.Patches
 {
     public class EndlessFloorsFuncs

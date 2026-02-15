@@ -123,6 +123,16 @@ namespace BBP_Playables.Core.Patches
             if (___spriteRenderer.color == Color.green)
                 ___spriteRenderer.color = Color.white;
         }
+        [HarmonyPatch(typeof(Activity), nameof(Activity.Completed), [typeof(int), typeof(bool)]), HarmonyPostfix]
+        static void SmarterNoCheat(int player, bool correct, Activity __instance)
+        {
+            ThinkerAbility component = CoreGameManager.Instance.GetPlayer(0).GetComponent<ThinkerAbility>();
+            if (correct && __instance.InBonusMode
+                && component != null && StickerManager.Instance.StickerValue(component.smart) > 0)
+            {
+                CoreGameManager.Instance.AddPoints(30 * StickerManager.Instance.StickerValue(component.smart), player, true, true, false);
+            }
+        }
     }
 
     [HarmonyPatch(typeof(LookAtGuy))]
@@ -381,4 +391,87 @@ namespace BBP_Playables.Core.Patches
             }
         }
     }*/
+
+    [HarmonyPatch]
+    class CYLNLOONPatches
+    {
+        private static MethodInfo Teleport = AccessTools.DeclaredMethod(typeof(ITM_Teleporter), "Teleport");
+        private static IEnumerator ChanceCaughtSequence(PlayerManager player, Baldi baldi)
+        {
+            float time = 0f;
+            float time2 = 1.71f;
+            float glitchRate = 2.5f;
+            var telportman = ItemMetaStorage.Instance.FindByEnum(Items.Teleporter).value.item as ITM_Teleporter;
+            while (time2 > 0f)
+            {
+                time += Time.unscaledDeltaTime * 2.5f;
+                time2 -= Time.unscaledDeltaTime;
+                if (!PlayerFileManager.Instance.reduceFlashing)
+                {
+                    glitchRate -= Time.unscaledDeltaTime;
+                    Shader.SetGlobalFloat("_VertexGlitchIntensity", Mathf.Pow(time, 2.2f));
+                    Shader.SetGlobalFloat("_TileVertexGlitchIntensity", Mathf.Pow(time, 2.2f));
+
+                    if (glitchRate <= 0f)
+                        glitchRate = 0.55f - time * 0.1f;
+                }
+                else
+                {
+                    Shader.SetGlobalFloat("_VertexGlitchIntensity", time * 2f);
+                    Shader.SetGlobalFloat("_TileVertexGlitchIntensity", time * 2f);
+                }
+                yield return null;
+            }
+            CoreGameManager.Instance.ResetShaders();
+            CoreGameManager.Instance.audMan.FlushQueue(true);
+            CoreGameManager.Instance.GetCamera(0).UpdateTargets(null, 0);
+            CoreGameManager.Instance.GetCamera(0).offestPos = Vector3.zero;
+            CoreGameManager.Instance.GetCamera(0).SetControllable(true);
+            CoreGameManager.Instance.GetCamera(0).matchTargetRotation = true;
+            CoreGameManager.Instance.audMan.volumeModifier = 1f;
+            Time.timeScale = 1f;
+            CoreGameManager.Instance.disablePause = false;
+            for (int i = 0; i < 3; i++)
+            {
+                var teleporter = UnityEngine.Object.Instantiate(telportman, null, false);
+                teleporter.Use(player);
+                Teleport.Invoke(teleporter, []);
+                yield return new WaitForSeconds(0.2f);
+            }
+            yield return new WaitForSecondsNPCTimescale(baldi, 0.5f);
+            if (baldi.GetType().IsSubclassOf(typeof(Baldi)))
+            {
+                var types = baldi.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).ToList();
+                if (types.Exists(x => x.Name == "GetAngryState"))
+                    baldi.behaviorStateMachine.ChangeState((NpcState)types.Find(x => x.Name == "GetAngryState").Invoke(baldi, []));
+                else
+                    baldi.behaviorStateMachine.ChangeState(new Baldi_Chase(baldi, baldi));
+            }
+            else if (baldi.behaviorStateMachine.currentState is Baldi_Attack)
+                baldi.behaviorStateMachine.ChangeState(new Baldi_Chase(baldi, baldi));
+        }
+
+        [HarmonyPatch(typeof(CoreGameManager), nameof(CoreGameManager.EndGame)), HarmonyPrefix, HarmonyPriority(Priority.First)]
+        static bool ChanceFakeDeath(Transform player, Baldi baldi, CoreGameManager __instance)
+        {
+            var component = player.GetComponent<CYLN_LOONComponent>();
+            if (component != null && component.lastChances > 0)
+            {
+                component.lastChances--;
+                Time.timeScale = 0f;
+                __instance.disablePause = true;
+                __instance.GetCamera(0).UpdateTargets(baldi.transform, 0);
+                __instance.GetCamera(0).offestPos = (player.position - baldi.transform.position).normalized * 2f + Vector3.up;
+                __instance.GetCamera(0).SetControllable(value: false);
+                __instance.GetCamera(0).matchTargetRotation = false;
+                __instance.audMan.volumeModifier = 0.6f;
+                AudioManager audioManager = __instance.audMan;
+                audioManager.PlayRandomAudio(PlayableCharsPlugin.assetMan.Get<SoundObject[]>("LoseLastChanceSnds"));
+                __instance.StartCoroutine(ChanceCaughtSequence(player.GetComponent<PlayerManager>(), baldi));
+                InputManager.Instance.Rumble(1f, 1.71f);
+                return false;
+            }
+            return true;
+        }
+    }
 }

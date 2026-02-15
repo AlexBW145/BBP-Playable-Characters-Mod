@@ -27,7 +27,6 @@ namespace BBP_Playables.Core
     [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
     [BepInDependency("mtm101.rulerp.bbplus.baldidevapi", "10.0.0")]
     [BepInDependency("mtm101.rulerp.baldiplus.criminalpackroot", BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency("alexbw145.baldiplus.arcadeendlessforever", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("mtm101.rulerp.baldiplus.levelstudioloader", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("mtm101.rulerp.baldiplus.levelstudio", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInProcess("BALDI.exe")]
@@ -36,7 +35,7 @@ namespace BBP_Playables.Core
     {
         private const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
         private const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        private const string PLUGIN_VERSION = "0.1.3.3"; // UPDATE EVERY TIME!!
+        private const string PLUGIN_VERSION = "0.1.4.0"; // UPDATE EVERY TIME!!
 
         public static PlayableCharsPlugin Instance { get; private set; }
         public static PlayableCharacterMetaStorage playablesMetaStorage { get; private set; } = new PlayableCharacterMetaStorage();
@@ -78,7 +77,64 @@ There will be improvements and additions once new updates come out, but some cha
             LoadingEvents.RegisterOnAssetsLoaded(Info, PreLoad(), LoadingEventOrder.Pre);
             LoadingEvents.RegisterOnAssetsLoaded(Info, ExtraLoad(), LoadingEventOrder.Post);
             ModdedSaveGame.AddSaveHandler(gameSave);
+/*#if DEBUG
+            assetMan.AddRange<string>([
+                AssetLoader.MidiFromMod("mus_charSel", this, "mus_charSel.mid"),
+                AssetLoader.MidiFromMod("mus_charSelINF", this, "mus_charSelINF.mid")
+            ],
+            [
+                "charSel",
+                "charSelINF"
+            ]);
+#endif*/
+}
+
+        private IEnumerator ExtraLoad()
+        {
+            yield return 1
+#if false
+                + (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.arcadeendlessforever") ? 1 : 0) 
+#endif
+                + (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudioloader") ? 2 : 0) 
+                + (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudio") ? 1 : 0);
+            yield return "Getting compats...";
+            var wrappedmeta = assetMan.Get<ItemObject>("PresentGift_Baldi").GetMeta();
+            wrappedmeta.itemObjects = wrappedmeta.itemObjects.AddToArray(assetMan.Get<ItemObject>("PresentUnwrapped"));
+#if false
+            if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.arcadeendlessforever"))
+                yield return ArcadeAdds.EndlessLoad();
+#endif
+            if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudioloader"))
+                yield return Modded.LevelEditor.LoaderAdds.LoaderLoad();
+            if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudio"))
+                yield return Modded.LevelEditor.EditorAdds.EditorLoad();
+        }
+
+        private IEnumerator BBCRDataLoad()
+        {
+            yield return 2;
+            yield return "Loading Assets...";
             AssetLoader.LocalizationFromMod(this);
+            AssetLoader.LocalizationFromFunction((lang) =>
+            {
+                return new Dictionary<string, string>()
+                {
+                    { "StickerTitle_CYLNLOONLastChance", "Buggedout" },
+                    { "StickerDescription_CYLNLOONLastChance", "Gives you another chance to continue the game after getting caught.\n\nNewly applied ones are not taken into account\nuntil the next level/restarted level." },
+                    { "StickerTitle_CYLNLOONThrowableRespawn", "Throw--" },
+                    { "StickerDescription_CYLNLOONThrowableRespawn", "Decreases the random cooldown for throwable objects." },
+
+                    { "StickerTitle_ThinkerQuickSolve", "Faster Thinking" },
+                    { "StickerDescription_ThinkerQuickSolve", "Decreases the time needed\nfor automatically thinking the answer\nfor activities by 25 miliseconds." },
+                    { "StickerTitle_ThinkerSmarterSolve", "Smarter Cogs" },
+                    { "StickerDescription_ThinkerSmarterSolve", "Thinker's passive YTP drain will drain slower by 5 seconds\nwhile solving a bonus question will give you extra YTPs." },
+
+                    { "StickerTitle_TestSubjectPenalty", "Penalty Destabilizer" },
+                    { "StickerDescription_TestSubjectPenalty", "As time says, this makes the incorrect answer penalty be less punishing..." },
+                    { "StickerTitle_TestSubjectTimeBender", "Time Bender" },
+                    { "StickerDescription_TestSubjectTimeBender", "The Test Subject has learnt how to control time and space\n\nwhere time flows depend on the\namount of people are in the same room as The Test Subject\n\nand the amount of people that are lookingat The Test Subject." },
+                };
+            });
 
             assetMan.AddRange<Sprite>([
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Placehold.png"),
@@ -111,6 +167,13 @@ There will be improvements and additions once new updates come out, but some cha
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 32f, "Texture2D", "Inventions", "StudentcrowReal.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "Inventions", "BonusGen.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "Inventions", "BonusGenActive.png"),
+
+                AssetLoader.SpriteFromMod(this, Vector2.one / 2f, 1f, "Texture2D", "UpgradeIcons", "CylnloonOneChance.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one / 2f, 1f, "Texture2D", "UpgradeIcons", "CylnloonThrowableRespawn.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one / 2f, 1f, "Texture2D", "UpgradeIcons", "TestSubjectPenalty.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one / 2f, 1f, "Texture2D", "UpgradeIcons", "TestSubjectTimeBender.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one / 2f, 1f, "Texture2D", "UpgradeIcons", "ThinkerFastThinking.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one / 2f, 1f, "Texture2D", "UpgradeIcons", "ThinkerSmarterSolve.png"),
             ],
             [
                 "Portrait/Placeholder",
@@ -145,6 +208,13 @@ There will be improvements and additions once new updates come out, but some cha
                 "Inventions/StudentcrowReal",
                 "Inventions/BonusGen",
                 "Inventions/BonusGenActive",
+
+                "Stickers/Buggedout",
+                "Stickers/Throw--",
+                "Stickers/Destabilizer",
+                "Stickers/TimeBender",
+                "Stickers/FasterThinking",
+                "Stickers/SmarterCogs"
             ]);
             assetMan.AddRange<SoundObject>([
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "mus_newplayerunlocked.mp3"), "New Player Unlocked", SoundType.Music, Color.clear),
@@ -162,35 +232,12 @@ There will be improvements and additions once new updates come out, but some cha
                 "Items/PresentOpen1",
                 "Items/PresentOpen2",
             ]);
-/*#if DEBUG
-            assetMan.AddRange<string>([
-                AssetLoader.MidiFromMod("mus_charSel", this, "mus_charSel.mid"),
-                AssetLoader.MidiFromMod("mus_charSelINF", this, "mus_charSelINF.mid")
-            ],
-            [
-                "charSel",
-                "charSelINF"
+            assetMan.Add<SoundObject[]>("LoseLastChanceSnds", [
+                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(PlayableCharsPlugin.Instance, "AudioClip", "CHANCE_no.wav"), "Sfx_Lose_Buzz", SoundType.Effect, Color.green),
+                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(PlayableCharsPlugin.Instance, "AudioClip", "CHANCE_steamexplode.wav"), "Sfx_Lose_Buzz", SoundType.Effect, Color.green),
+                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(PlayableCharsPlugin.Instance, "AudioClip", "CHANCE_what.wav"), "Sfx_Lose_Buzz", SoundType.Effect, Color.green)
             ]);
-#endif*/
-}
 
-        private IEnumerator ExtraLoad()
-        {
-            yield return 1 + (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.arcadeendlessforever") ? 1 : 0) + (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudioloader") ? 2 : 0) + (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudio") ? 1 : 0);
-            yield return "Getting compats...";
-            var wrappedmeta = assetMan.Get<ItemObject>("PresentGift_Baldi").GetMeta();
-            wrappedmeta.itemObjects = wrappedmeta.itemObjects.AddToArray(assetMan.Get<ItemObject>("PresentUnwrapped"));
-            if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.arcadeendlessforever"))
-                yield return ArcadeAdds.EndlessLoad();
-            if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudioloader"))
-                yield return Modded.LevelEditor.LoaderAdds.LoaderLoad();
-            if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudio"))
-                yield return Modded.LevelEditor.EditorAdds.EditorLoad();
-        }
-
-        private IEnumerator BBCRDataLoad()
-        {
-            yield return 1;
             yield return "Trying to get BBCR Data";
             string path = Path.Combine(Directory.GetParent(Application.persistentDataPath).ToString(), "Baldi's Basics Classic Remastered", "PlayerFile_!UnassignedFile.sav");
             if (File.Exists(path))
@@ -739,6 +786,42 @@ There will be improvements and additions once new updates come out, but some cha
             screen.GetComponent<CharacterSelectScreen>().nametext.GetComponent<TextLocalizer>().enabled = false;
             assetMan.Add<GameObject>("CharSelectScreen", screen);*/
 
+            var buggedOut = new StickerBuilder<PlayableCharacterStickerData>(Info)
+                .SetEnum("CYLNLOONLastChance")
+                .SetValueCap(2) // Too overpowered for four to exist, reduced to two.
+                .SetDuplicateOddsMultiplier(0.05f)
+                .SetSprite(assetMan.Get<Sprite>("Stickers/Buggedout"))
+                .Build();
+            var throwDecrease = new StickerBuilder<PlayableCharacterStickerData>(Info)
+                .SetEnum("CYLNLOONThrowableRespawn")
+                .SetDuplicateOddsMultiplier(0.25f)
+                .SetSprite(assetMan.Get<Sprite>("Stickers/Throw--"))
+                .Build();
+            buggedOut.playableCharacter = throwDecrease.playableCharacter = glitched;
+            var destabilizer = new StickerBuilder<PlayableCharacterStickerData>(Info)
+                .SetEnum("TestSubjectPenalty")
+                .SetDuplicateOddsMultiplier(0.35f)
+                .SetSprite(assetMan.Get<Sprite>("Stickers/Destabilizer"))
+                .Build();
+            var timebender = new StickerBuilder<PlayableCharacterStickerData>(Info)
+                .SetEnum("TestSubjectTimeBender")
+                .SetValueCap(1)
+                .SetDuplicateOddsMultiplier(0.001f) // No committing fraud in the halls.
+                .SetSprite(assetMan.Get<Sprite>("Stickers/TimeBender"))
+                .Build();
+            destabilizer.playableCharacter = timebender.playableCharacter = thetestjr;
+            var smarterCogs = new StickerBuilder<PlayableCharacterStickerData>(Info)
+                .SetEnum("ThinkerSmarterSolve")
+                .SetDuplicateOddsMultiplier(0.3f)
+                .SetSprite(assetMan.Get<Sprite>("Stickers/SmarterCogs"))
+                .Build();
+            var fasterThinking = new StickerBuilder<PlayableCharacterStickerData>(Info)
+                .SetEnum("ThinkerQuickSolve")
+                .SetDuplicateOddsMultiplier(0.3f)
+                .SetSprite(assetMan.Get<Sprite>("Stickers/FasterThinking"))
+                .Build();
+            smarterCogs.playableCharacter = fasterThinking.playableCharacter = thinker;
+
             yield return "Doing the rest of contents";
             GeneratorManagement.Register(this, GenerationModType.Base, (title, num, scene) =>
             {
@@ -774,10 +857,20 @@ There will be improvements and additions once new updates come out, but some cha
                             level.MarkAsModifiedByMod(Info);
                         }
                     }
+                    ld.potentialStickers = ld.potentialStickers.AddRangeToArray([
+                        new(buggedOut.sticker, 10),
+                        new(throwDecrease.sticker, 90),
+                        new(destabilizer.sticker, 50),
+                        //new(timebender.sticker, 1),
+                        new(smarterCogs.sticker, 130),
+                        new(fasterThinking.sticker, 130)
+                        ]);
                 }
             });
+#if false
             if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.endlessfloors"))
                 EndlessFloorsFuncs.ArcadeModeAdd();
+#endif
             ModdedSaveSystem.AddSaveLoadAction(this, (isSave, path) =>
             {
                 PlayableCharsSave filedata;
@@ -1072,47 +1165,6 @@ There will be improvements and additions once new updates come out, but some cha
         /// This character does not contain one or more abilities
         /// </summary>
         Abilitiless = 8,
-    }
-
-    [RequireComponent(typeof(PlayerManager), typeof(ItemManager), typeof(PlayerMovement))]
-    public class PlayableCharacterComponent : MonoBehaviour
-    {
-        protected PlayerManager pm;
-        /// <summary>
-        /// This function gets called after initialization
-        /// </summary>
-        protected virtual void Start()
-        {
-        }
-        /// <summary>
-        /// This function gets called within the player manager initialization
-        /// </summary>
-        public virtual void Initialize() { pm = gameObject.GetComponent<PlayerManager>(); }
-        /// <summary>
-        /// This function gets called after the game has begun
-        /// </summary>
-        /// <param name="manager"></param>
-        public virtual void GameBegin(BaseGameManager manager) { }
-        /// <summary>
-        /// This function gets called after spoop mode begins
-        /// </summary>
-        /// <param name="manager"></param>
-        public virtual void SpoopBegin(BaseGameManager manager) { }
-    }
-    internal class PlayableRandomizer : PlayableCharacterComponent
-    {
-        public static void RandomizePlayable()
-        {
-            PlayableCharsPlugin.gameStarted = false;
-            var chars = PlayableCharacterMetaStorage.Instance.FindAll(chara => chara.value.unlocked && chara.value.componentType != typeof(PlayableRandomizer));
-            WeightedSelection<PlayableCharacter>[] weights = new WeightedSelection<PlayableCharacter>[0];
-            foreach (var character in chars)
-                weights = weights.AddToArray(new() { selection = character.value, weight = 100});
-            PlayableCharsGame.Character = WeightedSelection<PlayableCharacter>.RandomSelection(weights);
-#if DEBUG
-            PlayableCharsPlugin.Log.LogInfo($"Randomly selected {PlayableCharsGame.Character.name} for Player!");
-#endif
-        }
     }
     // Took this from the API
     public class PlayableCharacterBuilder<T> where T : PlayableCharacterComponent

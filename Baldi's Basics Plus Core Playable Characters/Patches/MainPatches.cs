@@ -276,7 +276,7 @@ namespace BBP_Playables.Core.Patches
             __instance.plm.stamina = PlayableCharsPlugin.Instance.Character.staminaMax;
             __instance.gameObject.AddComponent(PlayableCharsPlugin.Instance.Character.componentType);
             bool endless = false;
-#if !DEMO
+#if false
             if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.arcadeendlessforever"))
                 endless = Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.arcadeendlessforever") && EndlessFloorsFuncs.Is99();
 #endif
@@ -384,6 +384,20 @@ namespace BBP_Playables.Core.Patches
             if (isStorageLocker)
                 CoreGameManager.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "ErrorMaybe"));
             return !isStorageLocker;
+        }
+
+        [HarmonyPatch(typeof(StickerManager), nameof(StickerManager.GiveRandomStickers)), HarmonyPrefix]
+        static void ExcludeStickersThatAreNotForThatPlayable(ref WeightedSticker[] potentialStickers) // I patched WeightedListExtenstions but it bugs fresh packets.
+        {
+            var metaStorage = StickerMetaStorage.Instance;
+            List<WeightedSticker> dupe = [.. potentialStickers];
+            potentialStickers.DoIf(sticker => metaStorage.Get(sticker.selection).value is PlayableCharacterStickerData, sticker =>
+            {
+                var playablecharsSticker = metaStorage.Get(sticker.selection).value;
+                if (!playablecharsSticker.CanBeApplied())
+                    dupe.Remove(sticker);
+            });
+            potentialStickers = dupe.ToArray();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using MTM101BaldAPI;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,9 +10,10 @@ namespace BBP_Playables.Core
     {
         public override void SpoopBegin(BaseGameManager manager) => StartCoroutine(CylnObjects(manager));
         public static readonly List<GameObject> prefabs = new List<GameObject>();
-        internal bool LastChance;
+        internal int lastChances = StickerManager.Instance.StickerValue(EnumExtensions.GetFromExtendedName<Sticker>("CYLNLOONLastChance"));
+        private readonly Sticker sticker = EnumExtensions.GetFromExtendedName<Sticker>("CYLNLOONThrowableRespawn");
 
-        private float CylnTime() => UnityEngine.Random.Range(60f, 90f);
+        private float CylnTime() => UnityEngine.Random.Range(Mathf.Max(20f, 60f - (StickerManager.Instance.StickerValue(sticker) * 10f)), Mathf.Max(30f, 90f - (StickerManager.Instance.StickerValue(sticker) * 15f)));
 
         private IEnumerator CylnObjects(BaseGameManager manager)
         {

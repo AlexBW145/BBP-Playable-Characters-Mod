@@ -8,7 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-
+#if false
 namespace BBP_Playables.Core;
 
 public static class ArcadeAdds
@@ -303,3 +303,4 @@ class SpeedrunnerSpeedyUpgrade : PlayableCharUpgrade
     internal void SetValue() => speedyStat.multiplier = speedyValues[Mathf.Min(EndlessForeverPlugin.Instance.GetUpgradeCount(id), speedyValues.Length - 1)];
 }
 #endregion
+#endif

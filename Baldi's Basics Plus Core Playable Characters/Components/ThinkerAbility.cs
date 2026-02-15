@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using MTM101BaldAPI;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,9 @@ public class ThinkerAbility : PlayableCharacterComponent
         strength = 0.5f,
         priority = 16,
     };
+    internal readonly Sticker
+        smart = EnumExtensions.GetFromExtendedName<Sticker>("ThinkerSmarterSolve"),
+        fast = EnumExtensions.GetFromExtendedName<Sticker>("ThinkerQuickSolve");
     private Camera cam;
     private Ray ray;
     private RaycastHit[] hits = new RaycastHit[32];
@@ -73,7 +77,7 @@ public class ThinkerAbility : PlayableCharacterComponent
 
             if (mathMachineVisible && (bool)___hasActivity.GetValue(pm.plm.Entity.CurrentRoom))
             {
-                timeLooking += pm.PlayerTimeScale * Time.deltaTime;
+                timeLooking += (1f + (0.25f * StickerManager.Instance.StickerValue(fast))) * (pm.PlayerTimeScale * Time.deltaTime);
                 if (timeLooking > 1f && _hitTransforms.Exists(x => x.gameObject.GetComponentInParent<Activity>() != null))
                 {
                     Activity machine = _hitTransforms.Find(x => x.gameObject.GetComponentInParent<Activity>() != null).gameObject.GetComponentInParent<Activity>();
@@ -116,16 +120,17 @@ public class ThinkerAbility : PlayableCharacterComponent
         }
     }
 
+    private const float defaultTime = 15f;
     private IEnumerator ThinkerDrain()
     {
         bool blinded = false;
         float time = 0f;
         while (pm.ec.Active)
         {
-            time = 15f;
+            time = defaultTime + (5f * StickerManager.Instance.StickerValue(smart));
             while (CoreGameManager.Instance.GetPoints(pm.playerNumber) > 0)
             {
-                time = 15f;
+                time = defaultTime + (5f * StickerManager.Instance.StickerValue(smart));
                 if (blinded)
                 {
                     blinded = false;

@@ -216,6 +216,7 @@ namespace BBP_Playables.Modded
                 if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
                     foreach (var levelobject in ld.GetCustomLevelObjects())
                     {
+                        if (levelobject.IsModifiedByMod(Info)) continue;
                         levelobject.potentialItems = levelobject.potentialItems.AddRangeToArray([
                         new ()
                         {
@@ -223,6 +224,7 @@ namespace BBP_Playables.Modded
                             weight = 9
                         }
                     ]);
+                        levelobject.MarkAsModifiedByMod(Info);
                     }
             });
         }

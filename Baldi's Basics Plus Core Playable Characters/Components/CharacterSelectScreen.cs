@@ -100,6 +100,12 @@ namespace BBP_Playables.Core
             UpdateSelection();
         }
 
+        void OnEnable()
+        {
+            characters = PlayableCharacterMetaStorage.Instance.FindAll(x => x.value.unlocked).ToValues().ToList();
+            curChar = characters.IndexOf(PlayableCharsPlugin.Instance.extraSave.Item1);
+        }
+
         public string GetDesc() => characters[curChar].description;
 
         internal void ButtonPress(bool forward = true)
