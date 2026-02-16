@@ -13,7 +13,7 @@ namespace BBP_Playables.Core
         internal int lastChances = StickerManager.Instance.StickerValue(EnumExtensions.GetFromExtendedName<Sticker>("CYLNLOONLastChance"));
         private readonly Sticker sticker = EnumExtensions.GetFromExtendedName<Sticker>("CYLNLOONThrowableRespawn");
 
-        private float CylnTime() => UnityEngine.Random.Range(Mathf.Max(20f, 60f - (StickerManager.Instance.StickerValue(sticker) * 10f)), Mathf.Max(30f, 90f - (StickerManager.Instance.StickerValue(sticker) * 15f)));
+        private float CylnTime() => UnityEngine.Random.Range(60f - (StickerManager.Instance.StickerValue(sticker) * 10f), 90f - (StickerManager.Instance.StickerValue(sticker) * 15f));
 
         private IEnumerator CylnObjects(BaseGameManager manager)
         {

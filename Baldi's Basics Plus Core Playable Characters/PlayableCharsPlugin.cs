@@ -1,5 +1,4 @@
-﻿using BBP_Playables.Core.Patches;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Bootstrap;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -794,12 +793,14 @@ There will be improvements and additions once new updates come out, but some cha
                 .Build();
             var throwDecrease = new StickerBuilder<PlayableCharacterStickerData>(Info)
                 .SetEnum("CYLNLOONThrowableRespawn")
+                .SetValueCap(5)
                 .SetDuplicateOddsMultiplier(0.25f)
                 .SetSprite(assetMan.Get<Sprite>("Stickers/Throw--"))
                 .Build();
             buggedOut.playableCharacter = throwDecrease.playableCharacter = glitched;
             var destabilizer = new StickerBuilder<PlayableCharacterStickerData>(Info)
                 .SetEnum("TestSubjectPenalty")
+                .SetValueCap(4)
                 .SetDuplicateOddsMultiplier(0.35f)
                 .SetSprite(assetMan.Get<Sprite>("Stickers/Destabilizer"))
                 .Build();

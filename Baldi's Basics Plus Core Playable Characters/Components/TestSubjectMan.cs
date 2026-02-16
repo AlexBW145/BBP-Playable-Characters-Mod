@@ -61,6 +61,6 @@ namespace BBP_Playables.Core
         }
 
         public override void GameBegin(BaseGameManager manager) => manager.Ec.AddTimeScale(subjectScale);
-        internal void MessUpAndIncreaseTimeScale() => subjectScale.npcTimeScale += Mathf.Max(0f, 0.2f - (0.05f * StickerManager.Instance.StickerValue(destabilizer)));
+        internal void MessUpAndIncreaseTimeScale() => subjectScale.npcTimeScale += 0.2f - (0.05f * StickerManager.Instance.StickerValue(destabilizer));
     }
 }
