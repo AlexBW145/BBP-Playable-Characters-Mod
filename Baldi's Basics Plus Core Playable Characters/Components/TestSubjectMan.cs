@@ -49,8 +49,8 @@ namespace BBP_Playables.Core
             {
                 if (!timeScaleModifiers.Contains(benderTime))
                     pm.ec.AddTimeScale(benderTime);
-                var npcsInCurrentRoom = pm.ec.Npcs.Count(npc => npc.Navigator?.Entity.CurrentRoom == pm.plm.Entity.CurrentRoom && npc is not Student);
-                var npcCountNoStudents = pm.ec.Npcs.Count(npc => npc is not Student);
+                var npcsInCurrentRoom = pm.ec.Npcs.Count(npc => npc.Navigator?.Entity.CurrentRoom == pm.plm.Entity.CurrentRoom && npc.Character != Character.Null);
+                var npcCountNoStudents = pm.ec.Npcs.Count(npc => npc.Character != Character.Null);
                 float a = ((float)npcsInCurrentRoom + (float)npcCountNoStudents) / (float)npcCountNoStudents - 1;
                 float b = ((float)spottedNPC.Count / (float)(pm.ec.Npcs.Count + 1));
                 benderTime.npcTimeScale = Mathf.Max(0.5f, Mathf.Min(Mathf.Abs(a - b), 1f));
