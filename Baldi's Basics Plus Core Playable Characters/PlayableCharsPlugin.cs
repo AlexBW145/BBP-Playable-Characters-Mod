@@ -897,7 +897,7 @@ There will be improvements and additions once new updates come out, but some cha
                         filedata = JsonUtility.FromJson<PlayableCharsSave>(RijndaelEncryption.Decrypt(File.ReadAllText(Path.Combine(path, "unlockedChars.dat")), "PLAYABLECHARS_" + PlayerFileManager.Instance.fileName));
                     else
                         filedata = new PlayableCharsSave();
-                    filedata.modversion = new Version(PLUGIN_VERSION);
+                    filedata.modversion = 0;
                     filedata.cyln = glitched.unlocked ? true : unlockedCylnLoon;
                     filedata.partygoer = partyman.unlocked;
                     filedata.troublemaker = bullyman.unlocked;
@@ -1349,7 +1349,7 @@ There will be improvements and additions once new updates come out, but some cha
     [Serializable]
     internal class PlayableCharsSave
     {
-        public Version modversion;
+        public byte modversion;
 
         [Header("Base Game")]
         public bool cyln;
