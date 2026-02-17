@@ -400,26 +400,23 @@ namespace BBP_Playables.Core.Patches
             potentialStickers = dupe.ToArray();
         }
 
-        [HarmonyPatch(typeof(ItemManager), nameof(ItemManager.UpdateTargetInventorySize))]
-        class BackpackerBackpackBugfix // Happens with inventory increase stickers
+        [HarmonyPatch(typeof(ItemManager), nameof(ItemManager.UpdateTargetInventorySize)), HarmonyPostfix]
+        static void BackpackerBackpackBugfix(ItemManager __instance) // Happens with inventory increase stickers
         {
-            static void Postfix(ItemManager __instance)
-            {
-                var backpack = __instance.gameObject.GetComponent<BackpackerBackpack>();
-                ItemObject closedBackpack = PlayableCharsPlugin.assetMan.Get<ItemObject>("BackpackClosed"),
-                    openedBackpack = PlayableCharsPlugin.assetMan.Get<ItemObject>("BackpackOpen");
-                if (backpack != null 
-                    && (__instance.items.Contains(closedBackpack) || __instance.items.Contains(openedBackpack)) 
-                    && __instance.items[__instance.maxItem].itemType != closedBackpack.itemType)
-                { // Backpacker got some issues while having duplicate backpacks.
-                    __instance.LockSlot(__instance.items.ToList().FindIndex(x => x.itemType == closedBackpack.itemType), false);
-                    __instance.SetItem(__instance.nothing, __instance.items.ToList().FindIndex(x => x?.itemType == closedBackpack.itemType));
-                    __instance.SetItem(closedBackpack, __instance.maxItem);
-                    __instance.LockSlot(__instance.maxItem, true);
-                    backpack.items[backpack.items.ToList().FindIndex(x => x?.itemType == openedBackpack.itemType)] = __instance.nothing;
-                    backpack.items[__instance.maxItem] = openedBackpack;
-                    __instance.UpdateItems();
-                }
+            var backpack = __instance.gameObject.GetComponent<BackpackerBackpack>();
+            ItemObject closedBackpack = PlayableCharsPlugin.assetMan.Get<ItemObject>("BackpackClosed"),
+                openedBackpack = PlayableCharsPlugin.assetMan.Get<ItemObject>("BackpackOpen");
+            if (backpack != null
+                && (__instance.items.Contains(closedBackpack) || __instance.items.Contains(openedBackpack))
+                && __instance.items[__instance.maxItem].itemType != closedBackpack.itemType)
+            { // Backpacker got some issues while having duplicate backpacks.
+                __instance.LockSlot(__instance.items.ToList().FindIndex(x => x.itemType == closedBackpack.itemType), false);
+                __instance.SetItem(__instance.nothing, __instance.items.ToList().FindIndex(x => x?.itemType == closedBackpack.itemType));
+                __instance.SetItem(closedBackpack, __instance.maxItem);
+                __instance.LockSlot(__instance.maxItem, true);
+                backpack.items[backpack.items.ToList().FindIndex(x => x?.itemType == openedBackpack.itemType)] = __instance.nothing;
+                backpack.items[__instance.maxItem] = openedBackpack;
+                __instance.UpdateItems();
             }
         }
     }
