@@ -131,8 +131,9 @@ public class BasketBallThrower : TinkerneerObject
         ec.CellFromPosition(transform.position).HardCover(CellCoverage.Down);
     }
 
-    private static FieldInfo _maxHitsBeforeDying = AccessTools.DeclaredField(typeof(ITM_Basketball), "maxHitsBeforeDying");
-    private static FieldInfo _lifeTime = AccessTools.DeclaredField(typeof(ITM_Basketball), "lifeTime");
+    private static FieldInfo 
+        _maxHitsBeforeDying = AccessTools.DeclaredField(typeof(ITM_Basketball), "maxHitsBeforeDying"),
+        _lifeTime = AccessTools.DeclaredField(typeof(ITM_Basketball), "lifeTime");
     void Update()
     {
         cooldownToShoot -= Time.deltaTime * ec.EnvironmentTimeScale;

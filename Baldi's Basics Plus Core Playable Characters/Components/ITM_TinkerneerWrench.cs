@@ -9,6 +9,7 @@ namespace BBP_Playables.Core
     public class ITM_TinkerneerWrench : Item
     {
         [SerializeField] internal SoundObject[] tinkerneeringSnds;
+        [SerializeField] internal SoundObject errorMaybe;
         public static readonly Dictionary<string, TinkerneerObject> TinkerneerObjectsPre = new Dictionary<string, TinkerneerObject>();
         [SerializeField] internal Canvas hudPre;
         private List<TinkerneerObject> availableTinkers = new List<TinkerneerObject>();
@@ -41,7 +42,7 @@ namespace BBP_Playables.Core
                     }
                 }
             }
-            CoreGameManager.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "ErrorMaybe"));
+            CoreGameManager.Instance.audMan.PlaySingle(errorMaybe);
             Destroy(gameObject);
             return false;
         }
@@ -75,7 +76,7 @@ namespace BBP_Playables.Core
             Time.timeScale = 1f;
             CoreGameManager.Instance.Pause(false);
             Destroy(gameObject);
-            if (error) CoreGameManager.Instance.audMan.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "ErrorMaybe"));
+            if (error) CoreGameManager.Instance.audMan.PlaySingle(errorMaybe);
         }
 
         void Update()
@@ -97,7 +98,7 @@ namespace BBP_Playables.Core
         }
     }
 
-    public class TinkerneerObject : MonoBehaviour
+    public abstract class TinkerneerObject : MonoBehaviour
     {
         public ItemObject[] requiredItems = [];
         public string desc = "";
@@ -105,9 +106,7 @@ namespace BBP_Playables.Core
         public RoomCategory rm = RoomCategory.Null;
         public BepInEx.PluginInfo Info;
 
-        public virtual void Create(ItemManager itm)
-        {
-        }
+        public abstract void Create(ItemManager itm);
 
         public virtual bool AppropriateLocation(Cell cell) => !cell.Null;
     }

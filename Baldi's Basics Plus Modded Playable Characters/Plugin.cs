@@ -38,8 +38,15 @@ namespace BBP_Playables.Modded
             info = Info;
             coreInfo = PlayableCharsPlugin.Instance.Info;
             harmony.PatchAllConditionals();
+            LoadingEvents.RegisterOnAssetsLoaded(Info, StartLoad(), LoadingEventOrder.Start);
             LoadingEvents.RegisterOnAssetsLoaded(Info, PreLoad(), LoadingEventOrder.Pre);
             ModdedSaveGame.AddSaveHandler(Info);
+        }
+
+        private IEnumerator StartLoad()
+        {
+            yield return 1;
+            yield return "Loading assets...";
             AssetLoader.LocalizationFromMod(this);
 
             PlayableCharsPlugin.assetMan.AddRange<Sprite>([
@@ -124,10 +131,10 @@ namespace BBP_Playables.Modded
         }
 
         // THE ENTIRE THING ACTS LIKE THAT FEATURE IN DON'T STARVE IF YOU PLAN TO CREATE A WORLD WITH DLCS OR NOT!!
-        IEnumerator PreLoad()
+        private IEnumerator PreLoad()
         {
             yield return 1;
-            yield return "Adding other new characters";
+            yield return "Adding other new playable characters...";
             if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
             {
                 GameObject shooter = Instantiate(ItemMetaStorage.Instance.FindByEnum(Items.Bsoda).value.item.gameObject, MTM101BaldiDevAPI.prefabTransform);

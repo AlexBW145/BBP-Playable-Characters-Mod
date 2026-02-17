@@ -34,14 +34,13 @@ namespace BBP_Playables.Core
     {
         private const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
         private const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        private const string PLUGIN_VERSION = "0.1.4.0"; // UPDATE EVERY TIME!!
+        private const string PLUGIN_VERSION = "0.1.4.1"; // UPDATE EVERY TIME!!
 
         public static PlayableCharsPlugin Instance { get; private set; }
         public static PlayableCharacterMetaStorage playablesMetaStorage { get; private set; } = new PlayableCharacterMetaStorage();
         internal static bool gameStarted = false;
 
         public static AssetManager assetMan = new AssetManager();
-        [Obsolete("Use PlayableCharacterMetaStorage.Instance.All() instead.", true)] public static List<PlayableCharacter> characters => playablesMetaStorage.All().ToValues().ToList();
         public static bool IsRandom => Instance?.extraSave?.Item1.componentType == typeof(PlayableRandomizer);
         internal bool unlockedCylnLoon { get; private set; } = false;
         private static SoundObject NewCharacterUnlocked => assetMan.Get<SoundObject>("Music/NewPlayerUnlocked");
@@ -232,9 +231,9 @@ There will be improvements and additions once new updates come out, but some cha
                 "Items/PresentOpen2",
             ]);
             assetMan.Add<SoundObject[]>("LoseLastChanceSnds", [
-                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(PlayableCharsPlugin.Instance, "AudioClip", "CHANCE_no.wav"), "Sfx_Lose_Buzz", SoundType.Effect, Color.green),
-                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(PlayableCharsPlugin.Instance, "AudioClip", "CHANCE_steamexplode.wav"), "Sfx_Lose_Buzz", SoundType.Effect, Color.green),
-                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(PlayableCharsPlugin.Instance, "AudioClip", "CHANCE_what.wav"), "Sfx_Lose_Buzz", SoundType.Effect, Color.green)
+                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "CHANCE_no.wav"), "Sfx_Lose_Buzz", SoundType.Effect, Color.green),
+                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "CHANCE_steamexplode.wav"), "Sfx_Lose_Buzz", SoundType.Effect, Color.green),
+                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "CHANCE_what.wav"), "Sfx_Lose_Buzz", SoundType.Effect, Color.green)
             ]);
 
             yield return "Trying to get BBCR Data";
@@ -626,6 +625,7 @@ There will be improvements and additions once new updates come out, but some cha
             wrench.hudPre.name = "TinkerInventHUD";
             wrench.hudPre.gameObject.GetComponentInChildren<Image>().sprite = null;
             wrench.hudPre.GetComponentInChildren<Image>().color = new Color(0f, 0f, 0f, 0.5f);
+            wrench.errorMaybe = Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "ErrorMaybe");
             TextMeshProUGUI text = Instantiate(Resources.FindObjectsOfTypeAll<Jumprope>().ToList().Find(s => s.name == "Jumprope").GetComponentInChildren<TextMeshProUGUI>(), wrench.hudPre.transform, worldPositionStays: true);
             text.color = Color.white;
             text.enableAutoSizing = true;
@@ -1173,10 +1173,10 @@ There will be improvements and additions once new updates come out, but some cha
         private BepInEx.PluginInfo info;
         private string name = "Unknown";
         private string desc = "Who?";
-        private Sprite portrait = PlayableCharsPlugin.assetMan["Portrait/Placeholder"] as Sprite;
+        private Sprite portrait = PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/Placeholder");
         private PlayableFlags flags = PlayableFlags.Abilitiless;
         private bool unlockedFromStart = true;
-        private PlayerManager prefab = PlayableCharsPlugin.assetMan["PlayerPrefab"] as PlayerManager;
+        private PlayerManager prefab = PlayableCharsPlugin.assetMan.Get<PlayerManager>("PlayerPrefab");
         private bool prefabSeparate = false;
         private string[] tags = new string[0];
         private ItemObject[] startingItems = new ItemObject[0];
