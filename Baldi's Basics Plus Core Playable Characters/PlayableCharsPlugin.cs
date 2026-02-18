@@ -831,6 +831,7 @@ There will be improvements and additions once new updates come out, but some cha
                     default:
                         scene.GetCustomLevelObjects()?.Do(lvl =>
                         {
+                            if (lvl.IsModifiedByMod(Info)) return;
                             lvl.SetCustomModValue(Info, "randomizeralways", false);
                             lvl.MarkAsModifiedByMod(Info);
                         });
@@ -838,6 +839,7 @@ There will be improvements and additions once new updates come out, but some cha
                     case "Level_EndlessLooped":
                         scene.GetCustomLevelObjects()?.Do(lvl =>
                         {
+                            if (lvl.IsModifiedByMod(Info)) return;
                             lvl.SetCustomModValue(Info, "randomizeralways", true);
                             lvl.MarkAsModifiedByMod(Info);
                         });

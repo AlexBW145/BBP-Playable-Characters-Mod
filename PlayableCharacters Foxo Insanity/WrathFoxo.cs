@@ -20,10 +20,7 @@ namespace BBP_Playables.Extra.Foxo
         [SerializeField] internal SoundObject slap;
 
         private float timeToNextAnger;
-        [SerializeField]
-        private float baldiAngerRate = 1f;
-        [SerializeField]
-        private float baldiAngerAmount = 0.1f;
+        [SerializeField] private float baldiAngerRate = 1f, baldiAngerAmount = 0.1f;
         [SerializeField] internal CustomSpriteRendererAnimator animator;
         public override void Initialize()
         {
