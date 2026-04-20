@@ -28,6 +28,7 @@ namespace BBP_Playables.Core
     [BepInDependency("mtm101.rulerp.baldiplus.criminalpackroot", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("mtm101.rulerp.baldiplus.levelstudioloader", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("mtm101.rulerp.baldiplus.levelstudio", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("mtm101.rulerp.baldiplus.baldiarcade", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInProcess("BALDI.exe")]
     [BepInProcess("Baldi's Basics Plus Prerelease.exe")]
     public class PlayableCharsPlugin : BaseUnityPlugin
@@ -90,18 +91,14 @@ There will be improvements and additions once new updates come out, but some cha
         private IEnumerator ExtraLoad()
         {
             yield return 1
-#if false
-                + (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.arcadeendlessforever") ? 1 : 0) 
-#endif
+                + (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.baldiarcade") ? 1 : 0) 
                 + (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudioloader") ? 2 : 0) 
                 + (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudio") ? 1 : 0);
             yield return "Getting compats...";
             var wrappedmeta = assetMan.Get<ItemObject>("PresentGift_Baldi").GetMeta();
             wrappedmeta.itemObjects = wrappedmeta.itemObjects.AddToArray(assetMan.Get<ItemObject>("PresentUnwrapped"));
-#if false
-            if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.arcadeendlessforever"))
+            if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.baldiarcade"))
                 yield return ArcadeAdds.EndlessLoad();
-#endif
             if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudioloader"))
                 yield return Modded.LevelEditor.LoaderAdds.LoaderLoad();
             if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.levelstudio"))
@@ -822,6 +819,16 @@ There will be improvements and additions once new updates come out, but some cha
                 .SetSprite(assetMan.Get<Sprite>("Stickers/FasterThinking"))
                 .Build();
             smarterCogs.playableCharacter = fasterThinking.playableCharacter = thinker;
+            assetMan.AddRange([
+                buggedOut, throwDecrease,
+                destabilizer, timebender,
+                smarterCogs, fasterThinking
+
+                ], [
+                    "buggedout", "throw--",
+                    "Destabilizer", "TimeBender",
+                    "SmarterCogs", "FasterThinking"
+                    ]);
 
             yield return "Doing the rest of contents";
             GeneratorManagement.Register(this, GenerationModType.Base, (title, num, scene) =>

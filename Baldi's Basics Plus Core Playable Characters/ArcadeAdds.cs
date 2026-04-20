@@ -1,16 +1,61 @@
-﻿using EndlessFloorsForever;
-using EndlessFloorsForever.Components;
-using MTM101BaldAPI;
-using MTM101BaldAPI.AssetTools;
-using MTM101BaldAPI.Components;
-using System;
+﻿using BaldiPlusArcade;
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
-#if false
-namespace BBP_Playables.Core;
+using MTM101BaldAPI;
+using HarmonyLib;
+using BBP_Playables.Core.Patches;
 
+namespace BBP_Playables.Core;
+public static class ArcadeAdds
+{
+    internal static IEnumerator EndlessLoad()
+    {
+        yield return "Arcade Eternity...";
+        BaldiArcadePlugin.Instance.stickers.AddRange([
+            new(PlayableCharsPlugin.assetMan.Get<PlayableCharacterStickerData>("buggedout").sticker, 10),
+            new(PlayableCharsPlugin.assetMan.Get<PlayableCharacterStickerData>("throw--").sticker, 90),
+            new(PlayableCharsPlugin.assetMan.Get<PlayableCharacterStickerData>("Destabilizer").sticker, 50),
+            new(PlayableCharsPlugin.assetMan.Get<PlayableCharacterStickerData>("TimeBender").sticker, 1),
+            new(PlayableCharsPlugin.assetMan.Get<PlayableCharacterStickerData>("SmarterCogs").sticker, 130),
+            new(PlayableCharsPlugin.assetMan.Get<PlayableCharacterStickerData>("FasterThinking").sticker, 130)
+            ]);
+        BaldiArcadePlugin.Instance.AddElement(new PresentItemLevelElement(), 100);
+    }
+}
+
+[ConditionalPatchMod("mtm101.rulerp.baldiplus.baldiarcade"), HarmonyPatch(typeof(ArcadeGameManager))]
+class ArcadePatches
+{
+    [HarmonyPatch("BeginSpoopMode"), HarmonyPostfix]
+    static void SpoopModePostfix(ArcadeGameManager __instance) => ManagerPatches.SpoopModePostfix(__instance);
+}
+
+internal class PresentItemLevelElement : LevelElement
+{
+    public override ElementType type => ElementType.Items;
+    public override bool canStack => true;
+    public override string id => "items_partygoerpresent";
+
+    internal ItemObject present = PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentUnwrapped");
+
+    public override int Apply(EndlessLevelRepresentation rep, int actingFloor)
+    {
+        rep.levelObject.forcedItems.Add(present);
+        return -10;
+    }
+
+    public override int GetAverageCost(EndlessLevelRepresentation rep, int actingFloor) => -10;
+
+    public override bool CurrentlyValid(EndlessLevelRepresentation rep, int actingFloor)
+    {
+        for (int i = 0; i < CoreGameManager.Instance.setPlayers; i++)
+            if (PlrPlayableCharacterVars.GetPlayable(i)?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "The Partygoer".ToLower().Replace(" ", ""))
+                return true;
+
+        return false;
+    }
+}
+
+#if false
 public static class ArcadeAdds
 {
     internal static Dictionary<string, Sprite> Upgrades => (Dictionary<string, Sprite>)PlayableCharsPlugin.assetMan["INFUpgrades"];

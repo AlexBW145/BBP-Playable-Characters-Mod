@@ -46,7 +46,7 @@ namespace BBP_Playables.Core.Patches
         }
 
         [HarmonyPatch("BeginSpoopMode"), HarmonyPostfix]
-        static void SpoopModePostfix(BaseGameManager __instance)
+        internal static void SpoopModePostfix(BaseGameManager __instance)
         {
             for (int i = 0; i < CoreGameManager.Instance.setPlayers; i++)
                 CoreGameManager.Instance.GetPlayer(i).GetComponent<PlayableCharacterComponent>()?.SpoopBegin(__instance);
