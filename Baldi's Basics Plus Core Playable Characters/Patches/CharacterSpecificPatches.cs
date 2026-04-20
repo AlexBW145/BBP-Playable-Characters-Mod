@@ -139,7 +139,7 @@ namespace BBP_Playables.Core.Patches
     class TestSubjectTestBlindPatch
     {
         [HarmonyPatch(nameof(LookAtGuy.Blind))]
-        static bool Prefix(LookAtGuy __instance, ref SpriteRenderer ___sprite, ref int ___ogLayer, ref AudioManager ___audMan, 
+        static bool Prefix(LookAtGuy __instance, ref SpriteRenderer ___sprite, ref AudioManager ___audMan, 
             ref SoundObject ___audExplode, ref QuickExplosion ___explosionPrefab, ref Transform ___billboardedTransform,
             ref AnimatedSpriteRotator ___spriteRotator, ref Sprite ___crumbledSprite, ref Transform ___headTransform)
         {
@@ -147,7 +147,6 @@ namespace BBP_Playables.Core.Patches
             {
                 __instance.FreezeNPCs(false);
                 __instance.Navigator.maxSpeed = 0f;
-                ___ogLayer = __instance.gameObject.layer;
                 __instance.gameObject.layer = 20;
                 ___audMan.PlaySingle(___audExplode);
                 __instance.SetTargetTimeScale(1f);

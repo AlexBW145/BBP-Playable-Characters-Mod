@@ -124,21 +124,21 @@ namespace BBP_Playables.Core
             render.localPosition = new Vector3(0, PickupBobValue.bobVal, 0);
         }
 
-        public void EntityTriggerEnter(Collider other, bool validCollision)
+        public void EntityTriggerEnter(Entity entity, Collider other, bool validCollision)
         {
-            if (thrown && other.CompareTag("NPC"))
+            if (thrown && other.CompareTag("NPC") && validCollision)
             {
                 other.gameObject.GetComponent<AudioManager>()?.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "Lose_Buzz"));
-                other.gameObject.GetComponent<Entity>().ExternalActivity.moveMods.Add(moveMod);
+                entity.ExternalActivity.moveMods.Add(moveMod);
                 spriteProperties = new MaterialPropertyBlock();
-                foreach (SpriteRenderer render in other.GetComponent<NPC>().spriteRenderer)
+                foreach (SpriteRenderer render in entity.GetComponent<NPC>().spriteRenderer)
                     render.GetPropertyBlock(spriteProperties);
                 spriteProperties.SetInt("_SpriteColorGlitching", 1);
                 spriteProperties.SetFloat("_SpriteColorGlitchPercent", 0.9f);
                 spriteProperties.SetFloat("_SpriteColorGlitchVal", UnityEngine.Random.Range(0f, 4096f));
-                foreach (SpriteRenderer render in other.GetComponent<NPC>().spriteRenderer)
+                foreach (SpriteRenderer render in entity.GetComponent<NPC>().spriteRenderer)
                     render.SetPropertyBlock(spriteProperties);
-                other.gameObject.GetComponent<Entity>().StartCoroutine(waitUntilMovemod(other.gameObject.GetComponent<Entity>()));
+                entity.StartCoroutine(waitUntilMovemod(entity));
                 Destroy(gameObject);
             }
             if (!thrown && other.gameObject == player?.gameObject)
@@ -149,9 +149,9 @@ namespace BBP_Playables.Core
             }
         }
 
-        public void EntityTriggerStay(Collider other, bool validCollision) { }
+        public void EntityTriggerStay(Entity entity, Collider other, bool validCollision) { }
 
-        public void EntityTriggerExit(Collider other, bool validCollision) { }
+        public void EntityTriggerExit(Entity entity, Collider other, bool validCollision) { }
 
         IEnumerator waitUntilMovemod(Entity enit)
         {

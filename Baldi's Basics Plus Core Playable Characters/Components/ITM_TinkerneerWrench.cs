@@ -27,11 +27,11 @@ namespace BBP_Playables.Core
                     foreach (var tinkerobject in TinkerneerObjectsPre)
                     {
                         List<ItemObject> requiredItems = tinkerobject.Value.requiredItems.ToList();
-                        if (!HasRequiredItems(requiredItems) || !TinkerneerExclusive(tinkerobject.Value) || !tinkerobject.Value.AppropriateLocation(cell) || availableTinkers.Count > 6 ||
+                        if (!HasRequiredItems(requiredItems) || !TinkerneerExclusive(tinkerobject.Value) || !tinkerobject.Value.AppropriateLocation(cell) || availableTinkers.Count > 9 ||
                             (tinkerobject.Value.rm != RoomCategory.Null && tinkerobject.Value.rm != cell.room.category))
                             continue;
                         availableTinkers.Add(tinkerobject.Value);
-                        hudPre.GetComponentInChildren<TextMeshProUGUI>().text += ("\n({0}) " + tinkerobject.Value.name).Replace("{0}", availableTinkers.Count <= 6 ? InputManager.Instance.GetInputButtonName("Item" + availableTinkers.Count, "InGame", false) : "OUT OF REACH!");
+                        hudPre.GetComponentInChildren<TextMeshProUGUI>().text += ("\n({0}) " + tinkerobject.Value.name).Replace("{0}", availableTinkers.Count <= 9 ? InputManager.Instance.GetInputButtonName("Item" + availableTinkers.Count, "InGame", false) : "OUT OF REACH!");
                     }
                     if (availableTinkers.Count > 0)
                     {
@@ -79,7 +79,7 @@ namespace BBP_Playables.Core
             if (error) CoreGameManager.Instance.audMan.PlaySingle(errorMaybe);
         }
 
-        void Update()
+        private void Update()
         {
             if (availableTinkers.Count > 0)
             {

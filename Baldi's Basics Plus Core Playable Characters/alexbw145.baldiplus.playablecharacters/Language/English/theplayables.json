@@ -33,7 +33,7 @@
 {"key":"Desc_PartygoerPresent","value":"Gifting Present\nWhat are you looking at? There's no description for this item."},
 {"key":"Itm_TinkerneerWrench","value":"Tinkerneering Wrench"},
 {"key":"Desc_TinkerneerWrench","value":"Tinkerneering Wrench\nThis wrench is the pathway to creating new inventions,\nalthough you'll need some education to use this!"},
-{"key":"Sfx_TinkerneerConstruct","value":"*Construction*"},
+{"key":"Sfx_TinkerneerConstruct","value":"[CONSTRUCTION]"},
 {"key":"Itm_BackpackerBackpack","value":"Backpack"},
 {"key":"Desc_BackpackerBackpack","value":"Backpack\nAllows you to carry more items up to double your max item slots!\nBut the more items you'll carry, the more weight you're putting yourself into!"}
 ]}
