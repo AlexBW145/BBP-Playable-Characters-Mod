@@ -2,13 +2,13 @@
 
 {"key":"Hud_UnlockedPlayableCharacter", "value":"YOU HAVE UNLOCKED\nA NEW PLAYABLE"},
 
-{"key":"The Default","value":"The Default"},
-{"key":"Desc_Default","value":"The actual student that you are playing.\n* Is a cylnder\n* But it's probably not a cylinder in-game"},
+{"key":"The Default","value":"The Student"},
+{"key":"Desc_Default","value":"The actual student that you are playing,\nbut does it look like you or someone else?"},
 {"key":"The Predicted Fanon","value":"The Predicted Fanon"},
 {"key":"Desc_Predicted","value":"That other student that everyone believes that this is the actual model...\n* Has stats from Classic\n* <i>Not suitable for Plus because of intended \"Classic Remastered\" gameplay..."},
 {"key":"The Predicted Fanon [Times]","value":"The Predicted Fanon [Times]"},
 {"key":"Desc_PredictedBBT","value":"The student that replaced Default in Baldi's Basics Times\n* Stats are the same as Default \n* But slots are the same as Predicted Fanon"},
-{"key":"CYLN_LOON","value":"CYLN_LOON"},
+{"key":"CYLN_LOON","value":"SCHOLAR_DATA"},
 {"key":"Desc_LOON","value":"Corrupted data, but it's still playable for some reason...\n\nAbility: Glitched Objects\nAllows the player to throw randomly appearing objects towards their enemies."},
 {"key":"The Partygoer","value":"The Partygoer"},
 {"key":"Desc_Partygoer","value":"Loves spreading party cheer!\nHowever, the school thinks you're disrupting the entire class...\n\nThere are wrapping bundles scattered around the schoolhouse,\nincluding the one that you start with!"},

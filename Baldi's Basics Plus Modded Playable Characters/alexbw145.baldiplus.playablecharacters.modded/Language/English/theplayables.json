@@ -9,8 +9,8 @@
 
 {"key":"Itm_FirewallBlaster","value":"Firewall Blaster"},
 {"key":"Desc_FirewallBlaster","value":"Firewall Blaster\nThis weapon is set to \"safe mode\"\nand someone who uses it before knows how to set it to \"fire mode\"."},
-{"key":"Sfx_FirewallPellets","value":"*PEW!*"},
-{"key":"Sfx_FirewallEffect","value":"*SHOCK!*"},
+{"key":"Sfx_FirewallPellets","value":"[PEW!]"},
+{"key":"Sfx_FirewallEffect","value":"[SHOCK!]"},
 {"key":"Itm_MagicWand","value":"Magical Wand"},
 {"key":"Desc_MagicWand","value":"Magical Wand\nUse this to send any random person to detention!\nBut does it make your brain dumb?"}
 ]}

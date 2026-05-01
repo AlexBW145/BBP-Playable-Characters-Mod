@@ -35,7 +35,7 @@ namespace BBP_Playables.Core
     {
         private const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
         private const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        private const string PLUGIN_VERSION = "0.1.4.3"; // UPDATE EVERY TIME!!
+        private const string PLUGIN_VERSION = "0.1.4.4"; // UPDATE EVERY TIME!!
 
         public static PlayableCharsPlugin Instance { get; private set; }
         public static PlayableCharacterMetaStorage playablesMetaStorage { get; private set; } = new PlayableCharacterMetaStorage();
