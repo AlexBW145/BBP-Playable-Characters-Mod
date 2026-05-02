@@ -47,11 +47,11 @@ namespace BBP_Playables.Modded.BCPP
             entity.UpdateInternalMovement(transform.forward * 80f * ec.EnvironmentTimeScale);
         }
 
-        public void EntityTriggerEnter(Collider other, bool isValid)
+        public void EntityTriggerEnter(Entity entity, Collider other, bool isValid)
         {
             if (other.CompareTag("NPC") && other.GetComponent<NPC>())
             {
-                other.GetComponent<NPC>().Navigator?.Entity?.MoveWithCollision(transform.forward * 0.9f);
+                entity.MoveWithCollision(transform.forward * 0.9f);
                 Destroy(gameObject);
                 other.GetComponent<AudioManager>()?.PlaySingle(effectSnd);
                 other.GetComponent<NPC>().StopCoroutine(movemodEffct(other.GetComponent<NPC>()));
@@ -61,8 +61,8 @@ namespace BBP_Playables.Modded.BCPP
 
         private IEnumerator movemodEffct(NPC npc)
         {
-            if (!npc.gameObject.GetComponent<Entity>().ExternalActivity.moveMods.Contains(moveMod))
-                npc.gameObject.GetComponent<Entity>().ExternalActivity.moveMods.Add(moveMod);
+            if (!npc.Entity.ExternalActivity.moveMods.Contains(moveMod))
+                npc.Entity.ExternalActivity.moveMods.Add(moveMod);
             float time = 1f;
             while (time > 0f)
             {
@@ -71,15 +71,15 @@ namespace BBP_Playables.Modded.BCPP
                 time -= 1f * (npc.TimeScale * Time.deltaTime);
                 yield return null;
             }
-            npc.gameObject.GetComponent<Entity>().ExternalActivity.moveMods.Remove(moveMod);
+            npc.Entity.ExternalActivity.moveMods.Remove(moveMod);
             yield break;
         }
 
-        public void EntityTriggerExit(Collider other, bool isValid)
+        public void EntityTriggerExit(Entity entity, Collider other, bool isValid)
         {
         }
 
-        public void EntityTriggerStay(Collider other, bool isValid)
+        public void EntityTriggerStay(Entity entity, Collider other, bool isValid)
         {
         }
         void OnTriggerExit(Collider other)
