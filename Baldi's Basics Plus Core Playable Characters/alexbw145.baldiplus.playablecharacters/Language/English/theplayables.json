@@ -24,6 +24,8 @@
 {"key":"Desc_TestSubject","value":"This creature wants to pass the test!\nBut can you help him pass the test?\n\nP. Ability: Passing Grade\nAllows the player to not get blinded by The Test\nand Math Machines gives out extra YTPs!\nOn the other hand,\ngetting a math machine wrong will make time faster on Baldi and his friends."},
 {"key":"The Speedrunner","value":"The Speedrunner"},
 {"key":"Desc_Speedrunner","value":"He just wants to beat Hide and Seek for fun,\nPrincipal of the Thing considers this as \"running in the halls\"\ndue to him breaking one of the school rules!"},
+{"key":"Magical Student","value":"Magical Student"},
+{"key":"Desc_Magical","value":"Wields a magic wand and does not care about the school rules,\nso he randomly sends people to detention.\n\n* Has a dumb brain"},
 {"key":"Random Playable","value":"Random"},
 {"key":"Desc_RandomPlayable","value":"What character will you be?\n(Picks only unlocked characters!)"},
 
@@ -35,5 +37,9 @@
 {"key":"Desc_TinkerneerWrench","value":"Tinkerneering Wrench\nThis wrench is the pathway to creating new inventions,\nalthough you'll need some education to use this!"},
 {"key":"Sfx_TinkerneerConstruct","value":"[CONSTRUCTION]"},
 {"key":"Itm_BackpackerBackpack","value":"Backpack"},
-{"key":"Desc_BackpackerBackpack","value":"Backpack\nAllows you to carry more items up to double your max item slots!\nBut the more items you'll carry, the more weight you're putting yourself into!"}
-]}
+{"key":"Desc_BackpackerBackpack","value":"Backpack\nAllows you to carry more items up to double your max item slots!\nBut the more items you'll carry, the more weight you're putting yourself into!"},
+{"key":"Itm_MagicWand","value":"Magical Wand"},
+{"key":"Desc_MagicWand","value":"Magical Wand\nUse this to send any random person to detention!\nBut does it make your brain dumb?"},
+{"key":"Vfx_MGS_Magic","value":"[CASTS MAGIC]"},
+{"key":"Vfx_MGS_PrepMagic","value":"[PREPARING MAGIC]"}
+ ]}

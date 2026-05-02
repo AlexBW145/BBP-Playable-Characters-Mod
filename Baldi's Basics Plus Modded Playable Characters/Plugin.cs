@@ -11,7 +11,6 @@ using MTM101BaldAPI.AssetTools;
 using MTM101BaldAPI.ObjectCreation;
 using MTM101BaldAPI.Registers;
 using System.Collections;
-using System.Linq;
 using UnityEngine;
 using MTM101BaldAPI.SaveSystem;
 using BBP_Playables.Modded.Patches;
@@ -28,7 +27,7 @@ namespace BBP_Playables.Modded
     {
         private const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters.modded";
         private const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Modded)";
-        private const string PLUGIN_VERSION = "0.19"; // UPDATE EVERY TIME!!
+        private const string PLUGIN_VERSION = "0.20"; // UPDATE EVERY TIME!!
 
         internal static BepInEx.PluginInfo info { get; private set; }
         internal static BepInEx.PluginInfo coreInfo { get; private set; }
@@ -50,11 +49,8 @@ namespace BBP_Playables.Modded
             AssetLoader.LocalizationFromMod(this);
 
             PlayableCharsPlugin.assetMan.AddRange<Sprite>([
-                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Magical.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Dweller.png"),
 
-                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "MagicWand_Large.png"),
-                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MagicWand_Small.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "FirewallBlaster_Large.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "FirewallBlaster_Small.png"),
 
@@ -67,11 +63,8 @@ namespace BBP_Playables.Modded
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "HUD", "StaminaPoint_BCMAC.png"),
             ],
             [
-                "Portrait/MagicalStudent",
                 "Portrait/Dweller", // By https://gamebanana.com/members/3165945
 
-                "Items/MagicalStudentWand_Large",
-                "Items/MagicalStudentWand_Small",
                 "Items/FirewallBlaster_Large",
                 "Items/FirewallBlaster_Small",
 
@@ -175,30 +168,6 @@ namespace BBP_Playables.Modded
             if (Chainloader.PluginInfos.ContainsKey("pixelguy.pixelmodding.baldiplus.bbextracontent"))
             {
                 //PlayableCharacterMetaStorage.Instance.Find(x => x.value.name == "The Partygoer").value.startingItems = [ItemMetaStorage.Instance.FindByEnum(EnumExtensions.GetFromExtendedName<Items>("Present")).value];
-                GameObject magic = Instantiate(ItemMetaStorage.Instance.FindByEnum(Items.Bsoda).value.item.gameObject, MTM101BaldiDevAPI.prefabTransform);
-                magic.name = "MagicObjectPlayer";
-                Destroy(magic.GetComponent<ITM_BSODA>());
-                magic.AddComponent<ITM_MagicWandMagical>().entity = magic.GetComponent<Entity>();
-                magic.GetComponent<ITM_MagicWandMagical>().spriteRenderer = magic.transform.Find("RendereBase").GetComponentInChildren<SpriteRenderer>();
-                magic.GetComponent<ITM_MagicWandMagical>().spriteRenderer.sprite = Resources.FindObjectsOfTypeAll<Sprite>().ToList().Find(x => x.name == "SprBBTimesAsset_MGS_Magic");
-                magic.ConvertToPrefab(true);
-                magic.layer = LayerMask.NameToLayer("StandardEntities");
-                Destroy(magic.transform.Find("RendereBase").Find("Particles").gameObject);
-                PlayableCharsPlugin.assetMan.Add<ItemObject>("MagicalWandTimesCharacter", new ItemBuilder(Info)
-                    .SetItemComponent(magic.GetComponent<ITM_MagicWandMagical>())
-                    .SetEnum("MagicalWandTimesCharacter")
-                    .SetNameAndDescription("Itm_MagicWand", "Desc_MagicWand")
-                    .SetShopPrice(int.MaxValue)
-                    .SetGeneratorCost(int.MaxValue)
-                    .SetSprites(PlayableCharsPlugin.assetMan.Get<Sprite>("Items/MagicalStudentWand_Small"), PlayableCharsPlugin.assetMan.Get<Sprite>("Items/MagicalStudentWand_Large"))
-                    .SetMeta(ItemFlags.MultipleUse | ItemFlags.CreatesEntity | ItemFlags.Persists | ItemFlags.Unobtainable, ["CharacterItemImportant", "recchars_gifter_blacklist"])
-                    .Build());
-                new PlayableCharacterBuilder<PlayableCharacterComponent>(coreInfo, false)
-                .SetNameAndDesc("Magical Student", "Desc_Magical")
-                .SetPortrait(PlayableCharsPlugin.assetMan.Get<Sprite>("Portrait/MagicalStudent"))
-                .SetStats(s: 4, w: 16, r: 16, sm: 0f, maxslots: 5)
-                .SetStartingItems(PlayableCharsPlugin.assetMan.Get<ItemObject>("MagicalWandTimesCharacter"))
-                .Build();
 
                 PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Default").value.AddPlayableVisual(PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Default"));
                 PlayableCharacterMetaStorage.Instance.Find(p => p.nameLocalizationKey == "The Predicted Fanon").value.AddPlayableVisual(PlayableCharsPlugin.assetMan.Get<Sprite[]>("Visual/Fanon"));

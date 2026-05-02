@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace BBP_Playables.Modded.Patches;
 
-[ConditionalPatchMod("pixelguy.pixelmodding.baldiplus.bbextracontent"), HarmonyPatch(typeof(MagicObject), "EntityTriggerEnter")]
+/*[ConditionalPatchMod("pixelguy.pixelmodding.baldiplus.bbextracontent"), HarmonyPatch(typeof(MagicObject), "EntityTriggerEnter")]
 class UnlockMagical
 {
     static void Postfix(Collider other, ref MagicalStudent ___student, ref bool ___leftStudent)
@@ -18,7 +18,7 @@ class UnlockMagical
         if (other.transform == ___student.transform && ___leftStudent)
             PlayableCharsPlugin.UnlockCharacter(Plugin.coreInfo, "Magical Student");
     }
-}
+}*/
 [ConditionalPatchMod("pixelguy.pixelmodding.baldiplus.bbextracontent"), HarmonyPatch(typeof(PlayerVisual), nameof(PlayerVisual.Initialize))]
 class PlayerVisualPatch
 {

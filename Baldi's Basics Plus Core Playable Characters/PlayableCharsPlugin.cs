@@ -35,7 +35,7 @@ namespace BBP_Playables.Core
     {
         private const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
         private const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        private const string PLUGIN_VERSION = "0.1.4.4"; // UPDATE EVERY TIME!!
+        private const string PLUGIN_VERSION = "0.1.5.0"; // UPDATE EVERY TIME!!
 
         public static PlayableCharsPlugin Instance { get; private set; }
         public static PlayableCharacterMetaStorage playablesMetaStorage { get; private set; } = new PlayableCharacterMetaStorage();
@@ -144,6 +144,7 @@ There will be improvements and additions once new updates come out, but some cha
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Backpacker.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Tinkerneer.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Speedrunner.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Magical.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MenuSelect", "Random.png"),
 
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "BackpackerBackpack_Large.png"),
@@ -155,6 +156,8 @@ There will be improvements and additions once new updates come out, but some cha
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "PartygoerPresent_Small.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "PartygoerWrappingBundle_Large.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "PartygoerWrappingBundle_Small.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "MagicWand_Large.png"),
+                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 1f, "Texture2D", "MagicWand_Small.png"),
 
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "Inventions", "InventionPlayerOpen.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "Inventions", "InventionPlayerClosed.png"),
@@ -162,6 +165,8 @@ There will be improvements and additions once new updates come out, but some cha
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 32f, "Texture2D", "Inventions", "StudentcrowReal.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "Inventions", "BonusGen.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one/2f, 50f, "Texture2D", "Inventions", "BonusGenActive.png"),
+
+                AssetLoader.SpriteFromMod(this, Vector2.one/2f, 25f, "Texture2D", "Mgs_Magic.png"),
 
                 AssetLoader.SpriteFromMod(this, Vector2.one / 2f, 1f, "Texture2D", "UpgradeIcons", "CylnloonOneChance.png"),
                 AssetLoader.SpriteFromMod(this, Vector2.one / 2f, 1f, "Texture2D", "UpgradeIcons", "CylnloonThrowableRespawn.png"),
@@ -175,7 +180,7 @@ There will be improvements and additions once new updates come out, but some cha
                 "Portrait/Default",
                 "Portrait/Fanon",
                 "Portrait/FanonBBT",
-                "Portrait/Cylnloon", // Just a cylinder...
+                "Portrait/Cylnloon",
                 "Portrait/Partygoer", // By CottyKot on Gamebanana
                 "Portrait/Thinker", // I should request a redesign... Redrawn by BigThinker
                 "Portrait/TestSubject",
@@ -185,6 +190,7 @@ There will be improvements and additions once new updates come out, but some cha
                 "Portrait/Tinkerneer",
                 "Portrait/Speedrunner",
                 //
+                "Portrait/MagicalStudent", // Character by Enkoded
                 "Portrait/Random",
 
                 "Items/BackpackerBackpack_Large",
@@ -196,6 +202,8 @@ There will be improvements and additions once new updates come out, but some cha
                 "Items/Present_Small",
                 "Items/WrappingBundle_Large",
                 "Items/WrappingBundle_Small",
+                "Items/MagicalStudentWand_Large",
+                "Items/MagicalStudentWand_Small",
 
                 "Inventions/TapeQuarterPlayerOpen",
                 "Inventions/TapeQuarterPlayerClosed",
@@ -204,6 +212,8 @@ There will be improvements and additions once new updates come out, but some cha
                 "Inventions/BonusGen",
                 "Inventions/BonusGenActive",
 
+                "Items/MagicalStudentWand_Projectile",
+
                 "Stickers/Buggedout",
                 "Stickers/Throw--",
                 "Stickers/Destabilizer",
@@ -211,13 +221,16 @@ There will be improvements and additions once new updates come out, but some cha
                 "Stickers/FasterThinking",
                 "Stickers/SmarterCogs"
             ]);
+            var mgssubtitle = new Color(0f, 0.33203125f, 0.99609375f);
             assetMan.AddRange<SoundObject>([
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "mus_newplayerunlocked.mp3"), "New Player Unlocked", SoundType.Music, Color.clear),
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "Tinkerneering1.wav"), "Sfx_TinkerneerConstruct", SoundType.Effect, Color.white),
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "Tinkerneering2.wav"), "Sfx_TinkerneerConstruct", SoundType.Effect, Color.white),
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "Tinkerneering3.wav"), "Sfx_TinkerneerConstruct", SoundType.Effect, Color.white),
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "NPC_openingpresent1.wav"), "Sfx_ShrinkMachine_Door", SoundType.Effect, Color.white),
-                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "NPC_openingpresent2.wav"), "Sfx_ShrinkMachine_Door", SoundType.Effect, Color.white)
+                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "NPC_openingpresent2.wav"), "Sfx_ShrinkMachine_Door", SoundType.Effect, Color.white),
+                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "magicalplayable_prep.wav"), "Vfx_MGS_PrepMagic", SoundType.Effect, mgssubtitle),
+                ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "magicalplayable_throw.wav"), "Vfx_MGS_Magic", SoundType.Effect, mgssubtitle)
             ],
             [
                 "Music/NewPlayerUnlocked",
@@ -226,6 +239,8 @@ There will be improvements and additions once new updates come out, but some cha
                 "Items/Tinkerneering3",
                 "Items/PresentOpen1",
                 "Items/PresentOpen2",
+                "Items/MagicalWandPrep",
+                "Items/MagicalWandUse"
             ]);
             assetMan.Add<SoundObject[]>("LoseLastChanceSnds", [
                 ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "AudioClip", "CHANCE_no.wav"), "Sfx_Lose_Buzz", SoundType.Effect, Color.green),
@@ -678,6 +693,27 @@ There will be improvements and additions once new updates come out, but some cha
             bonusqGen.GetComponent<MathMachineRegen>().render.sprite = assetMan.Get<Sprite>("Inventions/BonusGen");
             bonusqGen.GetComponent<MathMachineRegen>().render.transform.localPosition = Vector3.down * 0.5f;
             #endregion INVENTIONS
+            GameObject magic = Instantiate(ItemMetaStorage.Instance.FindByEnum(Items.Bsoda).value.item.gameObject, MTM101BaldiDevAPI.prefabTransform);
+            magic.name = "MagicObjectPlayer";
+            Destroy(magic.GetComponent<ITM_BSODA>());
+            magic.AddComponent<ITM_MagicWandMagical>().entity = magic.GetComponent<Entity>();
+            magic.GetComponent<ITM_MagicWandMagical>().spriteRenderer = magic.transform.Find("RendereBase").GetComponentInChildren<SpriteRenderer>();
+            magic.GetComponent<ITM_MagicWandMagical>().spriteRenderer.sprite = assetMan.Get<Sprite>("Items/MagicalStudentWand_Projectile");
+            magic.GetComponent<ITM_MagicWandMagical>().wandBreak = Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Last(x => x.name == "BAL_Break");
+            magic.GetComponent<ITM_MagicWandMagical>().wandPrep = assetMan.Get<SoundObject>("Items/MagicalWandPrep");
+            magic.GetComponent<ITM_MagicWandMagical>().wandUse = assetMan.Get<SoundObject>("Items/MagicalWandUse");
+            magic.ConvertToPrefab(true);
+            magic.layer = LayerMask.NameToLayer("StandardEntities");
+            Destroy(magic.transform.Find("RendereBase").Find("Particles").gameObject);
+            assetMan.Add<ItemObject>("MagicalWandTimesCharacter", new ItemBuilder(Info)
+                .SetItemComponent(magic.GetComponent<ITM_MagicWandMagical>())
+                .SetEnum("MagicalWandTimesCharacter")
+                .SetNameAndDescription("Itm_MagicWand", "Desc_MagicWand")
+                .SetShopPrice(int.MaxValue)
+                .SetGeneratorCost(int.MaxValue)
+                .SetSprites(assetMan.Get<Sprite>("Items/MagicalStudentWand_Small"), assetMan.Get<Sprite>("Items/MagicalStudentWand_Large"))
+                .SetMeta(ItemFlags.MultipleUse | ItemFlags.CreatesEntity | ItemFlags.Persists | ItemFlags.Unobtainable, ["CharacterItemImportant", "recchars_gifter_blacklist"])
+                .Build());
             yield return "Adding new characters";
             new PlayableCharacterBuilder<PlayableRandomizer>(Info)
                 .SetNameAndDesc("Random Playable", "Desc_RandomPlayable")
@@ -757,6 +793,12 @@ There will be improvements and additions once new updates come out, but some cha
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Speedrunner"))
                 .SetStats(s: 1, w: 34f, r: 52f, sd: 30f, sr: 10f, sm: 200f, maxslots: 3)
                 .SetFlags(PlayableFlags.Abilitiless)
+                .Build();
+            var magical = new PlayableCharacterBuilder<PlayableCharacterComponent>(Info, false)
+                .SetNameAndDesc("Magical Student", "Desc_Magical")
+                .SetPortrait(assetMan.Get<Sprite>("Portrait/MagicalStudent"))
+                .SetStats(s: 4, w: 16, r: 16, sm: 0f, maxslots: 5)
+                .SetStartingItems(assetMan.Get<ItemObject>("MagicalWandTimesCharacter"))
                 .Build();
             extraSave = new(_default);
             yield return "Creating select screen";
@@ -916,10 +958,9 @@ There will be improvements and additions once new updates come out, but some cha
                     filedata.tinkerneer = tails.unlocked;
                     filedata.testsubject = thetestjr.unlocked;
                     filedata.speedrunner = shitass.unlocked;
+                    filedata.magical = magical.unlocked;
                     if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.playablecharacters.modded"))
                     {
-                        if (Chainloader.PluginInfos.ContainsKey("pixelguy.pixelmodding.baldiplus.bbextracontent"))
-                            filedata.magical = playablesMetaStorage.Find(x => x.value.name == "Magical Student").value.unlocked;
                         if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
                         {
                             filedata.protagonist = playablesMetaStorage.Find(x => x.value.name == "The Main Protagonist").value.unlocked;
@@ -956,14 +997,13 @@ There will be improvements and additions once new updates come out, but some cha
                     SetUnlockedCharacter(Info, "The Tinkerneer", filedata.tinkerneer);
                     SetUnlockedCharacter(Info, "The Test Subject", filedata.testsubject);
                     SetUnlockedCharacter(Info, "The Speedrunner", filedata.speedrunner);
+                    SetUnlockedCharacter(Info, "Magical Student", filedata.magical);
 
                     if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.playablecharacters.modded"))
                     {
                         //BepInEx.PluginInfo info = Chainloader.PluginInfos.GetValueSafe("alexbw145.baldiplus.playablecharacters.modded");
                         // Y'see? I cannot use the plugin from the modded part of this mod because it doesn't contain a save manager action (and also the serialized save data is internal, not public)
                         // so I wouldn't let anyone modify the save data contents.
-                        if (Chainloader.PluginInfos.ContainsKey("pixelguy.pixelmodding.baldiplus.bbextracontent"))
-                            SetUnlockedCharacter(Info, "Magical Student", filedata.magical);
                         if (Chainloader.PluginInfos.ContainsKey("alexbw145.baldiplus.bcarnellchars"))
                         {
                             SetUnlockedCharacter(Info, "The Main Protagonist", filedata.protagonist);
