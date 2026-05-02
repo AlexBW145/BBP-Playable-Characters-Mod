@@ -173,7 +173,7 @@ namespace BBP_Playables.Core.Patches
     {
         static void Postfix(BaseGameManager __instance)
         {
-            if (__instance.NotebookTotal >= 9 && __instance.FoundNotebooks >= Mathf.CeilToInt((float)__instance.FoundNotebooks / 2f)
+            if (__instance.NotebookTotal >= 9 && __instance.FoundNotebooks >= Mathf.CeilToInt((float)__instance.NotebookTotal / 2f)
                 && __instance.levelObject?.timeOutEvent != null && CoreGameManager.Instance.sceneObject?.GetMeta()?.tags?.Contains("main") == true
                 && !__instance.Ec.timeOut && (__instance.Ec.RemainingTime - 60) > 0)
                 PlayableCharsPlugin.UnlockCharacter(PlayableCharsPlugin.Instance.Info, "Magical Student");
