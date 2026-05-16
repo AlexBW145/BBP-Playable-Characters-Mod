@@ -35,7 +35,7 @@ namespace BBP_Playables.Core
     {
         private const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
         private const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        private const string PLUGIN_VERSION = "0.1.5.0"; // UPDATE EVERY TIME!!
+        private const string PLUGIN_VERSION = "0.1.5.1"; // UPDATE EVERY TIME!!
 
         public static PlayableCharsPlugin Instance { get; private set; }
         public static PlayableCharacterMetaStorage playablesMetaStorage { get; private set; } = new PlayableCharacterMetaStorage();
@@ -349,7 +349,7 @@ There will be improvements and additions once new updates come out, but some cha
                     return renderbase.transform;
                 })
                 .Build();
-            thorwable.gameObject.AddComponent<ThrowableObject>();
+            thorwable.gameObject.AddComponent<ThrowableObject>().entity = thorwable;
             assetMan.Add("CYLN_Throwable", thorwable);
 
             NPC_Present.sounds = [assetMan.Get<SoundObject>("Items/PresentOpen1"), assetMan.Get<SoundObject>("Items/PresentOpen2")];

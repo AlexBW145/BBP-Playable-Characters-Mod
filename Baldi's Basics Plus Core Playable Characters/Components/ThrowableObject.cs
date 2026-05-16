@@ -1,7 +1,5 @@
-﻿using HarmonyLib;
-using System.Collections;
+﻿using System.Collections;
 using System.Linq;
-using System.Reflection;
 using UnityEngine;
 
 namespace BBP_Playables.Core
@@ -17,8 +15,6 @@ namespace BBP_Playables.Core
 
         public void ClickableUnsighted(int player) { }
 
-        private static FieldInfo setLayer = AccessTools.DeclaredField(typeof(Entity), "defaultLayer"); 
-
         public void Clicked(int player)
         {
             if (!ready || held ||
@@ -27,8 +23,7 @@ namespace BBP_Playables.Core
             held = true;
             heldSelf = true;
             render.localPosition = Vector3.zero;
-            setLayer.SetValue(entity, LayerMask.NameToLayer("Overlay"));
-            entity.UpdateLayer();
+            entity.SetTargetLayer(LayerMask.NameToLayer("Overlay"));
             this.player = CoreGameManager.Instance.GetPlayer(player);
         }
 
@@ -39,7 +34,7 @@ namespace BBP_Playables.Core
         private float life = 10f;
         private MovementModifier moveMod = new MovementModifier(default, 0.12f);
         private MaterialPropertyBlock spriteProperties;
-        private Entity entity;
+        [SerializeField] internal Entity entity;
         private Transform render;
 
         void Start()
@@ -48,7 +43,6 @@ namespace BBP_Playables.Core
             ec = BaseGameManager.Instance.Ec;
             initLayer = gameObject.layer;
             render = transform.GetChild(0);
-            entity = gameObject.GetComponent<Entity>();
             entity.Initialize(ec, transform.position);
             entity.SetFrozen(true);
             /*SphereCollider collider = gameObject.AddComponent<SphereCollider>();
@@ -98,8 +92,7 @@ namespace BBP_Playables.Core
                         gameObject.SetActive(true);
                         entity.Initialize(ec, transform.position);
                     }*/
-                    setLayer.SetValue(entity, LayerMask.NameToLayer("CollidableEntities"));
-                    entity.UpdateLayer();
+                    entity.SetTargetLayer(LayerMask.NameToLayer("CollidableEntities"));
                 }
                 clickBuffer = false;
             }
@@ -126,7 +119,7 @@ namespace BBP_Playables.Core
 
         public void EntityTriggerEnter(Entity entity, Collider other, bool validCollision)
         {
-            if (thrown && other.CompareTag("NPC") && validCollision)
+            if (thrown && entity != null && other.CompareTag("NPC") && validCollision)
             {
                 other.gameObject.GetComponent<AudioManager>()?.PlaySingle(Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "Lose_Buzz"));
                 entity.ExternalActivity.moveMods.Add(moveMod);
