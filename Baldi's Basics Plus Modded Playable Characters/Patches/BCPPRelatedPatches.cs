@@ -37,9 +37,9 @@ class DwellerAlreadyUnlockedCheck
                 DwellerAbility.crisped.Remove(crisp.Key);
                 GameObject.Destroy(crisp.Value);
             }*/
-        if (!PlayableCharacterMetaStorage.Instance.Find(x => x.value.name == "The Dweller").value.unlocked && BCPPSave.Instance.basementCompleted)
+        if (!PlayableCharacterMetaStorage.Instance.Find(x => x.value.name == "The Dweller").value.unlocked && BCPPSave.Instance.BasementCompleted)
             PlayableCharsPlugin.UnlockCharacter(Plugin.coreInfo, "The Dweller");
-        if (!PlayableCharacterMetaStorage.Instance.Find(x => x.value.name == "The Main Protagonist").value.unlocked && BCPPSave.Instance.death)
+        if (!PlayableCharacterMetaStorage.Instance.Find(x => x.value.name == "The Main Protagonist").value.unlocked && BCPPSave.Instance.B2)
             PlayableCharsPlugin.UnlockCharacter(Plugin.coreInfo, "The Main Protagonist");
     }
 }

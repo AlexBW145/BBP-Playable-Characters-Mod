@@ -27,7 +27,7 @@ namespace BBP_Playables.Modded
     {
         private const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters.modded";
         private const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Modded)";
-        private const string PLUGIN_VERSION = "0.20"; // UPDATE EVERY TIME!!
+        private const string PLUGIN_VERSION = "0.21"; // UPDATE EVERY TIME!!
 
         internal static BepInEx.PluginInfo info { get; private set; }
         internal static BepInEx.PluginInfo coreInfo { get; private set; }
