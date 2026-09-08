@@ -18,6 +18,7 @@ namespace BBP_Playables.Core
         private IEnumerator CylnObjects(BaseGameManager manager)
         {
             float time;
+            AchievementTracker.Instance?.RegisterAction(AchievementTrack);
             while (manager != null)
             {
                 time = CylnTime();
@@ -52,5 +53,13 @@ namespace BBP_Playables.Core
             }
             yield break;
         }
+
+        private void AchievementTrack(int queue)
+        {
+            if (CoreGameManager.Instance.currentMode == Mode.Main && queue == (int)AchievementTracker.AchievementQueue.LEVEL_CLEAR 
+                && AchievementTracker.Instance.HasTrigger((int)AchievementTracker.AchievementTrigger.TURNEDTABLES_ACTIVE) && !AchievementTracker.Instance.HasTrigger((int)AchievementTracker.AchievementTrigger.TURNEDTABLES_FAILED))
+                AchievementTracker.Instance.AwardAchievement("playablecharactersmod_cylnloon_turnedtables");
+        }
+        private void OnDestroy() => AchievementTracker.Instance?.UnregisterAction(AchievementTrack);
     }
 }

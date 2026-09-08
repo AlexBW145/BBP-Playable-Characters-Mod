@@ -107,7 +107,7 @@ namespace BBP_Playables.Core
                     else if (baldman.looker.PlayerInSight() || Vector3.Distance(transform.position, baldman.transform.position) < Mathf.Min(baldman.looker.distance, ec.MaxRaycast))
                     {
                         recognizedAsFake = true;
-                        baldman.ClearSoundLocations();
+                        baldman.ClearSoundLocations(false, Vector3.zero);
                     }
             }
         }
@@ -119,6 +119,8 @@ namespace BBP_Playables.Core
                 WeightedSelection<SoundObject>[] losesnds = baldman.loseSounds;
                 baldman.AudMan.PlaySingle(WeightedSelection<SoundObject>.RandomSelection(losesnds));
                 Destroy(gameObject);
+                if (!recognizedAsFake && !baldman.looker.PlayerInSight())
+                    AchievementTracker.Instance?.AwardAchievement("playablecharactersmod_tinkereer_fooledbaldi");
             }
         }
     }
@@ -143,7 +145,7 @@ namespace BBP_Playables.Core
                 baldman.looker.Raycast(transform, Mathf.Min((baldman.transform.position - transform.position).magnitude + baldman.Navigator.Velocity.magnitude, baldman.looker.distance, ec.MaxRaycast), layerMask, out var sighted);
                 if (sighted && !baldman.looker.PlayerInSight())
                 {
-                    baldman.ClearSoundLocations();
+                    baldman.ClearSoundLocations(false, Vector3.zero);
                     baldman.Hear(null, transform.position, 127, false);
                 }
             }
@@ -159,6 +161,8 @@ namespace BBP_Playables.Core
                 WeightedSelection<SoundObject>[] losesnds = baldman.loseSounds;
                 baldman.AudMan.PlaySingle(WeightedSelection<SoundObject>.RandomSelection(losesnds));
                 Destroy(gameObject);
+                if (!baldman.looker.PlayerInSight())
+                    AchievementTracker.Instance?.AwardAchievement("playablecharactersmod_tinkereer_fooledbaldi");
             }
         }
     }

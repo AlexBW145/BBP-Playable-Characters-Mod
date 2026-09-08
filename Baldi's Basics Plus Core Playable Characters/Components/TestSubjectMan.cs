@@ -24,6 +24,7 @@ namespace BBP_Playables.Core
         {
             base.Initialize();
             stats = pm.GetMovementStatModifier();
+            AchievementTracker.Instance?.RegisterAction(AchievementTrack);
         }
         public override void SpoopBegin(BaseGameManager manager) => doingyour = true;
         void Update()
@@ -62,5 +63,17 @@ namespace BBP_Playables.Core
 
         public override void GameBegin(BaseGameManager manager) => manager.Ec.AddTimeScale(subjectScale);
         internal void MessUpAndIncreaseTimeScale() => subjectScale.npcTimeScale += 0.2f - (0.05f * StickerManager.Instance.StickerValue(destabilizer));
+
+        private void AchievementTrack(int queue)
+        {
+            if (queue == (int)AchievementTracker.AchievementQueue.MAINTAINED_INCORRECT)
+            {
+                if (subjectScale.npcTimeScale >= 1.5f)
+                    AchievementTracker.Instance.RegisterTrigger((int)AchievementTracker.AchievementTrigger.MAINTAINED_FAILED);
+            }
+            else if (queue == (int)AchievementTracker.AchievementQueue.HIDEANDSEEK_CLEAR && !AchievementTracker.Instance.HasTrigger((int)AchievementTracker.AchievementTrigger.MAINTAINED_FAILED))
+                AchievementTracker.Instance.AwardAchievement("playablecharactersmod_thetestsubject_maintained");
+        }
+        private void OnDestroy() => AchievementTracker.Instance?.UnregisterAction(AchievementTrack);
     }
 }

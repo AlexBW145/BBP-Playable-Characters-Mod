@@ -31,13 +31,14 @@ public class ThinkerAbility : PlayableCharacterComponent
     private readonly List<Transform> _hitTransforms = new List<Transform>();
     private bool mathMachineVisible = false;
     private float timeLooking = 0f;
+    internal static AudioManager musicManPre;
     private AudioManager musicMan;
-    private SoundObject cheatedSnd = Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "CashBell"), blindSnd = Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "LAt_BlindStart"), blindLoop = Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "LAt_BlindLoop");
+    private SoundObject cheatedSnd = Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "CashBell" && x.GetInstanceID() >= 0), blindSnd = Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "LAt_BlindStart" && x.GetInstanceID() >= 0), blindLoop = Resources.FindObjectsOfTypeAll<SoundObject>().ToList().Find(x => x.name == "LAt_BlindLoop" && x.GetInstanceID() >= 0);
 
     protected override void Start()
     {
         base.Start();
-        musicMan = Instantiate(CoreGameManager.Instance.musicMan, transform, false);
+        musicMan = Instantiate(musicManPre, transform, false);
         cam = CoreGameManager.Instance.GetCamera(pm.playerNumber).camCom;
     }
 
@@ -46,6 +47,7 @@ public class ThinkerAbility : PlayableCharacterComponent
         base.Initialize();
         if (CoreGameManager.Instance.GetPoints(pm.playerNumber) < 50)
             CoreGameManager.Instance.AddPoints(Mathf.Abs(CoreGameManager.Instance.GetPoints(pm.playerNumber)) + Mathf.Min(50, 50 - Mathf.Abs(CoreGameManager.Instance.GetPoints(pm.playerNumber))), 0, false, false, false);
+        AchievementTracker.Instance?.RegisterAction(AchievementTrack);
     }
     public override void SpoopBegin(BaseGameManager manager) => StartCoroutine(ThinkerDrain());
 
@@ -94,6 +96,7 @@ public class ThinkerAbility : PlayableCharacterComponent
                             answer.autoSizeTextContainer = false;
                             answer.autoSizeTextContainer = true;
                             mathMachine.gameObject.GetComponent<AudioManager>().PlaySingle(cheatedSnd);
+                            AchievementTracker.Instance?.QueueAchievement((int)AchievementTracker.AchievementQueue.NOCHEATING_CHEATED);
                         }
                         else
                             timeLooking = 0f;
@@ -109,6 +112,7 @@ public class ThinkerAbility : PlayableCharacterComponent
                             answer.text = (alltotal - correct).ToString();
                             answer.color = Color.green;
                             busterMachine.gameObject.GetComponent<AudioManager>().PlaySingle(cheatedSnd);
+                            AchievementTracker.Instance?.QueueAchievement((int)AchievementTracker.AchievementQueue.NOCHEATING_CHEATED);
                         }
                         else
                             timeLooking = 0f;
@@ -161,5 +165,16 @@ public class ThinkerAbility : PlayableCharacterComponent
         }
         yield break;
     }
+
+    private void AchievementTrack(int queue)
+    {
+        if (queue == (int)AchievementTracker.AchievementQueue.MAXEDOUTPROFIT)
+            AchievementTracker.Instance.AwardAchievement("playablecharactersmod_thinker_maxedoutprofit");
+        else if (queue == (int)AchievementTracker.AchievementQueue.NOCHEATING_CHEATED)
+            AchievementTracker.Instance.RegisterTrigger((int)AchievementTracker.AchievementTrigger.NOCHEATING_FAILED);
+        else if (queue == (int)AchievementTracker.AchievementQueue.NOCHEATING_CLEARED && !AchievementTracker.Instance.HasTrigger((int)AchievementTracker.AchievementTrigger.NOCHEATING_FAILED))
+            AchievementTracker.Instance.AwardAchievement("playablecharactersmod_thinker_nocheating");
+    }
+    private void OnDestroy() => AchievementTracker.Instance?.UnregisterAction(AchievementTrack);
 }
 #endif

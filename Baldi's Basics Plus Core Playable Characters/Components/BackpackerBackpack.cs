@@ -2,11 +2,8 @@
 using MTM101BaldAPI;
 using MTM101BaldAPI.Components;
 using MTM101BaldAPI.PlusExtensions;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
 
 namespace BBP_Playables.Core
@@ -52,6 +49,8 @@ namespace BBP_Playables.Core
             pm.itm.LockSlot(pm.itm.maxItem, true);
             if ((bool)restoreItmsOnSpawn.GetValue(CoreGameManager.Instance) || PlayableCharsPlugin.gameStarted)
                 gameObject.GetComponent<BackpackerBackpack>().items = PlayableCharsGame.backpackerBackup;
+
+            AchievementTracker.Instance?.RegisterAction(AchievementTrack);
         }
 
         private bool open = false;
@@ -104,5 +103,12 @@ namespace BBP_Playables.Core
                 pm.GetComponent<PlayerMovementStatModifier>().AddModifier("runSpeed", modifier);
             }
         }
+
+        private void AchievementTrack(int queue)
+        {
+            if (queue == (int)AchievementTracker.AchievementQueue.HIDEANDSEEK_CLEAR && !AchievementTracker.Instance.HasTrigger((int)AchievementTracker.AchievementTrigger.ANTIHOARDING_FAILED))
+                AchievementTracker.Instance.AwardAchievement("playablecharactersmod_backpacker_antihoarding");
+        }
+        private void OnDestroy() => AchievementTracker.Instance?.UnregisterAction(AchievementTrack);
     }
 }

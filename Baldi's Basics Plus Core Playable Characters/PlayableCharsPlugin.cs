@@ -29,13 +29,14 @@ namespace BBP_Playables.Core
     [BepInDependency("mtm101.rulerp.baldiplus.levelstudioloader", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("mtm101.rulerp.baldiplus.levelstudio", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("mtm101.rulerp.baldiplus.baldiarcade", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("skid.librarylib", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInProcess("BALDI.exe")]
     [BepInProcess("Baldi's Basics Plus Prerelease.exe")]
     public class PlayableCharsPlugin : BaseUnityPlugin
     {
         private const string PLUGIN_GUID = "alexbw145.baldiplus.playablecharacters";
         private const string PLUGIN_NAME = "Custom Playable Characters in Baldi's Basics Plus (Core - Base Game)";
-        private const string PLUGIN_VERSION = "0.1.5.1"; // UPDATE EVERY TIME!!
+        private const string PLUGIN_VERSION = "0.1.5.2"; // UPDATE EVERY TIME!!
 
         public static PlayableCharsPlugin Instance { get; private set; }
         public static PlayableCharacterMetaStorage playablesMetaStorage { get; private set; } = new PlayableCharacterMetaStorage();
@@ -55,7 +56,7 @@ namespace BBP_Playables.Core
         // TODO:
         /*
          * CYLN_LOON is done
-         * Partygoer and his items are done
+         * Partygoer and her items are done
          * Troublemaker is barely done
          * Thinker is done
          * Backpacker is done
@@ -265,7 +266,8 @@ There will be improvements and additions once new updates come out, but some cha
         }
         private IEnumerator PreLoad()
         {
-            yield return 5;
+            yield return 5 +
+                (Chainloader.PluginInfos.ContainsKey("skid.librarylib") ? 1 : 0);
             yield return "Setting up stuff";
             Resources.FindObjectsOfTypeAll<PlayerManager>().First().gameObject.AddComponent<PlrPlayableCharacterVars>();
             assetMan.Add("PlayerPrefab", Resources.FindObjectsOfTypeAll<PlayerManager>().Last());
@@ -764,6 +766,7 @@ There will be improvements and additions once new updates come out, but some cha
                 .SetStats(s: 3, w: 25f, r: 25f, sm: 0f, maxslots: 6)
                 .SetFlags(PlayableFlags.None)
                 .Build();
+            ThinkerAbility.musicManPre = Resources.FindObjectsOfTypeAll<CoreGameManager>().Last(x => x.GetInstanceID() >= 0).musicMan;
             var backpacker = new PlayableCharacterBuilder<BackpackerBackpack>(Info, false)
                 .SetNameAndDesc("The Backpacker", "Desc_Backpacker")
                 .SetPortrait(assetMan.Get<Sprite>("Portrait/Backpacker"))
@@ -924,6 +927,8 @@ There will be improvements and additions once new updates come out, but some cha
             if (Chainloader.PluginInfos.ContainsKey("mtm101.rulerp.baldiplus.endlessfloors"))
                 EndlessFloorsFuncs.ArcadeModeAdd();
 #endif
+            if (Chainloader.PluginInfos.ContainsKey("skid.librarylib"))
+                yield return this.CreateAchievements();
             ModdedSaveSystem.AddSaveLoadAction(this, (isSave, path) =>
             {
                 PlayableCharsSave filedata;
@@ -1415,8 +1420,6 @@ There will be improvements and additions once new updates come out, but some cha
         public bool protagonist;
         public bool dweller;
         public bool magical;
-
-
     }
 
     [Serializable]
@@ -1431,6 +1434,7 @@ There will be improvements and additions once new updates come out, but some cha
         public static PlayableCharacter Character;
         public static int prevSlots;
         public static ItemObject[] backpackerBackup = new ItemObject[9];
+        public string[] ach_triggers = new string[9];
 
         public override void Reset()
         {
@@ -1440,6 +1444,7 @@ There will be improvements and additions once new updates come out, but some cha
             var nothing = ItemMetaStorage.Instance.FindByEnum(Items.None).value;
             for (int i = 0; i < backpackerBackup.Length; i++)
                 backpackerBackup[i] = nothing;
+            AchievementTracker.Instance?.Reset();
         }
 
         public override void Save(BinaryWriter writer)
@@ -1453,6 +1458,8 @@ There will be improvements and additions once new updates come out, but some cha
             data.character.Write(writer);
             for (int i = 0; i < backpackerBackup.Length; ++i)
                 data.backpackerBackup[i].Write(writer);
+            if (Chainloader.PluginInfos.ContainsKey("skid.librarylib"))
+                AchievementTracker.Instance?.Save(writer);
         }
 
         public override void Load(BinaryReader reader)
@@ -1462,13 +1469,26 @@ There will be improvements and additions once new updates come out, but some cha
             prevSlots = data.prevSlots;
             for (int i = 0; i < data.backpackerBackup.Length; ++i)
                 backpackerBackup[i] = ModdedItemIdentifier.Read(reader).LocateObject();
+            if (Chainloader.PluginInfos.ContainsKey("skid.librarylib"))
+                AchievementTracker.Instance?.Load(reader);
 
         }
 
         public override void OnCGMCreated(CoreGameManager instance, bool isFromSavedGame)
         {
             if (!isFromSavedGame)
+            {
                 CharacterSelector.Instance?.SetValues();
+                AchievementTracker.Instance?.Reset();
+            }
+        }
+
+        public override string[] GenerateTags()
+        {
+            var tags = new List<string>();
+            if (Chainloader.PluginInfos.ContainsKey("skid.librarylib"))
+                tags.Add("librarylib_achievementsmode");
+            return tags.ToArray();
         }
 
         /*public override string DisplayTags(string[] tags)

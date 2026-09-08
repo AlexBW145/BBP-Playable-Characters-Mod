@@ -52,7 +52,7 @@ namespace BBP_Playables.Core
             {
                 var item = hit.transform.GetComponent<Pickup>();
                 if (item != null && item.transform.GetComponentInParent<StorageLocker>() == null
-                    && item.price == 0 && item.free)
+                    && (item.price == 0 || item.free))
                 {
                     if (isPresentAcceptable.Keys.SelectMany(x => x).Contains(item.item.itemType))
                     {
@@ -62,6 +62,7 @@ namespace BBP_Playables.Core
                             {
                                 pm.itm.SetItem(PlayableCharsPlugin.assetMan.Get<ItemObject>("PresentGift_" + action.Value.ToStringExtended()), pm.itm.selectedItem);
                                 SetPickup(item);
+                                Destroy(gameObject);
                                 return false;
                             }
                         }
@@ -77,9 +78,11 @@ namespace BBP_Playables.Core
                     if (RewardedSound.TryGetValue(npc.Character, out var soundObject))
                         npc.GetComponent<AudioManager>()?.PlaySingle(soundObject);
                     npc.behaviorStateMachine.ChangeState(new NPC_Present(npc, npc.behaviorStateMachine.currentState, 15f));
+                    Destroy(gameObject);
                     return true;
                 }
             }
+            Destroy(gameObject);
             return false;
         }
 

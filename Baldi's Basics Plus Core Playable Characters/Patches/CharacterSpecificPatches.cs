@@ -301,6 +301,7 @@ namespace BBP_Playables.Core.Patches
                         __instance.GetCamera(0).SetControllable(true);
                         __instance.GetCamera(0).matchTargetRotation = true;
                         __instance.audMan.volumeModifier = 1f;
+                        AchievementTracker.Instance?.AwardAchievement("playablecharactersmod_partygoer_falsegameover");
                         yield break;
                     }
                     __instance.StartCoroutine(FakeoutSequence());

@@ -133,6 +133,10 @@ namespace BBP_Playables.Core
                     render.SetPropertyBlock(spriteProperties);
                 entity.StartCoroutine(waitUntilMovemod(entity));
                 Destroy(gameObject);
+                if (entity.gameObject.GetComponent<Baldi>() != null)
+                    AchievementTracker.Instance?.RegisterTrigger((int)AchievementTracker.AchievementTrigger.TURNEDTABLES_ACTIVE);
+                else
+                    AchievementTracker.Instance?.RegisterTrigger((int)AchievementTracker.AchievementTrigger.TURNEDTABLES_FAILED);
             }
             if (!thrown && other.gameObject == player?.gameObject)
             {

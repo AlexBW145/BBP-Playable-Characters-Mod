@@ -1,0 +1,85 @@
+﻿{
+  "items": [
+
+    {
+      "key": "ach_cylnloon_turnedtables",
+      "value": "The Tables Turned"
+    },
+    {
+      "key": "ach_cylnloon_turnedtables_desc",
+      "value": "As SCHOLAR_DATA,\nfinish a level in hide and seek mode while only target Baldi with the projectiles\nwithout missing a shot. (Or just throw it towards him once.)"
+    },
+
+    {
+      "key": "ach_partygoer_falsegameover",
+      "value": "Safe Surprise"
+    },
+    {
+      "key": "ach_partygoer_falsegameover_desc",
+      "value": "Use up an item that is an playable character\nexclusive alternative to An Apple for Baldi."
+    },
+
+    {
+      "key": "ach_thinker_maxedoutprofit",
+      "value": "The Richest Robot in the School"
+    },
+    {
+      "key": "ach_thinker_maxedoutprofit_desc",
+      "value": "As the Thinker, accumulate up to a total of 25,000 YTPs!"
+    },
+
+    {
+      "key": "ach_thinker_nocheating",
+      "value": "Self-thinker"
+    },
+    {
+      "key": "ach_thinker_nocheating_desc",
+      "value": "As the Thinker,\ncollect 9 or more total notebooks in a single floor\nwithout using the P. Ability: Intelligent Thinking."
+    },
+
+    {
+      "key": "ach_backpacker_antihoarding",
+      "value": "Anti-Hoarding"
+    },
+    {
+      "key": "ach_backpacker_antihoarding_desc",
+      "value": "As the Backpacker,\nfinish hide and seek mode without filling up the inventory\nthat much just to maintain speed. (Inside of the pitstop does not count!)"
+    },
+
+    {
+      "key": "ach_tinkereer_fooledbaldi",
+      "value": "The Fooled"
+    },
+    {
+      "key": "ach_tinkereer_fooledbaldi_desc",
+      "value": "As the Tinkereer, successfully fool Baldi\nwith an invention that is meant to look like a student."
+    },
+
+    {
+      "key": "ach_thetestsubject_maintained",
+      "value": "Maintained Time and Space"
+    },
+    {
+      "key": "ach_thetestsubject_maintained_desc",
+      "value": "As the Test Subject,\nfinish hide and seek mode without overflowing time and space!"
+    },
+
+    {
+      "key": "ach_thetestsubject_impossiblesticker",
+      "value": "Fresh out of the Delta Time"
+    },
+    {
+      "key": "ach_thetestsubject_impossiblesticker_desc",
+      "value": "Obtain a really really ridiculous\nto obtain sticker from a fresh sticker pack."
+    },
+
+    {
+      "key": "ach_magicalstudent_jobless",
+      "value": "\"I'm just doing my job here!\""
+    },
+    {
+      "key": "ach_magicalstudent_jobless_desc",
+      "value": "As the Magical Student, send a rulebreaking character to detention."
+    }
+  ]
+}

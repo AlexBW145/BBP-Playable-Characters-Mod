@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using UnityEngine;
-using System.Linq;
 using MTM101BaldAPI.Components;
 using MTM101BaldAPI.PlusExtensions;
 
@@ -105,6 +104,8 @@ public class ITM_MagicWandMagical : Item, IEntityTrigger
             {
                 int index = UnityEngine.Random.Range(0, ec.offices.Count);
                 entity.Teleport(ec.offices[index].RandomEntitySafeCellNoGarbage().CenterWorldPosition);
+                if (component.Disobeying)
+                    AchievementTracker.Instance?.AwardAchievement("playablecharactersmod_magicalstudent_jobless");
                 component.SentToDetention();
                 Destroy(gameObject);
             }
