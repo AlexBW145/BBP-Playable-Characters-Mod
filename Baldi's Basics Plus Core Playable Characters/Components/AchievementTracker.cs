@@ -38,6 +38,7 @@ internal class AchievementTracker : MonoBehaviour
     private List<int> ach_triggers = new List<int>();
     private Queue<int> ach_queue = new Queue<int>();
     private AchievementAction actions;
+    internal int ytpsTotalRun = 0;
 
     private void LateUpdate()
     {
@@ -63,6 +64,7 @@ internal class AchievementTracker : MonoBehaviour
     {
         ach_triggers.Clear();
         ach_queue.Clear();
+        ytpsTotalRun = 0;
     }
     internal void RestartTriggers()
     {

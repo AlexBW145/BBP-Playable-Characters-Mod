@@ -42,9 +42,14 @@ internal static class LibraryLibAchPatches
     [HarmonyPatch(typeof(CoreGameManager), nameof(CoreGameManager.AddPoints), [typeof(int), typeof(int), typeof(bool), typeof(bool), typeof(bool)]), HarmonyPostfix]
     private static void RicherMoment(int points, int player, bool playAnimation, bool includeInLevelTotal, bool multiply, int[] ___thoughtPoints)
     {
-        if (PlrPlayableCharacterVars.GetPlayable(player)?.GetPlayer().GetComponent<ThinkerAbility>() != null && ___thoughtPoints[player] >= 25000)
+        if (PlrPlayableCharacterVars.GetPlayable(player)?.GetPlayer().GetComponent<ThinkerAbility>() != null)
         {
-            AchievementTracker.Instance?.QueueAchievement((int)AchievementTracker.AchievementQueue.MAXEDOUTPROFIT);
+            if (AchievementTracker.Instance != null)
+            {
+                AchievementTracker.Instance.ytpsTotalRun += points;
+                if (AchievementTracker.Instance.ytpsTotalRun >= 25000)
+                    AchievementTracker.Instance?.QueueAchievement((int)AchievementTracker.AchievementQueue.MAXEDOUTPROFIT);
+            }
         }
     }
 }

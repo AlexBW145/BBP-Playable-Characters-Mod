@@ -1,5 +1,4 @@
-﻿using BepInEx.Bootstrap;
-using HarmonyLib;
+﻿using HarmonyLib;
 using MTM101BaldAPI;
 using MTM101BaldAPI.PlusExtensions;
 using MTM101BaldAPI.Registers;
@@ -270,20 +269,38 @@ namespace BBP_Playables.Core.Patches
         [HarmonyPatch(typeof(PlayerManager), "Start"), HarmonyPrefix, HarmonyPriority(Priority.High)]
         static void PatchEmStats(PlayerManager __instance)
         {
+            var originalStats = PlayableCharacterMetaStorage.Instance.Find(x => x.nameLocalizationKey == "The Default" && x.info == PlayableCharsPlugin.Instance.Info).value; // Issue: In game managers that changes player's stats, it will be overwritten by this patch.
+            bool[] originalStatsAttained = {
+                __instance.plm.walkSpeed == originalStats.walkSpeed,
+                __instance.plm.runSpeed == originalStats.runSpeed,
+                __instance.plm.staminaDrop == originalStats.staminaDrop,
+                __instance.plm.staminaRise == originalStats.staminaRise,
+                __instance.plm.staminaMax == originalStats.staminaMax
+            };
             if (__instance.GetMovementStatModifier() != null)
             {
                 var statmodifier = __instance.GetMovementStatModifier();
-                statmodifier.ChangeBaseStat("walkSpeed", PlayableCharsPlugin.Instance.Character.walkSpeed);
-                statmodifier.ChangeBaseStat("runSpeed", PlayableCharsPlugin.Instance.Character.runSpeed);
-                statmodifier.ChangeBaseStat("staminaDrop", PlayableCharsPlugin.Instance.Character.staminaDrop);
-                statmodifier.ChangeBaseStat("staminaRise", PlayableCharsPlugin.Instance.Character.staminaRise);
-                statmodifier.ChangeBaseStat("staminaMax", PlayableCharsPlugin.Instance.Character.staminaMax);
+                if (originalStatsAttained[0])
+                    statmodifier.ChangeBaseStat("walkSpeed", PlayableCharsPlugin.Instance.Character.walkSpeed);
+                if (originalStatsAttained[1])
+                    statmodifier.ChangeBaseStat("runSpeed", PlayableCharsPlugin.Instance.Character.runSpeed);
+                if (originalStatsAttained[2])
+                    statmodifier.ChangeBaseStat("staminaDrop", PlayableCharsPlugin.Instance.Character.staminaDrop);
+                if (originalStatsAttained[3])
+                    statmodifier.ChangeBaseStat("staminaRise", PlayableCharsPlugin.Instance.Character.staminaRise);
+                if (originalStatsAttained[4])
+                    statmodifier.ChangeBaseStat("staminaMax", PlayableCharsPlugin.Instance.Character.staminaMax);
             }
-            __instance.plm.walkSpeed = PlayableCharsPlugin.Instance.Character.walkSpeed;
-            __instance.plm.runSpeed = PlayableCharsPlugin.Instance.Character.runSpeed;
-            __instance.plm.staminaDrop = PlayableCharsPlugin.Instance.Character.staminaDrop;
-            __instance.plm.staminaRise = PlayableCharsPlugin.Instance.Character.staminaRise;
-            __instance.plm.staminaMax = PlayableCharsPlugin.Instance.Character.staminaMax;
+            if (originalStatsAttained[0])
+                __instance.plm.walkSpeed = PlayableCharsPlugin.Instance.Character.walkSpeed;
+            if (originalStatsAttained[1])
+                __instance.plm.runSpeed = PlayableCharsPlugin.Instance.Character.runSpeed;
+            if (originalStatsAttained[2])
+                __instance.plm.staminaDrop = PlayableCharsPlugin.Instance.Character.staminaDrop;
+            if (originalStatsAttained[3])
+                __instance.plm.staminaRise = PlayableCharsPlugin.Instance.Character.staminaRise;
+            if (originalStatsAttained[4])
+                __instance.plm.staminaMax = PlayableCharsPlugin.Instance.Character.staminaMax;
             CoreGameManager.Instance.GetHud(__instance.playerNumber).transform.Find("Staminometer").gameObject.SetActive(PlayableCharsPlugin.Instance.Character.staminaMax > 0f);
             __instance.plm.stamina = PlayableCharsPlugin.Instance.Character.staminaMax;
             __instance.gameObject.AddComponent(PlayableCharsPlugin.Instance.Character.componentType);
