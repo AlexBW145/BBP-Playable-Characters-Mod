@@ -53,8 +53,8 @@ class DwellerAbility
     private static void Postfix(Pickup __instance)
     {
         if (PlayableCharsPlugin.IsRandom && !CoreGameManager.Instance.readyToStart) return;
-        if (CoreGameManager.Instance.GetPlayer(0) != null && PlrPlayableCharacterVars.GetLocalPlayable()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thedweller"
-            && __instance.icon != null && __instance.item.itemType != Items.None) {
+        if (CoreGameManager.Instance?.GetPlayer(0) != null && PlrPlayableCharacterVars.GetLocalPlayable()?.GetCurrentPlayable().name.ToLower().Replace(" ", "") == "thedweller"
+            && __instance?.icon != null && __instance?.item?.itemType != Items.None) {
             Sprite crisp = crisped.ContainsKey(__instance.item) ? crisped[__instance.item] : Sprite.Create(__instance.item.itemSpriteLarge.texture, new Rect(0f, 0f, __instance.item.itemSpriteLarge.texture.width, __instance.item.itemSpriteLarge.texture.height), Vector2.one / 2f, 80f, 0u, SpriteMeshType.FullRect);
             if (!crisped.ContainsKey(__instance.item))
             {
